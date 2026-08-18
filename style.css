@@ -95,7 +95,7 @@ p{ margin:0 0 1em; }
   color:var(--teal-deep); margin:0 0 18px;
 }
 .hero h1{
-  font-size:clamp(3rem, 7vw, 5.2rem); line-height:0.98; letter-spacing:-0.01em;
+  font-size:clamp(2.5rem, 5vw, 4.2rem); line-height:0.98; letter-spacing:-0.01em;
 }
 .hero h1 .dot{ color:var(--coral); }
 .hero-role{
