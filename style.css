@@ -318,3 +318,27 @@ p{ margin:0 0 1em; }
   .btn{ transition:none; }
 }
 
+.professional-header{
+  display:grid;
+  grid-template-columns:1.6fr 0.8fr;
+  gap:3rem;
+  align-items:center;
+  margin-bottom:3rem;
+}
+
+.professional-header-photo{
+  display:flex;
+  justify-content:center;
+}
+
+.professional-header .photo-frame{
+  max-width:320px;
+  width:100%;
+}
+
+@media (max-width: 900px){
+  .professional-header{
+    grid-template-columns:1fr;
+  }
+}
+
