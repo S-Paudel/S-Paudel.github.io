@@ -88,7 +88,7 @@ p{ margin:0 0 1em; }
   position:relative; z-index:2;
   max-width:var(--max); margin:0 auto;
   display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:40px;
-  padding:72px 32px 96px;
+  padding:72px 32px 50px;
 }
 .eyebrow{
   font-family:var(--mono); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
@@ -148,7 +148,7 @@ p{ margin:0 0 1em; }
 /* ===========================================================
    Sections
    =========================================================== */
-.section{ position:relative; z-index:2; padding:88px 32px; max-width:var(--max); margin:0 auto; }
+.section{ position:relative; z-index:2; padding:50px 32px; max-width:var(--max); margin:0 auto; }
 .section.alt{ max-width:none; background:var(--paper-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .section.alt > *{ max-width:var(--max); margin-left:auto; margin-right:auto; }
 .section-head{ display:flex; align-items:baseline; gap:16px; margin-bottom:36px; }
