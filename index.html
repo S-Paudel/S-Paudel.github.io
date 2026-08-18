@@ -1,46 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sulav Paudel, Ph.D. — Entomologist &amp; Biosecurity Scientist</title>
+<meta name="description" content="Sulav Paudel, Ph.D. — Senior Scientist in entomology and biosecurity at the Bioeconomy Science Institute (formerly AgResearch), New Zealand. Research, community leadership and writing.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- ============ NAV ============ -->
+<header class="site-nav" id="top">
+  <a class="nav-mark" href="index.html">SP</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="professional.html">Professional</a>
+    <a href="community.html">Community</a>
+    <a href="blogs.html">Blogs</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
 <!-- ============ HERO ============ -->
 <section class="hero">
   <div class="hero-inner">
     <p class="eyebrow">Field Note №01 — Lincoln, New Zealand</p>
-
-    <h1>Sulav Paudel, Ph.D.<span class="dot">.</span></h1>
-
-    <p class="hero-role">
-      Senior Scientist | Biosecurity, Pest Management &amp; International Development |
-      Proud Penn State Alumnus
-    </p>
-
+    <h1>Sulav Paudel<span class="dot">.</span></h1>
+    <p class="hero-role">Ph.D. Entomologist &amp; Senior Scientist</p>
     <p class="hero-tag">
-      From smallholder farming communities in Nepal to biosecurity research across
-      the Pacific, I work at the intersection of biosecurity, pest management,
-      and international development. My work focuses on invasive species,
-      sustainable agriculture, and translating science into practical solutions
-      for farmers, industries, governments, and communities.
+      Tracking one beetle across an ocean — I study invasive insect pests and
+      integrated pest management across the Pacific, with roots in Nepal
+      and a career built between smallholder fields and biosecurity labs.
     </p>
-
     <div class="hero-actions">
-      professional.html">See the work</a>
-
-      <a
-        class="btn btn-ghost"
-        href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en"
-        target="_blank"
-        rel="noopener"
-      >
-        Google Scholar ↗
-      </a>
-
-      assets/Sulav_Paudel_CV.pdf
-        Download CV ↗
-      </a>
+      <a class="btn btn-primary" href="professional.html">See the work</a>
+      <a class="btn btn-ghost" href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar ↗</a>
+      <a class="btn btn-ghost" id="cvLink" href="assets/Sulav_Paudel_CV.pdf" target="_blank" rel="noopener">Download CV ↗</a>
     </div>
   </div>
 
-  <!-- Profile Photo -->
-  <div class="hero-specimen">
-    assets/sulav-paudel.jpg
+  <!-- Signature illustration: pinned specimen card -->
+  <div class="hero-specimen" aria-hidden="true">
+    <svg viewBox="0 0 320 380" class="specimen-svg">
+      <circle cx="160" cy="18" r="7" class="pin-head"/>
+      <line x1="160" y1="22" x2="160" y2="60" class="pin-shaft"/>
+      <rect x="20" y="60" width="280" height="300" rx="4" class="specimen-card"/>
+      <g class="beetle" transform="translate(160,150)">
+        <ellipse cx="0" cy="8" rx="46" ry="60" class="beetle-body"/>
+        <path d="M0,-52 C -18,-70 -10,-92 0,-100 C 10,-92 18,-70 0,-52 Z" class="beetle-horn"/>
+        <line x1="0" y1="-48" x2="0" y2="66" class="beetle-line"/>
+        <line x1="-46" y1="-6" x2="46" y2="-6" class="beetle-line thin"/>
+        <line x1="-40" y1="18" x2="40" y2="18" class="beetle-line thin"/>
+        <line x1="-30" y1="40" x2="30" y2="40" class="beetle-line thin"/>
+      </g>
+      <line x1="44" y1="272" x2="276" y2="272" class="label-rule"/>
+      <text x="44" y="296" class="label-text">Oryctes rhinoceros</text>
+      <text x="44" y="314" class="label-text small">coconut rhinoceros beetle</text>
+      <text x="44" y="336" class="label-text mono">coll. S. PAUDEL — PACIFIC ISLANDS</text>
+    </svg>
   </div>
 </section>
+
+<main>
 
 <!-- ============ PERSONAL ============ -->
 <section id="personal" class="section">
@@ -51,42 +81,28 @@
 
   <div class="personal-grid">
     <div class="personal-copy">
-
       <p class="lede">
-        I grew up in Nepal, where agriculture is deeply connected to livelihoods,
-        communities, and opportunity. That perspective has shaped my career across
-        science, development, and biosecurity. Today, as a Senior Scientist in
-        New Zealand, I work at the intersection of invasive species management,
-        sustainable agriculture, and international development.
+        I grew up in Nepal, where agriculture is not an abstraction — it's the work
+        that feeds a household. That's the lens I've carried through every posting
+        since: from coordinating smallholder programs in Kathmandu, to a PhD in
+        entomology in Pennsylvania, to tracking an invasive beetle across the
+        South Pacific from a lab in Lincoln, New Zealand.
       </p>
-
       <p>
-        My journey has taken me from designing integrated pest management programs
-        for vegetable farmers in South and Southeast Asia to researching the invasion
-        ecology of the coconut rhinoceros beetle across Pacific Island nations.
-        Along the way, I completed a Ph.D. in Entomology and International Agriculture
-        & Development at Penn State University, where I developed a strong interest
-        in how science can address global challenges such as food security, climate
-        resilience, and sustainable development.
+        I'm drawn to problems that sit between science and people — where good
+        data only matters if it reaches a farmer, a customs officer, or a
+        community group in time to act on it. Outside of formal research, that
+        same instinct shows up as governance work, advocacy, and volunteering
+        with Nepalese and biosecurity community groups (see
+        <a href="community.html">Community</a>).
       </p>
-
-      <p>
-        I am particularly interested in turning research into real-world impact.
-        Whether supporting biosecurity preparedness, working with stakeholders on
-        pest management strategies, or contributing to international development
-        initiatives, I enjoy connecting evidence with action. My work spans field
-        ecology, modelling, risk assessment, extension, policy engagement, and
-        capacity building across diverse agricultural systems.
-      </p>
-
       <p class="quiet-note">
-        Beyond research, I actively contribute to community organisations,
-        governance initiatives, and discussions on equity in science. Having
-        navigated international research systems as a scientist from the Global
-        South, I care deeply about creating opportunities for diverse voices in
-        agriculture, biosecurity, and global development.
+        As a scientist from the Global South working in international
+        development, I've also written about the practical barriers — visas,
+        travel, and access — that shape whose science gets to travel and whose
+        doesn't. It's part of why I care about building capacity locally,
+        not just publishing from afar.
       </p>
-
     </div>
 
     <div class="fact-label">
@@ -95,61 +111,53 @@
         <div><dt>Based in</dt><dd>Lincoln / Christchurch, New Zealand</dd></div>
         <div><dt>From</dt><dd>Nepal</dd></div>
         <div><dt>Languages</dt><dd>Nepali, English, Hindi</dd></div>
-        <div><dt>Education</dt><dd>Ph.D., Entomology & International Agriculture and Development, Penn State University</dd></div>
-        <div><dt>Fieldwork</dt><dd>New Zealand · Nepal · Bangladesh · Bhutan · Cambodia · Indonesia · Solomon Islands · Vanuatu · Papua New Guinea · Timor-Leste · Fiji · USA</dd></div>
-        <div><dt>Focus</dt><dd>Biosecurity, Pest Management, Food Security & International Development</dd></div>
+        <div><dt>Fieldwork</dt><dd>Nepal · Bhutan · Bangladesh · Cambodia · USA · Vanuatu · PNG · Timor-Leste · Solomon Islands · Fiji</dd></div>
+        <div><dt>Focus</dt><dd>Insects that cross borders faster than policy does</dd></div>
       </dl>
     </div>
   </div>
 
+  <!-- Teasers to the other pages -->
   <div class="teaser-grid">
     <a class="teaser-card" href="professional.html">
       <span class="teaser-num">02</span>
       <h3>Professional</h3>
-      <p>Research, leadership, publications, awards, international projects, and professional experience.</p>
+      <p>Career timeline, research focus, selected publications, and awards &amp; recognition.</p>
     </a>
-
-    .html">
+    <a class="teaser-card" href="community.html">
       <span class="teaser-num">03</span>
       <h3>Community</h3>
-      <p>Governance, volunteering, advocacy, and contributions to Nepalese, scientific, and biosecurity communities.</p>
+      <p>Governance and board roles, advocacy work, and volunteering across Nepalese and biosecurity communities in New Zealand.</p>
     </a>
-
-    ">
+    <a class="teaser-card" href="blogs.html">
       <span class="teaser-num">04</span>
-      <h3>Writing</h3>
-      <p>Articles, opinion pieces, interviews, reports, and reflections on science, development, and biosecurity.</p>
+      <h3>Blogs</h3>
+      <p>Articles, op-eds, and other writing — updated periodically.</p>
     </a>
   </div>
 </section>
+
+</main>
 
 <!-- ============ CONTACT / FOOTER ============ -->
 <footer id="contact" class="site-footer">
   <div class="footer-inner">
     <div class="footer-copy">
       <p class="eyebrow">Get in touch</p>
-
-      <h2>
-        Let's talk biosecurity,<br>
-        pest management, international development,<br>
-        or building practical solutions for agriculture.
-      </h2>
-
-      <a class="btn btn-primary" href="mailto:sulav.paudel@agresearch.co.nz">
-        sulav.paudel@agresearch.co.nz
-      </a>
+      <h2>Let's talk pests, Pacific biosecurity,<br>or where the two meet policy.</h2>
+      <a class="btn btn-primary" href="mailto:sulav.paudel@agresearch.co.nz">sulav.paudel@agresearch.co.nz</a>
     </div>
-
     <div class="footer-links">
-      itations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+      <a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
       <a href="https://www.researchgate.net/profile/Sulav-Paudel" target="_blank" rel="noopener">ResearchGate</a>
-      <a href="https://www.linkedin.com/in/sulav-paudel-phd/" target="_blank" rel="noopener">LinkedIn</a>
-      github.com/S-Paudel" target="_blank" rel="noopener">GitHub</a>
-      .co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">Professional Profile</a>
+      <a href="https://www.linkedin.com/in/sulav-paudel-ph-d-21323836/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/S-Paudel" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.agresearch.co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">AgResearch profile</a>
     </div>
   </div>
-
-  <p class="footer-fine">
-    © <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS & JS — hosted on GitHub Pages.
-  </p>
+  <p class="footer-fine">© <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS &amp; JS — hosted on GitHub Pages.</p>
 </footer>
+
+<script src="script.js"></script>
+</body>
+</html>
