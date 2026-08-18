@@ -333,38 +333,5 @@ p{ margin:0 0 1em; }
   .professional-header{
     grid-template-columns:1fr;
   }
-
-   .accordion{
-  border-top:1px solid var(--line);
-  padding:1rem 0;
-}
-
-.accordion summary{
-  cursor:pointer;
-  list-style:none;
-  font-family:var(--font-display);
-  font-size:1.4rem;
-  font-weight:600;
-  padding:8px 0;
-}
-
-.accordion summary::-webkit-details-marker{
-  display:none;
-}
-
-.accordion summary::after{
-  content:"+";
-  float:right;
-  font-size:1.5rem;
-}
-
-.accordion[open] summary::after{
-  content:"−";
-}
-
-.accordion ol,
-.accordion ul{
-  margin-top:1rem;
-}
-}
+  }
 
