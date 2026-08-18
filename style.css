@@ -335,10 +335,5 @@ p{ margin:0 0 1em; }
   .professional-header{
     grid-template-columns:1fr;
   }
-
-@media (max-width: 900px){
-  .professional-header{
-    grid-template-columns:1fr;
-  }
 }
 
