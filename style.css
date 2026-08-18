@@ -317,3 +317,6 @@ p{ margin:0 0 1em; }
   html{ scroll-behavior:auto; }
   .btn{ transition:none; }
 }
+.hero h1 {
+  white-space: nowrap;
+}
