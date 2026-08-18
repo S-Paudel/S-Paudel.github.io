@@ -331,10 +331,10 @@ p{ margin:0 0 1em; }
   justify-content:center;
 }
 
-.professional-header .photo-frame{
-  max-width:320px;
-  width:100%;
-}
+@media (max-width:900px){
+  .professional-header{
+    grid-template-columns:1fr;
+  }
 
 @media (max-width: 900px){
   .professional-header{
