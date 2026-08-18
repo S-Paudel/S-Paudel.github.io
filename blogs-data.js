@@ -26,42 +26,16 @@ const BLOG_POSTS = [
     source: "Entomology Today",
     date: "2024-11-25",
     kind: "Op-ed",
-    excerpt: "A first-person account of the practical barriers, including visas, travel restrictions, and discrimination, that researchers from the Global South face in international agricultural science."
+    excerpt: "A first-person account of the practical barriers — visas, travel, discrimination — that researchers from the Global South face in international agricultural science, drawn from fieldwork across Bangladesh, Indonesia and the Pacific."
   },
 
+  // --- Example placeholders — replace or delete these ---
   {
-    title: "A Tiny Island and a Giant Beetle: A Fight to Save Coconut Palms in Vanuatu",
-    url: "https://academic.oup.com/ae/article-abstract/70/1/32/7633249?login=false",
-    source: "American Entomologist",
-    date: "2024-03-21",
+    title: "Example: Add your next article here",
+    url: "https://example.com",
+    source: "Publication name",
+    date: "2026-01-01",
     kind: "Article",
-    excerpt: "An account of Vanuatu’s battle against the invasive coconut rhinoceros beetle, highlighting biosecurity challenges, local responses, and the importance of coconut palms to livelihoods and culture."
-  },
-
-  {
-    title: "Nepal Digital Agriculture Ecosystem Assessment",
-    url: "https://www.digitaldevelopment.org/library/nepal-digital-agriculture-ecosystem-assessment/",
-    source: "Digital Development",
-    date: "2020-02-08",
-    kind: "Report",
-    excerpt: "Assessment of Nepal’s digital agriculture ecosystem, exploring how digital technologies can strengthen agricultural input systems, improve service delivery, and support rural development."
-  },
-
-  {
-    title: "Student Travels to Washington to Share Passion for International Agriculture",
-    url: "https://www.psu.edu/news/academics/story/student-travels-washington-share-passion-international-agriculture",
-    source: "Penn State News",
-    date: "2019-07-23",
-    kind: "Profile",
-    excerpt: "Profile highlighting international agriculture leadership experiences, global food security interests, and research on climate change, pest management, and agricultural development."
-  },
-
-  {
-    title: "Global Gallery Gives Snapshot of Faculty, Graduate Research in World Agriculture",
-    url: "https://www.psu.edu/news/academics/story/global-gallery-gives-snapshot-faculty-graduate-research-world-agriculture",
-    source: "Penn State News",
-    date: "2018-03-19",
-    kind: "Feature",
-    excerpt: "Coverage of Penn State’s Global Gallery symposium showcasing international agricultural research, interdisciplinary collaboration, and graduate student engagement in global development."
+    excerpt: "Delete this placeholder once you've added a real post, or duplicate it as a starting template."
   }
 ];
