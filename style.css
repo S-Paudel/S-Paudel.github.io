@@ -320,24 +320,14 @@ p{ margin:0 0 1em; }
 
 .professional-header{
   display:grid;
-  grid-template-columns:1.6fr 0.8fr;
-  gap:3rem;
+  grid-template-columns:1.2fr 1fr;
+  gap:4rem;
   align-items:center;
   margin-bottom:3rem;
 }
 
-.professional-header-photo{
-  display:flex;
-  justify-content:center;
-}
-
-.professional-photo{
-    width:100%;
-    max-width:450px;   /* increase from 320 */
-    height:auto;
-    display:block;
-    border-radius:12px;
-    box-shadow:0 20px 50px rgba(0,0,0,.12);
+.professional-header-copy{
+  max-width:650px;
 }
 
 @media (max-width:900px){
