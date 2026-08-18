@@ -320,10 +320,9 @@ p{ margin:0 0 1em; }
 
 .professional-header{
   display:grid;
-  grid-template-columns:1.2fr 1fr;
+  grid-template-columns:1fr 1fr;
   gap:4rem;
   align-items:center;
-  margin-bottom:3rem;
 }
 
 .professional-header-copy{
