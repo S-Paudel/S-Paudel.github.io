@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>After the Flood, a Fragile Trust in Government — Sulav Paudel</title>
+<meta name="description" content="A reflection on Nepal's rare moment of public trust in its government after the August 2026 floods, and what I think it will take to honor it.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2430;
+    --ink-soft:#3a4453;
+    --muted:#6b7280;
+    --paper:#eeece6;
+    --paper-raise:#e4e1d8;
+    --line:#d3cfc3;
+    --teal:#2f5f66;
+    --teal-deep:#1f4750;
+    --rust:#9c4a2e;
+    --rust-bg:#f4e9e4;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    font-size:18px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:700px;
+    margin:0 auto;
+    padding:0 24px 96px;
+  }
+
+  /* Slim link bar back to the main site */
+  .site-link{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    padding:22px 0 20px;
+    display:flex;
+    gap:8px;
+    color:var(--muted);
+  }
+  .site-link a{ color:var(--teal-deep); text-decoration:none; }
+  .site-link a:hover{ text-decoration:underline; }
+
+  .eyebrow{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin:0 0 18px;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(34px, 5.4vw, 52px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 20px;
+    color:var(--ink);
+  }
+
+  .deck{
+    font-family:'Source Serif 4', serif;
+    font-style:italic;
+    font-size:20px;
+    line-height:1.5;
+    color:var(--ink-soft);
+    margin:0 0 28px;
+    max-width:56ch;
+  }
+
+  .signature-rule{
+    width:100%;
+    max-width:220px;
+    height:20px;
+    margin:0 0 34px;
+    display:block;
+  }
+
+  .byline{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:20px 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:40px;
+  }
+
+  .avatar{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    flex:none;
+    background:var(--paper-raise);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Inter', sans-serif;
+    font-size:10px;
+    color:var(--muted);
+    text-align:center;
+    line-height:1.3;
+    overflow:hidden;
+  }
+
+  .avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .byline-text{
+    font-family:'Inter', sans-serif;
+  }
+
+  .byline-name{
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+    margin:0 0 2px;
+  }
+
+  .byline-meta{
+    font-size:13px;
+    color:var(--muted);
+    margin:0;
+  }
+
+  .hero-media{
+    width:100%;
+    aspect-ratio:16/9;
+    border-radius:4px;
+    margin-bottom:10px;
+    overflow:hidden;
+    background:var(--paper-raise);
+  }
+
+  .hero-media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .photo-credit{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    color:var(--muted);
+    margin:0 0 44px;
+    text-align:right;
+  }
+  .photo-credit a{ color:var(--muted); }
+
+  article p{
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+
+  article p:first-of-type::first-letter{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:3.4em;
+    float:left;
+    line-height:0.85;
+    padding-right:10px;
+    padding-top:6px;
+    color:var(--teal-deep);
+  }
+
+  h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    line-height:1.25;
+    color:var(--ink);
+    margin:44px 0 18px;
+  }
+
+  .callout{
+    background:var(--rust-bg);
+    border-left:3px solid var(--rust);
+    padding:22px 26px;
+    margin:32px 0;
+    border-radius:2px;
+  }
+
+  .callout p{
+    margin:0;
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-style:italic;
+    font-size:19px;
+    line-height:1.6;
+    color:var(--ink);
+  }
+
+  ul{
+    padding-left:22px;
+    margin:0 0 26px;
+  }
+
+  li{
+    margin-bottom:14px;
+    color:var(--ink);
+  }
+
+  li strong{
+    color:var(--teal-deep);
+  }
+
+  footer{
+    margin-top:64px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  footer p{
+    margin:0 0 6px;
+  }
+
+  footer a{ color:var(--teal-deep); }
+
+  @media (max-width:520px){
+    body{font-size:17px;}
+    .page{padding:0 18px 72px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="site-link"><a href="../index.html">Sulav Paudel</a> · <a href="../blogs.html">← All writing</a></p>
+
+  <p class="eyebrow">Reflection · Nepal, August 2026</p>
+
+  <h1>When the Flood Tests Government Trust</h1>
+
+  <p class="deck">Nepal's rare moment of public faith in its government — and the warning I think Kathmandu needs to hear before it's spent.</p>
+
+  <svg class="signature-rule" viewBox="0 0 220 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M2 10 C 14 2, 20 18, 32 10 C 44 2, 50 18, 62 10 C 74 2, 80 18, 92 10 C 104 4, 108 14, 118 10 L 218 10"
+          stroke="#2f5f66" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <div class="byline">
+    <div class="avatar">
+      <img src="../assets/sulav-paudel.JPG" alt="Sulav Paudel">
+    </div>
+    <div class="byline-text">
+      <p class="byline-name">Sulav Paudel</p>
+      <p class="byline-meta">Published August 28, 2026 · 5 min read</p>
+    </div>
+  </div>
+
+  <!-- HERO IMAGE: add your flood photo file to /assets/ and update the filename below -->
+  <div class="hero-media">
+    <img src="../assets/blog-flood-nepal-2026.jpg" alt="Floodwaters in the Bhotekoshi valley, Nepal, August 2026">
+  </div>
+  <p class="photo-credit">Photo: [Photographer / agency name], via [source] — used with permission / [license type]</p>
+
+  <article>
+    <p>In the days since the floods tore through the Bhotekoshi and Trishuli valleys on August 26, 2026 — killing over 350 people in Nepal and leaving more than a thousand missing — I've noticed something unusual alongside the tragedy. Watching from abroad, in the comment sections, family groups, and community chats where Nepalis talk to each other about moments like this, I've seen a level of trust toward the government that I haven't seen in years. I think that trust is a gift, not a guarantee, and I want to say plainly what I think the government needs to hear.</p>
+
+    <div class="callout">
+      <p>It is being given credit it has not yet earned, and the only thing that will decide whether this becomes a turning point or another disappointment is what happens in the months of reconstruction that almost nobody will be watching as closely as they're watching the rescue effort right now.</p>
+    </div>
+
+    <p>This is the part I want to say first, before anything else: trust extended in the first week of a crisis is trust on loan. Nepal's own history is unambiguous about how that loan gets repaid or defaulted on — and in my view it almost never comes down to the emergency response itself. It comes down to what happens in year two and year three, long after the cameras and the global attention have moved on.</p>
+
+    <h2>Why this moment feels different to me — and fragile</h2>
+
+    <p>To see how unusual this is, I only have to look back one disaster. After the 2015 Gorkha earthquake, which killed close to 9,000 people, public confidence in government collapsed almost as fast as the buildings did. Donors pledged over $4 billion; disbursement dragged for years. The reconstruction authority meant to lead recovery saw its own leadership removed amid political interference before doing any real work. Investigators later documented inflated bills, substandard relief materials, and compensation paid to fictitious victims across the worst-hit districts. A decade on, independent reviews still describe large portions of pledged funds as unaccounted for. Surveys at the time found a strong majority of Nepalis believed corruption in government was widespread — and that belief actively slowed relief at the border and the airport.</p>
+
+    <p>I lived through that era of skepticism, and I think it shaped how Nepalis responded to every disaster since: we learned to route around official channels, not through them. Which is exactly why this week feels different to me. The government centralized relief through the Prime Minister's Disaster Relief Fund, discouraged independent fundraising, and chose to run search-and-rescue through its own army and police rather than accept foreign teams. After 2015, I think moves like these would have drawn real suspicion. Instead, what I'm seeing from Nepalis abroad is something closer to consensus support — people actively steering each other toward the official channel instead of starting private drives.</p>
+
+    <p>That shift isn't something a press release can manufacture. It's earned, it's fragile, and right now it's sitting entirely on the government's side of the ledger to either honor or spend.</p>
+
+    <h2>What I think honoring it actually requires</h2>
+
+    <p>If this trust is going to survive the years of rebuilding ahead — and early estimates suggest damage on the scale of 2015 — I believe a few things need to happen, starting now, not after the story fades from the news:</p>
+
+    <ul>
+      <li><strong>Publish real, itemized, ongoing accounting</strong> of relief funds — not headline totals, but where the money went and to whom — audited independently enough that citizens don't have to take the government's word for it.</li>
+      <li><strong>Name a single accountable reconstruction authority immediately</strong>, with full legal standing from day one, instead of repeating the months-long delay that stalled Nepal's post-2015 rebuilding effort before it even began.</li>
+      <li><strong>Communicate setbacks honestly.</strong> A government that only speaks when things go well teaches its public to distrust silence — which is exactly how the goodwill of 2015's first days curdled into the cynicism of its later years.</li>
+    </ul>
+
+    <p>I've watched my own community — friends, relatives, people I grew up around — do something I don't think the government has recently deserved: give it the benefit of the doubt. I don't see that as a reward. I see it as an invitation. Whether anyone in power is paying attention to the fact that it was extended at all, and treats it accordingly, is the question I'll be watching closest in the months ahead.</p>
+  </article>
+
+  <footer>
+    <p>Views are my own.</p>
+    <p>© 2026 Sulav Paudel · <a href="../blogs.html">More writing</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
