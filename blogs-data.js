@@ -20,7 +20,7 @@
 // ===========================================================
 const BLOG_POSTS = [
   {
-    title: "When the Flood Tests Government Trust",
+    title: "After the Flood, a Fragile Trust in Government",
     url: "blogs/flood-government-trust.html",
     source: "Personal essay",
     date: "2026-08-28",
