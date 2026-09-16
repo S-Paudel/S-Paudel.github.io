@@ -20,6 +20,14 @@
 // ===========================================================
 const BLOG_POSTS = [
   {
+    title: "The Joy of Seeing Healthy Palms",
+    url: "blogs/santo-healthy-palms-2026.html",
+    source: "Personal essay",
+    date: "2026-09-17",
+    kind: "Reflection",
+    excerpt: "On a trip to Santo, Vanuatu, and the first time in years of coconut rhinoceros beetle work that a plantation looked more healthy than damaged."
+  },
+  {
     title: "After the Flood, a Fragile Trust in Government",
     url: "blogs/flood-government-trust.html",
     source: "Personal essay",
