@@ -20,6 +20,14 @@
 // ===========================================================
 const BLOG_POSTS = [
   {
+    title: "Full Circle in the Highlands",
+    url: "blogs/png-highlands-2026.html",
+    source: "Personal essay",
+    date: "2026-10-01",
+    kind: "Reflection",
+    excerpt: "A first trip to Papua New Guinea's highlands, after a couple of false starts, and training sessions that carried me straight back to my first job in Nepal."
+  },
+  {
     title: "The Joy of Seeing Healthy Palms",
     url: "blogs/santo-healthy-palms-2026.html",
     source: "Personal essay",

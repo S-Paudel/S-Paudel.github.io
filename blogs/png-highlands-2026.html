@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Circle in the Highlands — Sulav Paudel</title>
+<meta name="description" content="A first trip to Papua New Guinea's highlands, after a couple of false starts — and a reflection on how it carried me straight back to where I started.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Full Circle in the Highlands">
+<meta property="og:description" content="A first trip to Papua New Guinea, after a couple of false starts — and training sessions that carried me straight back to where I started.">
+<meta property="og:image" content="https://s-paudel.github.io/assets/blog-png-hero-nursery.jpg">
+<meta property="og:url" content="https://s-paudel.github.io/blogs/png-highlands-2026.html">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Full Circle in the Highlands">
+<meta name="twitter:description" content="A first trip to Papua New Guinea, after a couple of false starts — and training sessions that carried me straight back to where I started.">
+<meta name="twitter:image" content="https://s-paudel.github.io/assets/blog-png-hero-nursery.jpg">
+
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2a221b;
+    --ink-soft:#4a3d31;
+    --muted:#7d6e5c;
+    --paper:#f6efe2;
+    --paper-raise:#ece0ca;
+    --line:#ddcda8;
+    --clay:#a8532f;
+    --clay-deep:#7c3c1f;
+    --green:#3f6b43;
+    --green-bg:#e8ede0;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    font-size:18px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:700px;
+    margin:0 auto;
+    padding:0 24px 96px;
+  }
+
+  .site-link{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    padding:22px 0 20px;
+    display:flex;
+    gap:8px;
+    color:var(--muted);
+  }
+  .site-link a{ color:var(--clay-deep); text-decoration:none; }
+  .site-link a:hover{ text-decoration:underline; }
+
+  .eyebrow{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--clay-deep);
+    margin:0 0 18px;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(34px, 5.4vw, 52px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 20px;
+    color:var(--ink);
+  }
+
+  .deck{
+    font-family:'Source Serif 4', serif;
+    font-style:italic;
+    font-size:20px;
+    line-height:1.5;
+    color:var(--ink-soft);
+    margin:0 0 28px;
+    max-width:56ch;
+  }
+
+  .signature-rule{
+    width:100%;
+    max-width:220px;
+    height:20px;
+    margin:0 0 34px;
+    display:block;
+  }
+
+  .byline{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:20px 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:40px;
+  }
+
+  .avatar{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    flex:none;
+    background:var(--paper-raise);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Inter', sans-serif;
+    font-size:10px;
+    color:var(--muted);
+    text-align:center;
+    line-height:1.3;
+    overflow:hidden;
+  }
+
+  .avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .byline-text{
+    font-family:'Inter', sans-serif;
+  }
+
+  .byline-name{
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+    margin:0 0 2px;
+  }
+
+  .byline-meta{
+    font-size:13px;
+    color:var(--muted);
+    margin:0;
+  }
+
+  .hero-media{
+    width:100%;
+    aspect-ratio:16/9;
+    border-radius:4px;
+    margin-bottom:10px;
+    overflow:hidden;
+    background:var(--paper-raise);
+  }
+
+  .hero-media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .photo-caption{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+    line-height:1.5;
+  }
+
+  .photo-credit{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    color:var(--muted);
+    margin:0 0 44px;
+    text-align:right;
+  }
+  .photo-credit a{ color:var(--muted); }
+
+  .media-block{
+    margin:36px 0 10px;
+  }
+  .media-block img{
+    width:100%;
+    border-radius:4px;
+    display:block;
+    background:var(--paper-raise);
+  }
+  .media-block .photo-credit{ margin-bottom:36px; }
+
+  article p{
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+
+  article > p:first-of-type::first-letter{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:3.4em;
+    float:left;
+    line-height:0.85;
+    padding-right:10px;
+    padding-top:6px;
+    color:var(--clay-deep);
+  }
+
+  h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    line-height:1.25;
+    color:var(--ink);
+    margin:44px 0 18px;
+  }
+
+  .callout{
+    background:var(--green-bg);
+    border-left:3px solid var(--green);
+    padding:22px 26px;
+    margin:32px 0;
+    border-radius:2px;
+  }
+
+  .callout p{
+    margin:0;
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-style:italic;
+    font-size:19px;
+    line-height:1.6;
+    color:var(--ink);
+  }
+
+  ul{
+    padding-left:22px;
+    margin:0 0 26px;
+  }
+
+  li{
+    margin-bottom:14px;
+    color:var(--ink);
+  }
+
+  li strong{
+    color:var(--clay-deep);
+  }
+
+  footer{
+    margin-top:64px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  footer p{
+    margin:0 0 6px;
+  }
+
+  footer a{ color:var(--clay-deep); }
+
+  @media (max-width:520px){
+    body{font-size:17px;}
+    .page{padding:0 18px 72px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="site-link"><a href="../index.html">Sulav Paudel</a> · <a href="../blogs.html">← All writing</a></p>
+
+  <p class="eyebrow">Field Notes · Papua New Guinea Highlands, September–October 2026</p>
+
+  <h1>Full Circle in the Highlands</h1>
+
+  <p class="deck">A first trip to Papua New Guinea, after a couple of false starts — and training sessions that, without much warning, carried me straight back to where I started.</p>
+
+  <svg class="signature-rule" viewBox="0 0 220 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M2 10 C 14 2, 20 18, 32 10 C 44 2, 50 18, 62 10 C 74 2, 80 18, 92 10 C 104 4, 108 14, 118 10 L 218 10"
+          stroke="#a8532f" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <div class="byline">
+    <div class="avatar">
+      <img src="../assets/blog-png-hero-nursery.jpg" alt="A farmer beside mosquito-net nursery covers in the PNG highlands">
+    </div>
+    <div class="byline-text">
+      <p class="byline-name">Sulav Paudel</p>
+      <p class="byline-meta">Published October 1, 2026 · 6 min read</p>
+    </div>
+  </div>
+
+  <div class="hero-media">
+    <img src="../assets/blog-png-hero-nursery.jpg" alt="A farmer beside mosquito-net nursery covers protecting vegetable seedlings in the PNG highlands">
+  </div>
+  <p class="photo-caption">A farmer's own fix for insect pressure on a new seedling bed near Mount Hagen — second-hand mosquito netting, propped up on sticks and wire, no instruction needed.</p>
+  <p class="photo-credit">Photo: Sulav Paudel</p>
+
+  <article>
+    <p>I have tried to get to Papua New Guinea twice before, and both times it fell through before I ever boarded a flight. So when I finally landed in the highlands this September, two weeks between Mount Hagen and the Eastern Highlands working alongside the Fresh Produce Development Agency, FPDA, it felt less like a routine field trip and more like something I had been trying to do for years. What I didn't expect was for it to feel like going backwards, in the best way.</p>
+
+    <h2>Back to where I started</h2>
+
+    <p>Somewhere in the middle of a training room, a farmer's hand going up with a sweet potato leaf folded carefully inside a plastic bag, a question about whether this particular weevil meant the whole bed was lost, I realised I had done this exact thing before, a long time ago. My first job was as an agriculture officer in Nepal, working almost entirely on vegetable insect pests and training farmers how to tell one bug from another. I hadn't expected a highlands cabbage plot on the other side of the world to pull that version of myself back so clearly, but it did, right down to the posture of listening for what a farmer already half-knows before answering.</p>
+
+    <div class="media-block">
+      <img src="../assets/blog-png-group-photo.jpg" alt="The FPDA and partner team gathered together in the PNG highlands before heading out to farmer visits">
+      <p class="photo-caption">Part of the team gathered before a day of farm visits and training across the highlands communities.</p>
+      <p class="photo-credit">Photo: Sulav Paudel</p>
+    </div>
+
+    <h2>Working with what they already have</h2>
+
+    <p>The longer I spent in the strawberry, cabbage and bulb onion plots around Mount Hagen and the Eastern Highlands, the clearer it became that any training only works if it starts from what farmers are already doing, not from a blank slate. Most pest management here is informal: a narrow set of commercial sprays, applied on a routine rather than against a confirmed pest, with little scouting or rotation between chemical groups. In a couple of onion-growing communities, lambda-cyhalothrin, sold locally as Karate, is reportedly starting to fail against the very pests it used to control, which is exactly what you would expect after years of leaning on one product. None of that is a knock on the farmers. It is a sign of where training needs to go next, and it only becomes obvious once you have sat with people and understood their context rather than arrived with a pre-built curriculum.</p>
+
+    <p>And alongside that, there is real ingenuity to work with. The mosquito-net nursery covers in the photo above were a farmer's own idea, not something we introduced, a simple, in-context fix for insect pressure on seedlings using whatever was on hand. That is the kind of starting point I think makes technology transfer actually land: small, affordable adaptations that already make sense within a farmer's own constraints, rather than something imported wholesale.</p>
+
+    <div class="media-block">
+      <img src="../assets/blog-png-field-visit.jpg" alt="Farmers and project team members gathered around a sweet potato plot during a field visit">
+      <p class="photo-caption">A field visit to a sweet potato plot, the kind of unhurried, side-by-side conversation that tells you more than any survey.</p>
+      <p class="photo-credit">Photo: Sulav Paudel</p>
+    </div>
+
+    <h2>Travel is hard, the opportunity isn't</h2>
+
+    <p>None of this was simple logistically. Runway works meant repeatedly reduced capacity on flights into Mount Hagen, security escorts were needed to move around safely, and more than one leg of the trip changed at short notice. Partway through, a local paper ran a notice confirming what we were already feeling in person, that Air Niugini's Mount Hagen services would stay capacity-restricted for weeks yet.</p>
+
+    <div class="media-block">
+      <img src="../assets/blog-png-newspaper.jpg" alt="A local newspaper clipping about restricted Air Niugini flight services into Mount Hagen">
+      <p class="photo-caption">The local paper, mid-trip, on the runway restrictions that were already reshaping our own travel plans.</p>
+      <p class="photo-credit">Photo: Sulav Paudel</p>
+    </div>
+
+    <p>It is also a genuinely difficult year to be a vegetable farmer here. The highlands are deep into an El Niño-driven dry spell, severe enough that one local paper carried a story about women on Duke of York Island being asked to bring their own water with them to the health clinic for antenatal visits. I kept coming back to that detail, small on the page, enormous in what it says about how far a drought can reach into daily life.</p>
+
+    <p>But none of the friction took away from the opportunity. What struck me most was how motivated and genuinely enthusiastic the FPDA team was, people clearly hungry for new tools rather than being handed one more outside program. A quick demonstration of phone-based pest identification, pointing a camera at a leaf and getting a plausible match, drew the kind of excitement that tells you exactly where the next useful, low-cost intervention sits. Simple things: an identification app, a basic scouting routine, a shared reference sheet for the half-dozen pests doing most of the damage. None of it needs to be complicated to be useful.</p>
+
+    <div class="callout">
+      <p>It wasn't nostalgia so much as recognition, the same questions, the same patience required, the same quiet satisfaction when a farmer finally places why a leaf is curling. I didn't expect a two-week highlands trip to feel like a homecoming.</p>
+    </div>
+
+    <h2>A quick census of highlands pests</h2>
+
+    <p>Even with limited time in the field, a handful of vegetable plots turned up a striking range of insect life, aphids and their mummified remains, diamondback moth larvae, a leaf-footed bug keeping company with stink bugs, orb-weavers patrolling for anything smaller than themselves, a weevil that had clearly been having a bad day. It is a small, unscientific snapshot, but it says something about how much pressure these crops are under from every direction at once, and how much ground-level identification work is still needed.</p>
+
+    <div class="media-block">
+      <img src="../assets/blog-png-pest-collage.jpg" alt="A collage of fifteen different insect pests and beneficials photographed on highlands vegetable crops">
+      <p class="photo-caption">A small sample of what two weeks in highlands vegetable plots turns up: aphids to orb-weavers, lady beetles to leaf-footed bugs.</p>
+      <p class="photo-credit">Photo: Sulav Paudel</p>
+    </div>
+
+    <p>I did not get much chance to see beyond the project sites this time, and that is fine. This trip was never meant to cover the whole country, and honestly, after two failed attempts to get here at all, just arriving felt like enough of a win. What I am left with is a short list of simple, doable things, and a team on the ground who already want to do them. That is a good place to end a first trip, and a good reason to be back for a second.</p>
+  </article>
+
+  <footer>
+    <p>Views are my own.</p>
+    <p>© 2026 Sulav Paudel · <a href="../blogs.html">More writing</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
