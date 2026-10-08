@@ -325,8 +325,8 @@
     if (!S.map) {
       if (typeof L === 'undefined') { $('#svMap').innerHTML = '<p class="crb-empty">Map unavailable.</p>'; return; }
       S.map = L.map('svMap', { scrollWheelZoom: false, worldCopyJump: true }).setView([8, -78], 3);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18, subdomains: 'abcd',
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' }).addTo(S.map);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, className: 'crb-tiles',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(S.map);
       S.layer = L.layerGroup().addTo(S.map);
     }
     S.layer.clearLayers();
