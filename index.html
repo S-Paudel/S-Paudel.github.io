@@ -8,12 +8,10 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="grain"></div>
 
 <!-- ============ NAV ============ -->
 <header class="site-nav" id="top">
@@ -32,18 +30,16 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero">
-  <div class="hero-inner">
+  <div class="hero-copy">
     <p class="eyebrow">Lincoln, New Zealand</p>
-    <h1>Sulav Paudel, PhD</h1>
-    <p class="hero-role">
-      Senior Scientist | Biosecurity, Pest Management &amp; International Development
-    </p>
+    <h1>Sulav Paudel, <span class="accent-word">PhD</span></h1>
+    <p class="hero-role">Senior Scientist — Biosecurity, Pest Management &amp; International Development.</p>
     <p class="hero-tag">
-  From smallholder farming communities in Nepal to biosecurity research across
-  the Pacific, my work bridges science, data, policy, and development. I study
-  invasive pests and sustainable agricultural systems, using field research,
-  statistical modelling, and data analytics to transform complex problems into
-  practical solutions for farmers, governments, and communities.
+      From smallholder farming communities in Nepal to biosecurity research across
+      the Pacific, my work bridges science, data, policy, and development. I study
+      invasive pests and sustainable agricultural systems, using field research,
+      statistical modelling, and data analytics to transform complex problems into
+      practical solutions for farmers, governments, and communities.
     </p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="professional.html">Professional work</a>
@@ -51,16 +47,9 @@
       <a class="btn btn-ghost" id="cvLink" href="assets/Sulav_Paudel_CV.pdf" target="_blank" rel="noopener">Download CV ↗</a>
     </div>
   </div>
-
-  <!-- Professional headshot, framed like a pinned specimen card -->
-  <div class="hero-specimen">
-      <img
-        src="assets/profile.JPG"
-        alt="Sulav Paudel"
-        class="profile-photo"
-      >
-    </div>
-    <p class="photo-caption mono"></p>
+  <div class="hero-photo">
+    <img src="assets/profile.JPG" alt="Sulav Paudel holding a coconut rhinoceros beetle in the field">
+    <div class="photo-tag"><span><span class="dot">●</span> Field, Vanuatu</span><span>Oryctes rhinoceros</span></div>
   </div>
 </section>
 
@@ -78,32 +67,32 @@
       <p class="lede">
         My journey has taken me from designing integrated pest management programs
         for vegetable farmers in South and Southeast Asia to leading biosecurity and
-        invasive species research across the Pacific. Along the way, I completed a
-        Ph.D. in Entomology and International Agriculture &amp; Development at Penn
-        State University, where I developed a strong interest in using science to
-        address global challenges related to food security, sustainable agriculture,
-        climate resilience, and international development.
+        invasive species research across the Pacific.
       </p>
-      <p>
-        I am particularly interested in turning research into real-world impact.
-        My work spans biosecurity, invasion ecology, pest management, and international
-        development, connecting science with practical decision-making. I also enjoy
-        working with large datasets, using R and emerging analytical tools to uncover
-        patterns, support surveillance, and improve how we respond to biological threats.
+      <p class="body-copy">
+        Along the way, I completed a Ph.D. in Entomology and International
+        Agriculture &amp; Development at Penn State University, where I developed a
+        strong interest in using science to address global challenges in food
+        security, sustainable agriculture, climate resilience, and international
+        development. With 13+ years of experience in pest management, biosecurity,
+        and international agricultural development, I'm particularly interested in
+        turning research into real-world impact — connecting science with practical
+        decision-making. I also enjoy working with large datasets, using R and
+        emerging analytical tools to uncover patterns, support surveillance, and
+        improve how we respond to biological threats. Beyond research, I actively
+        contribute to community organisations, governance initiatives, and
+        conversations on equity, inclusion, and global scientific collaboration.
       </p>
-      <p class="quiet-note">
-        Beyond research, I actively contribute to community organisations,
-        governance initiatives, and conversations on equity, inclusion, and global
-        scientific collaboration. As a scientist from Nepal working across
-        international research and development systems, I care deeply about
-        strengthening opportunities for diverse voices in agriculture, biosecurity,
-        and sustainable development, while building partnerships that create lasting
-        impact for communities and future generations.
-      </p>
+      <div class="quote">
+        As a scientist from Nepal working across international research and
+        development systems, I care deeply about strengthening opportunities for
+        diverse voices in agriculture, biosecurity, and sustainable development —
+        and building partnerships that create lasting impact for communities and
+        future generations.
+      </div>
     </div>
 
-    <div class="fact-label">
-      <div class="fact-pin"></div>
+    <div class="facts">
       <dl>
         <div><dt>Based in</dt><dd>Lincoln / Christchurch, New Zealand</dd></div>
         <div><dt>From</dt><dd>Nepal</dd></div>
@@ -120,16 +109,19 @@
       <span class="teaser-num">02</span>
       <h3>Professional</h3>
       <p>Career timeline, research focus, selected publications, and awards &amp; recognition.</p>
+      <span class="arrow">→</span>
     </a>
     <a class="teaser-card" href="community.html">
       <span class="teaser-num">03</span>
       <h3>Community</h3>
       <p>Governance and board roles, advocacy work, and volunteering across Multicultural groups and biosecurity communities in New Zealand and abroad.</p>
+      <span class="arrow">→</span>
     </a>
     <a class="teaser-card" href="blogs.html">
       <span class="teaser-num">04</span>
       <h3>Blogs</h3>
       <p>Articles, op-eds, and other writing — updated periodically.</p>
+      <span class="arrow">→</span>
     </a>
   </div>
 </section>
@@ -149,7 +141,7 @@
       <a href="https://www.researchgate.net/profile/Sulav-Paudel" target="_blank" rel="noopener">ResearchGate</a>
       <a href="https://www.linkedin.com/in/sulav-paudel-ph-d-21323836/" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://github.com/S-Paudel" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://www.agresearch.co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">AgResearch profile</a>
+      <a href="https://www.agresearch.co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">BSI Profile</a>
     </div>
   </div>
   <p class="footer-fine">© <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS &amp; JS — hosted on GitHub Pages.</p>

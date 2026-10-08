@@ -31,7 +31,7 @@ const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 // Gentle reveal-on-scroll for specimen cards, publications, blog cards, teasers
-const revealTargets = document.querySelectorAll('.specimen, .pub-list li, .blog-card, .teaser-card');
+const revealTargets = document.querySelectorAll('.specimen, .pub-list li, .blog-row, .teaser-card');
 if ('IntersectionObserver' in window) {
   revealTargets.forEach(el => { el.style.opacity = 0; el.style.transform = 'translateY(10px)'; el.style.transition = 'opacity 0.5s ease, transform 0.5s ease'; });
   const io = new IntersectionObserver((entries) => {
@@ -82,18 +82,18 @@ if (cvLink) {
     }
 
     posts.forEach(post => {
-      const card = document.createElement('a');
-      card.className = 'blog-card';
-      card.href = post.url;
-      card.target = '_blank';
-      card.rel = 'noopener';
-      card.innerHTML = `
-        <span class="blog-kind">${post.kind}</span>
-        <h3>${post.title}</h3>
-        <p>${post.excerpt}</p>
-        <span class="blog-meta">${post.source} · ${new Date(post.date).toLocaleDateString('en-NZ', { year: 'numeric', month: 'short' })}</span>
+      const row = document.createElement('a');
+      row.className = 'blog-row';
+      row.href = post.url;
+      row.target = '_blank';
+      row.rel = 'noopener';
+      const dateLabel = new Date(post.date).toLocaleDateString('en-NZ', { year: 'numeric', month: 'short' }).toUpperCase();
+      row.innerHTML = `
+        <span class="row-date">${dateLabel}</span>
+        <div class="row-main"><h3>${post.title}</h3><p>${post.excerpt}</p></div>
+        <div class="row-meta"><span class="row-kind">${post.kind}</span><span class="row-source">${post.source}</span></div>
       `;
-      grid.appendChild(card);
+      grid.appendChild(row);
     });
   }
 
