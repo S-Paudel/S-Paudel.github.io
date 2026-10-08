@@ -1,0 +1,155 @@
+############################
+# configsql.toml
+############################
+
+default_schema_sql = '''
+
+-- images table
+
+CREATE TABLE IF NOT EXISTS images (
+    image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_path TEXT UNIQUE,
+    image_width INTEGER,
+    image_height INTEGER,
+    timestamp TEXT,
+    meters_from_previous_location REAL
+);
+
+SELECT AddGeometryColumn(
+    'images',            -- Table name
+    'location',          -- Column name
+    4326,                -- SRID (-1 or 0 signifies flat pixel/Cartesian space)
+    'POINT',             -- Geometry type
+    'XY'                 -- 2D coordinates
+);
+
+SELECT CreateSpatialIndex('images', 'location');
+
+
+-- trees table
+
+CREATE TABLE IF NOT EXISTS trees (
+    tree_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_id INTEGER,
+    class_id INTEGER,
+    confidence REAL,
+    tree_touches_edge INTEGER DEFAULT 0,
+    shape_class INTEGER,
+    soft_tree_class INTEGER,
+    soft_tree_prob REAL,
+    tree_class TEXT,
+    tree_poly POLYGON,
+    pixel_count REAL GENERATED ALWAYS AS (ST_Area(tree_poly)) VIRTUAL,
+    FOREIGN KEY (image_id) REFERENCES images (image_id) ON DELETE CASCADE 
+);
+
+SELECT RecoverGeometryColumn('trees', 'tree_poly', 0, 'POLYGON', 'XY');
+
+SELECT CreateSpatialIndex('trees', 'tree_poly');
+
+
+-- cuts table
+
+CREATE TABLE IF NOT EXISTS cuts (
+    cut_id INTEGER PRIMARY KEY, 
+    image_id INTEGER,
+    tree_id INTEGER, 
+    FOREIGN KEY (tree_id) REFERENCES trees(tree_id) ON DELETE CASCADE
+);
+
+SELECT AddGeometryColumn(
+    'cuts',            -- Table name
+    'cut_poly',        -- Column name
+    0,                 -- SRID (-1 or 0 signifies flat pixel/Cartesian space)
+    'POLYGON',         -- Geometry type
+    'XY'               -- 2D coordinates
+);
+
+SELECT CreateSpatialIndex('cuts', 'cut_poly');
+
+
+-- v_trees -requires cluster2class table
+
+CREATE VIEW IF NOT EXISTS v_trees AS
+SELECT 
+    tree_id, 
+    image_id, 
+    confidence, 
+    tree_poly, 
+    pixel_count, 
+    trees.soft_tree_class, 
+    soft_tree_prob, 
+    tree_cluster, 
+    cluster2class.tree_class
+FROM trees, cluster2class
+WHERE trees.soft_tree_class = cluster2class.tree_cluster
+
+'''
+
+#############################
+
+# /**********************************************************************************
+# Calculates proximity of each tree polygon to the left, right an top edge the image.
+# Proximity is expressed as a proportion of image width or image height.
+
+# trees.tree_touches_edge is set to 1 if proximity is less that a specified threshold
+# or 0 otherwise.
+
+# It is assumed tree.poly is scaled with x ranging from 0 to page_width with 0 at the
+# left of the image and y ranging from 0 to -page_height with 0 at the top of the 
+# image.
+# */
+
+tree_edge_proximity_sql = '''
+CREATE TEMP TABLE IF NOT EXISTS temp_touches AS 
+SELECT 
+  trees.image_id, 
+  tree_id,
+  MbrMinX(tree_poly)/image_width AS left_proximity,
+  1 - MbrMaxX(tree_poly)/image_width AS right_proximity,
+  - MbrMaxY(tree_poly)/image_height AS top_proximity
+FROM trees, images
+WHERE trees.image_id=images.image_id
+  AND images.image_id = {image_id};
+
+UPDATE trees
+SET tree_touches_edge = left_proximity<0.01 OR right_proximity<0.01 OR top_proximity<0.01
+FROM temp_touches
+WHERE trees.tree_id = temp_touches.tree_id
+  AND trees.image_id = {image_id};
+''' 
+
+
+##################################################################
+
+# update_tree_class_sql = '''
+# UPDATE trees
+# SET tree_class = cluster2class.tree_class
+# FROM cluster2class
+# WHERE trees.soft_tree_class = cluster2class.tree_cluster;
+# '''
+
+##################################################################
+
+# create_v_tree_poly_view_sql = '''
+# CREATE VIEW IF NOT EXISTS v_tree_poly AS
+#     SELECT tree_id, image_height, image_width, tree_poly
+#     FROM images, trees
+#     WHERE images.image_id = trees.image_id
+# '''
+
+###################################################################
+# PROBABLY WANT TO MOVE THIS UP
+
+create_v_camera_movement_sql = '''
+CREATE VIEW IF NOT EXISTS v_camera_movement AS
+SELECT 
+    image_id,
+    timestamp,
+    location,
+    ST_Distance(location, LAG(location) OVER (ORDER BY timestamp), 1) AS meters_from_previous_location
+FROM images
+ORDER BY timestamp
+'''
+
+#####################################################################

@@ -1,0 +1,94 @@
+# CRB Damage Monitor — pipeline settings
+# Paths are relative to this file. Edit, commit, and the next scheduled scan uses them.
+
+[general]
+results_path = "../data/results.json"     # what the web page shows (links + analysis only, no images)
+rejected_path = "../data/rejected.json"   # images the pre-filter ruled out, so they are never re-checked
+log_path = "../data/scan_log.json"        # one line per scan: when, what was searched, how many found
+user_agent = "CRB-Damage-Monitor/1.0 (+https://s-paudel.github.io/crb-monitor.html)"
+
+# ---------------------------------------------------------------------------
+# STAGE 1 — query filters (free: applied by the source APIs themselves)
+# ---------------------------------------------------------------------------
+[filters]
+regions = ["guam", "palau", "hawaii_oahu", "solomon_islands", "vanuatu", "png", "fiji", "samoa"]  # keys in data/regions.json
+observed_from = "2024-01-01"   # only photos taken on or after this date
+observed_to = ""               # "" = up to today
+cc_licensed_only = true        # only Creative Commons / public-domain photos (iNaturalist, Flickr)
+max_new_per_source = 150       # cap per source per region per scan
+only_new_since_last_scan = true  # iNaturalist/Flickr: ask only for records added since the previous scan
+
+# ---------------------------------------------------------------------------
+# Sources
+# ---------------------------------------------------------------------------
+[sources.inaturalist]
+enabled = true
+palm_taxa = ["Cocos nucifera"]          # pre-selects palm photos by identification
+beetle_taxa = ["Oryctes rhinoceros"]    # beetle sightings are recorded on the map but not run through the detector
+photos_per_observation = 2
+
+[sources.gbif]
+enabled = true
+palm_taxa = ["Cocos nucifera"]
+skip_inaturalist_duplicates = true      # GBIF re-publishes iNaturalist research-grade records
+
+[sources.mapillary]
+enabled = true                          # needs the MAPILLARY_TOKEN secret / environment variable
+tile_deg = 0.1                          # Mapillary limits each search box to 0.01 square degrees
+max_tiles_per_region = 300
+thin_metres = 150                       # keep one image per ~150 m grid cell per day (roadside sequences repeat a lot)
+include_panoramas = false
+
+[sources.flickr]
+enabled = true                          # needs the FLICKR_API_KEY secret / environment variable
+text = "coconut palm"
+
+# ---------------------------------------------------------------------------
+# STAGE 2 — cheap "is there a palm in this photo?" pre-filter (CLIP, runs on CPU)
+# ---------------------------------------------------------------------------
+[prefilter]
+enabled = true
+model = "openai/clip-vit-base-patch32"
+threshold = 0.45                        # palm probability needed to go on to the detector
+positive = [
+  "a photo of a coconut palm tree",
+  "the crown of a coconut palm against the sky",
+  "a row of palm trees along a road",
+]
+negative = [
+  "a close-up photo of a beetle",
+  "a photo of a white grub larva",
+  "a close-up photo of coconuts or palm flowers",
+  "a photo of a person",
+  "a photo of a building or street with no trees",
+  "a photo of a forest without palms",
+  "a photo of a palm trunk close up",
+]
+
+# ---------------------------------------------------------------------------
+# STAGE 3 — damage detector (Aubrey Moore's SAM3 + elliptic Fourier method)
+# ---------------------------------------------------------------------------
+[detector]
+enabled = true
+weights = "sam3.pt"                     # local path; downloaded from Hugging Face if missing
+hf_repo = "facebook/sam3"               # gated: accept the licence on Hugging Face, then set HF_TOKEN
+hf_filename = "sam3.pt"
+device = "auto"                         # "auto" = GPU if available, else CPU
+imgsz = 1008                            # must be a multiple of 14; Aubrey used 1932 for 4K roadside photos
+conf = 0.25
+prompts = ["coconut palm tree"]
+efd_order = 40                          # efd_find_cuts.py default. On Aubrey's synthetic palms (tests/), order 40 +
+                                        # his cut classifier found 2.0 / 3.8 / 6.3 cuts for 2 / 4 / 8 true cuts and
+                                        # 0 for uncut palms; order 14 (realworld2 config) found 0.8 / 1.8 / 2.9.
+min_cut_fraction = 0.0005               # smallest cut = this fraction of the palm's area. Calibrated on Aubrey's
+                                        # synthetic palms (50 px on an ~88,000 px palm, his minpixels value);
+                                        # check against real photos with Aubrey.
+min_cut_pixels_floor = 12
+open_kernel = 3                         # morphological opening kernel (efd_find_cuts.py)
+edge_margin = 0.01                      # palms within 1% of the left/right/top edge are flagged (cuts unreliable)
+use_cut_classifier = true               # Aubrey's Hu-moment random forest (shape_interest_model.pkl)
+cut_classifier = "../vendor/aubreymoore-CRB-2026-05-13/shape_interest_model.pkl"
+cut_probability = 0.5
+min_cuts_for_damage = 1
+max_per_run_cpu = 10                    # keeps GitHub's free CPU runners inside their time limit
+max_per_run_gpu = 1000

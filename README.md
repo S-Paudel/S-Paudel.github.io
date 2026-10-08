@@ -105,3 +105,15 @@ in any text editor, find the section you want to change (look for the
 `<!-- ============ SECTION ============ -->` comments), and edit the text
 directly. Colors, fonts and spacing all live at the top of `style.css`
 under `:root{ ... }` if you want to adjust the palette.
+
+---
+
+## 6. CRB Damage Monitor (`crb-monitor.html`)
+
+`crb-monitor.html` screens public palm photos from iNaturalist, GBIF, Mapillary and
+Flickr for coconut rhinoceros beetle damage. It is linked from the site menu. It
+uses Aubrey Moore's SAM3 + elliptic Fourier detector
+([aubreymoore/CRB-2026-05-13](https://github.com/aubreymoore/CRB-2026-05-13)).
+Everything for the tool, including setup steps, settings and credits, is in
+[`crb-monitor/README.md`](crb-monitor/README.md). The two automated jobs live in
+`.github/workflows/crb-*.yml`.

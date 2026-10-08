@@ -1,0 +1,29 @@
+default_schema_sql = '''
+    CREATE TABLE IF NOT EXISTS images (
+        image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        image_path TEXT UNIQUE,
+        image_width INTEGER,
+        image_height INTEGER,
+        timestamp TEXT,
+        latitude REAL,
+        longitude REAL
+    );
+    CREATE TABLE IF NOT EXISTS detections (
+        detection_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        image_id INTEGER,
+        class_id INTEGER,
+        tree_contour BLOB,
+        confidence REAL,
+        FOREIGN KEY (image_id) REFERENCES images (image_id) ON DELETE CASCADE 
+    );
+
+    CREATE TABLE IF NOT EXISTS damage (
+        damage_id INTEGER PRIMARY KEY, 
+        detection_id INTEGER, 
+        defect_contour BLOB, 
+        FOREIGN KEY (detection_id) REFERENCES detections(detection_id) ON DELETE CASCADE
+    );
+'''
+dbpath = 'test.db'
+order = 14
+minpixels = 50

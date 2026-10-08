@@ -1,0 +1,30 @@
+# config.toml
+
+# updated October 1, 2026 11:13
+
+[images]
+image_paths = [
+    'does_not_exist.jpg',
+    '/home/aubrey/Desktop/crbdd/resources/example_images/08hs-palms-03-zglw-superJumbo.webp',
+    '/home/aubrey/Desktop/crbdd/resources/example_images/20251129_152106.jpg']     
+
+[database]
+delete_db = true             # If true, database named db_path will be deleted at start of processing.
+db_path = 'test.db'          # Name of current database, name of database to be created at start of processing
+db_backup_dir = 'db_backups' # backup directory for databases
+
+[trees]
+model_path = 'hdbscan_pipeline_1.joblib'
+gallery_dir = 'tree_cluster_gallery_1'
+images_per_cluster = 35
+min_prob = 0.2
+csv_path = 'tree_cluster2class.csv'
+
+[damage]
+model_path = 'hdbscan_damage_pipeline.joblib'
+gallery_dir = 'damage_cluster_gallery_1'
+images_per_cluster = 35
+min_prob = 0.2
+csv_path = 'damage_cluster2class.csv'
+order = 14
+minpixels = 50

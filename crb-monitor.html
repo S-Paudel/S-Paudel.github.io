@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRB Damage Monitor — Sulav Paudel, Ph.D.</title>
+<meta name="description" content="Screening public palm photos from iNaturalist, Mapillary, Flickr and GBIF for coconut rhinoceros beetle (CRB) V-cut damage, using Aubrey Moore's SAM3 + elliptic Fourier method.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=1">
+</head>
+<body>
+
+<header class="site-nav" id="top">
+  <a class="nav-mark" href="index.html">SP</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="professional.html">Professional</a>
+    <a href="community.html">Community</a>
+    <a href="blogs.html">Blogs</a>
+    <a href="crb-monitor.html">CRB Monitor</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="page-header">
+  <p class="eyebrow">Biosecurity tool</p>
+  <h1>CRB Damage Monitor</h1>
+  <p class="page-lede">
+    Screening public palm photos for the V-shaped frond cuts left by the coconut
+    rhinoceros beetle (<em>Oryctes rhinoceros</em>). Photos stay where they are
+    published. This page links to them and keeps only the analysis.
+  </p>
+  <div class="crb-stats mono" id="crbStats" aria-live="polite"></div>
+</div>
+
+<main class="crb-main">
+  <div class="crb-tabs" role="tablist" id="crbTabs">
+    <button role="tab" data-tab="results" aria-selected="true">Results</button>
+    <button role="tab" data-tab="inaturalist">iNaturalist</button>
+    <button role="tab" data-tab="mapillary">Mapillary</button>
+    <button role="tab" data-tab="flickr">Flickr</button>
+    <button role="tab" data-tab="gbif">GBIF</button>
+    <button role="tab" data-tab="link">Submit a link</button>
+    <button role="tab" data-tab="about">Method &amp; credits</button>
+  </div>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section class="crb-panel" data-panel="results">
+    <p class="crb-intro">Everything the monitor has screened. Each photo is
+      <strong>first seen</strong> on the date it entered the record, so you can
+      ask for <em>new</em> damage since any date.</p>
+    <form class="crb-filters" id="resFilters">
+      <label>Showing
+        <select name="status">
+          <option value="damage">Possible CRB damage</option>
+          <option value="all_analyzed">All analysed photos</option>
+          <option value="clear">No cuts found</option>
+          <option value="no_palm">No palm found</option>
+          <option value="queued">Waiting for analysis</option>
+          <option value="beetle">Beetle sightings (iNaturalist)</option>
+          <option value="everything">Everything</option>
+        </select>
+      </label>
+      <label>Source
+        <select name="source">
+          <option value="">All sources</option>
+          <option value="inaturalist">iNaturalist</option>
+          <option value="mapillary">Mapillary</option>
+          <option value="flickr">Flickr</option>
+          <option value="gbif">GBIF</option>
+          <option value="link">Submitted links</option>
+        </select>
+      </label>
+      <label>Region <select name="region" data-regions="all"></select></label>
+      <label>First seen since <input type="date" name="since"></label>
+      <label>Review
+        <select name="review">
+          <option value="">Any</option>
+          <option value="none">Not yet reviewed</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </label>
+      <button type="button" class="crb-btn-ghost" id="csvBtn">Download CSV</button>
+    </form>
+    <div class="crb-map" id="map-results"></div>
+    <p class="crb-count mono" id="resCount"></p>
+    <div class="crb-grid" id="grid-results"></div>
+  </section>
+
+  <!-- ===================== SOURCE TABS (built from one template) ===================== -->
+  <template id="sourceTpl">
+    <p class="crb-intro"></p>
+    <details class="crb-keys" hidden>
+      <summary>API key for browsing</summary>
+      <p class="crb-hint"></p>
+      <label><span class="key-label"></span> <input type="password" autocomplete="off" spellcheck="false"></label>
+      <button type="button" class="crb-btn-ghost save-key">Save in this browser</button>
+    </details>
+    <form class="crb-filters src-filters">
+      <label>Area <select name="region" data-regions="map"></select></label>
+      <label class="f-taxon">Pre-select
+        <select name="taxon">
+          <option value="Cocos nucifera">Coconut palms</option>
+          <option value="Arecaceae">All palms</option>
+          <option value="Oryctes rhinoceros">CRB beetle sightings</option>
+        </select>
+      </label>
+      <label class="f-text">Search words <input type="text" name="text" value="coconut palm"></label>
+      <label>Taken from <input type="date" name="d1"></label>
+      <label>to <input type="date" name="d2"></label>
+      <label class="f-added">Added since <input type="date" name="added"></label>
+      <label class="f-cc check"><input type="checkbox" name="cc" checked> Open licences only</label>
+      <label class="f-hide check"><input type="checkbox" name="hideKnown"> Hide already-screened</label>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <div class="crb-map"></div>
+    <p class="crb-count mono"></p>
+    <div class="crb-grid"></div>
+    <button type="button" class="crb-btn-ghost crb-more" hidden>Load more</button>
+  </template>
+  <section class="crb-panel" data-panel="inaturalist" hidden></section>
+  <section class="crb-panel" data-panel="mapillary" hidden></section>
+  <section class="crb-panel" data-panel="flickr" hidden></section>
+  <section class="crb-panel" data-panel="gbif" hidden></section>
+
+  <!-- ===================== SUBMIT LINK ===================== -->
+  <section class="crb-panel" data-panel="link" hidden>
+    <p class="crb-intro">Paste one or more links, one per line. These can be an
+      iNaturalist observation, a GBIF occurrence, a Mapillary or Flickr photo page,
+      a direct image address, or a news page with a palm photo. Check the preview,
+      then send them for analysis.</p>
+    <textarea id="linkInput" rows="5" placeholder="https://www.inaturalist.org/observations/123456789&#10;https://www.flickr.com/photos/someone/53000000000&#10;https://example.com/palms.jpg"></textarea>
+    <div class="crb-row">
+      <button type="button" class="btn btn-ghost" id="linkPreview">Preview</button>
+      <button type="button" class="btn btn-primary" id="linkSend">Send for analysis</button>
+    </div>
+    <p class="crb-hint">"Send for analysis" opens a pre-filled GitHub issue. Submit
+      it and the analysis runs automatically. The issue gets a reply with the
+      result, and the result appears under <strong>Results</strong>. Links from
+      people outside the project wait until a maintainer approves them.</p>
+    <div class="crb-grid" id="grid-link"></div>
+  </section>
+
+  <!-- ===================== ABOUT ===================== -->
+  <section class="crb-panel crb-about" data-panel="about" hidden>
+    <div class="crb-about-grid">
+      <div>
+        <h3>How a photo is screened</h3>
+        <ol class="crb-steps">
+          <li><span class="mono">01 · Search filters</span>
+            Each source is asked only for photos in the chosen areas and dates.
+            Photos must have open licences. iNaturalist and GBIF are limited to
+            records identified as coconut palm. Photos already screened are
+            skipped, so each scan only looks at what is new.</li>
+          <li><span class="mono">02 · Thinning</span>
+            Street-level sequences repeat the same palms every few metres.
+            Mapillary keeps one image per ~150 m per day.</li>
+          <li><span class="mono">03 · Palm check (cheap)</span>
+            A small image–text model (CLIP) looks at the thumbnail and asks
+            "is a palm crown visible?". Beetles, grubs, coconuts, people and
+            palm-free streets are dropped here. This takes a fraction of a second
+            per photo on an ordinary CPU.</li>
+          <li><span class="mono">04 · Damage detector (expensive)</span>
+            Only photos that pass go to Aubrey Moore's detector. SAM3 outlines
+            each coconut palm. The outline is smoothed with elliptic Fourier
+            descriptors, and the gaps between the smooth and real outlines are
+            candidate V-cuts. A shape classifier trained by Aubrey then keeps the
+            cut-shaped ones. Palms touching the photo edge are flagged and their
+            cuts are not counted.</li>
+          <li><span class="mono">05 · Human review</span>
+            Results are screening only. Open any photo and confirm or reject it.
+            Your decision is saved with the record.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Credits &amp; citation</h3>
+        <p>The damage-detection method and code are by <strong>Aubrey Moore</strong>
+          (University of Guam):
+          <a href="https://github.com/aubreymoore/CRB-2026-05-13" target="_blank" rel="noopener">aubreymoore/CRB-2026-05-13</a>.
+          A snapshot of that repository (commit <span class="mono">5734f35</span>)
+          is kept with this page in
+          <a href="https://github.com/S-Paudel/S-Paudel.github.io/tree/main/crb-monitor/vendor/aubreymoore-CRB-2026-05-13" target="_blank" rel="noopener">crb-monitor/vendor</a>.</p>
+        <p class="crb-cite">Moore, A. (2026). <em>CRB-2026-05-13</em> [Computer software].
+          GitHub. https://github.com/aubreymoore/CRB-2026-05-13</p>
+        <p class="crb-cite">Paudel, S., &amp; Moore, A. (2026). <em>CRB Damage Monitor</em>
+          [Web application]. https://s-paudel.github.io/crb-monitor.html</p>
+        <h3>Image sources</h3>
+        <p>Photos are shown directly from
+          <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>,
+          <a href="https://www.mapillary.com" target="_blank" rel="noopener">Mapillary</a> (CC BY-SA),
+          <a href="https://www.flickr.com" target="_blank" rel="noopener">Flickr</a> and
+          <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a>.
+          They are credited to their photographers under the licence shown on each
+          photo, and are not copied or stored here. SAM3 is by Meta AI. CLIP is by OpenAI.</p>
+        <p><a href="https://github.com/S-Paudel/S-Paudel.github.io/tree/main/crb-monitor" target="_blank" rel="noopener">Source code, settings and data →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- selection tray -->
+  <div class="crb-tray" id="tray" hidden>
+    <span class="mono" id="trayCount"></span>
+    <button type="button" class="crb-btn-ghost" id="trayClear">Clear</button>
+    <button type="button" class="btn btn-primary" id="traySend">Send selected for analysis</button>
+  </div>
+</main>
+
+<!-- detail viewer -->
+<dialog class="crb-dialog" id="viewer">
+  <button class="crb-close" id="viewerClose" aria-label="Close">×</button>
+  <div class="crb-viewer-body">
+    <div class="crb-figure" id="viewerFigure"></div>
+    <div class="crb-viewer-meta" id="viewerMeta"></div>
+  </div>
+</dialog>
+
+<footer id="contact" class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-copy">
+      <p class="eyebrow">Get in touch</p>
+      <h2>Let's talk pests, Pacific biosecurity,<br>or where the two meet policy.</h2>
+      <a class="btn btn-primary" href="mailto:sulav.paudel@agresearch.co.nz">sulav.paudel@agresearch.co.nz</a>
+    </div>
+    <div class="footer-links">
+      <a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+      <a href="https://www.researchgate.net/profile/Sulav-Paudel" target="_blank" rel="noopener">ResearchGate</a>
+      <a href="https://www.linkedin.com/in/sulav-paudel-ph-d-21323836/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/S-Paudel" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.agresearch.co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">BSI Profile</a>
+    </div>
+  </div>
+  <p class="footer-fine">© <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS &amp; JS — hosted on GitHub Pages.</p>
+</footer>
+
+<script src="script.js?v=2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=1"></script>
+</body>
+</html>

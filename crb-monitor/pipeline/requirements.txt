@@ -1,0 +1,13 @@
+# Core (collect + record)
+requests>=2.31
+numpy>=1.26
+opencv-python-headless>=4.9
+pyefd>=1.6
+scikit-learn>=1.4        # Aubrey's cut classifier (shape_interest_model.pkl)
+
+# Pre-filter (CLIP) and detector (SAM3). On CPU-only machines install torch from
+# https://download.pytorch.org/whl/cpu first to save ~2 GB.
+torch>=2.3
+transformers>=4.44
+ultralytics>=8.3         # needs a release that includes SAM3SemanticPredictor (late 2025 or newer)
+huggingface_hub>=0.24

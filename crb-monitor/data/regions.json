@@ -1,0 +1,15 @@
+{
+  "_note": "Preset search areas shared by the web page and the pipeline. bbox = [west, south, east, north] in decimal degrees (WGS84). Edit or add regions here.",
+  "guam":            {"name": "Guam",                          "bbox": [144.60, 13.20, 145.00, 13.70]},
+  "cnmi":            {"name": "Northern Mariana Islands",      "bbox": [145.10, 14.00, 145.90, 15.30]},
+  "palau":           {"name": "Palau",                         "bbox": [134.00, 6.80, 134.80, 8.20]},
+  "hawaii_oahu":     {"name": "Hawaiʻi — Oʻahu",               "bbox": [-158.30, 21.25, -157.60, 21.75]},
+  "hawaii":          {"name": "Hawaiʻi — main islands",        "bbox": [-160.30, 18.80, -154.70, 22.30]},
+  "png":             {"name": "Papua New Guinea",              "bbox": [140.80, -11.70, 156.00, -1.00]},
+  "solomon_islands": {"name": "Solomon Islands",               "bbox": [155.40, -12.40, 168.00, -6.50]},
+  "vanuatu":         {"name": "Vanuatu",                       "bbox": [166.40, -20.30, 170.30, -13.00]},
+  "new_caledonia":   {"name": "New Caledonia",                 "bbox": [163.50, -22.80, 168.20, -19.50]},
+  "fiji":            {"name": "Fiji",                          "bbox": [176.80, -19.30, 180.00, -16.00]},
+  "samoa":           {"name": "Samoa",                         "bbox": [-172.90, -14.10, -171.30, -13.40]},
+  "american_samoa":  {"name": "American Samoa — Tutuila",      "bbox": [-170.90, -14.40, -169.40, -14.10]}
+}

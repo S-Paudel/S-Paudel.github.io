@@ -1,0 +1,5 @@
+# SAM3 checkpoint (~3.4 GB) — downloaded on demand, never committed
+*.pt
+__pycache__/
+.pytest_cache/
+*.tmp

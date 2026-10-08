@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: >-
+  If you use the CRB Damage Monitor or its results, please cite it as below,
+  and also cite the detection method by Aubrey Moore (see references).
+title: "CRB Damage Monitor: screening public palm images for coconut rhinoceros beetle damage"
+type: software
+authors:
+  - family-names: Paudel
+    given-names: Sulav
+  - family-names: Moore
+    given-names: Aubrey
+    affiliation: University of Guam
+repository-code: "https://github.com/S-Paudel/S-Paudel.github.io"
+url: "https://s-paudel.github.io/crb-monitor.html"
+date-released: "2026-10-08"
+keywords:
+  - coconut rhinoceros beetle
+  - Oryctes rhinoceros
+  - coconut palm
+  - damage detection
+  - SAM3
+  - elliptic Fourier descriptors
+  - citizen science
+references:
+  - type: software
+    title: "CRB-2026-05-13"
+    authors:
+      - family-names: Moore
+        given-names: Aubrey
+    repository-code: "https://github.com/aubreymoore/CRB-2026-05-13"
+    commit: "5734f3506c4028ce9891dd5656bc80ef43b03fd6"
+    year: 2026

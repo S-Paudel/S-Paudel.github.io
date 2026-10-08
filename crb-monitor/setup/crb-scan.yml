@@ -1,0 +1,96 @@
+# CRB Damage Monitor — scheduled scan of iNaturalist, GBIF, Mapillary and Flickr.
+# Collects new palm photos, pre-filters them, analyses a few on CPU, and commits
+# crb-monitor/data/*.json (links + results only). Settings: crb-monitor/pipeline/config.toml
+#
+# Repository secrets (Settings → Secrets and variables → Actions), all optional:
+#   MAPILLARY_TOKEN  Mapillary client token        (without it Mapillary is skipped)
+#   FLICKR_API_KEY   Flickr API key                (without it Flickr is skipped)
+#   HF_TOKEN         Hugging Face read token with access to facebook/sam3
+#                    (without it, images are collected and queued for a GPU run instead)
+
+name: CRB monitor — scan
+
+on:
+  schedule:
+    - cron: "17 18 * * 1"        # Mondays 18:17 UTC = Tuesday morning in New Zealand
+  workflow_dispatch:
+    inputs:
+      regions:
+        description: "Region keys, space-separated (blank = config.toml)"
+        required: false
+      sources:
+        description: "inaturalist gbif mapillary flickr (blank = all enabled)"
+        required: false
+      max_analyze:
+        description: "Max images to analyse on CPU this run"
+        required: false
+        default: "10"
+      analyze:
+        description: "Run the SAM3 detector (needs HF_TOKEN)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crb-monitor-data
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: crb-monitor/pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: crb-monitor/pipeline/requirements.txt
+
+      - name: Install (CPU-only PyTorch)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Cache models (CLIP + SAM3)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            crb-monitor/pipeline/sam3.pt
+          key: crb-models-v1
+
+      - name: Scan
+        env:
+          MAPILLARY_TOKEN: ${{ secrets.MAPILLARY_TOKEN }}
+          FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          IN_REGIONS: ${{ inputs.regions }}
+          IN_SOURCES: ${{ inputs.sources }}
+          IN_MAX: ${{ inputs.max_analyze }}
+          IN_ANALYZE: ${{ inputs.analyze }}
+        run: |
+          args=()
+          [ -n "$IN_REGIONS" ] && args+=(--regions $IN_REGIONS)
+          [ -n "$IN_SOURCES" ] && args+=(--sources $IN_SOURCES)
+          [ -n "$IN_MAX" ] && args+=(--max-analyze "$IN_MAX")
+          if [ -z "$HF_TOKEN" ] || [ "$IN_ANALYZE" = "false" ]; then args+=(--no-analyze); fi
+          python -m crbmon scan "${args[@]}"
+          python -m crbmon stats
+
+      - name: Commit results
+        working-directory: .
+        run: |
+          git config user.name "crb-monitor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crb-monitor/data
+          git diff --cached --quiet && { echo "No changes"; exit 0; }
+          git commit -m "CRB monitor: scan $(date -u +%Y-%m-%d)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push
