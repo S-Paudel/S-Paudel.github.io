@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRB Damage Monitor — Sulav Paudel, Ph.D.</title>
-<meta name="description" content="Screening public palm photos from iNaturalist, Mapillary, Flickr and GBIF for coconut rhinoceros beetle (CRB) V-cut damage, using Aubrey Moore's SAM3 + elliptic Fourier method.">
+<meta name="description" content="Screening iNaturalist coconut palm photos from South America, the Caribbean and the continental United States for coconut rhinoceros beetle (CRB) V-cut damage, using Aubrey Moore's SAM3 + elliptic Fourier method.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=1">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=3">
 </head>
 <body>
 
@@ -22,7 +22,8 @@
     <a href="professional.html">Professional</a>
     <a href="community.html">Community</a>
     <a href="blogs.html">Blogs</a>
-    <a href="crb-monitor.html">CRB Monitor</a>
+    <a href="crb-surveillance.html">CRB Surveillance</a>
+    <a href="crb-monitor.html">CRB Damage</a>
     <a href="#contact">Contact</a>
   </nav>
   <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
@@ -34,29 +35,28 @@
   <p class="eyebrow">Biosecurity tool</p>
   <h1>CRB Damage Monitor</h1>
   <p class="page-lede">
-    Screening public palm photos for the V-shaped frond cuts left by the coconut
+    Screening public coconut palm photos from South America, the Caribbean and the
+    continental United States for the V-shaped frond cuts left by the coconut
     rhinoceros beetle (<em>Oryctes rhinoceros</em>). Photos stay where they are
     published. This page links to them and keeps only the analysis.
   </p>
-  <div class="crb-stats mono" id="crbStats" aria-live="polite"></div>
+  <p class="crb-switch"><a href="crb-surveillance.html">→ For new beetle records from GBIF and iNaturalist, see the CRB Surveillance dashboard</a></p>
 </div>
 
 <main class="crb-main">
   <div class="crb-tabs" role="tablist" id="crbTabs">
-    <button role="tab" data-tab="results" aria-selected="true">Results</button>
-    <button role="tab" data-tab="inaturalist">iNaturalist</button>
-    <button role="tab" data-tab="mapillary">Mapillary</button>
-    <button role="tab" data-tab="flickr">Flickr</button>
-    <button role="tab" data-tab="gbif">GBIF</button>
+    <button role="tab" data-tab="results" aria-selected="true">Palm damage results</button>
+    <button role="tab" data-tab="inaturalist">Browse iNaturalist photos</button>
     <button role="tab" data-tab="link">Submit a link</button>
     <button role="tab" data-tab="about">Method &amp; credits</button>
   </div>
 
-  <!-- ===================== RESULTS ===================== -->
+  <!-- ===================== PALM DAMAGE RESULTS ===================== -->
   <section class="crb-panel" data-panel="results">
-    <p class="crb-intro">Everything the monitor has screened. Each photo is
-      <strong>first seen</strong> on the date it entered the record, so you can
-      ask for <em>new</em> damage since any date.</p>
+    <div class="crb-stats mono" id="crbStats" aria-live="polite"></div>
+    <p class="crb-intro">Coconut palm photos from iNaturalist in the watch regions, screened for
+      V-shaped frond cuts with Aubrey Moore's detector. Each photo is <strong>first seen</strong>
+      on the date it entered the record, so you can ask for <em>new</em> damage since any date.</p>
     <form class="crb-filters" id="resFilters">
       <label>Showing
         <select name="status">
@@ -73,9 +73,6 @@
         <select name="source">
           <option value="">All sources</option>
           <option value="inaturalist">iNaturalist</option>
-          <option value="mapillary">Mapillary</option>
-          <option value="flickr">Flickr</option>
-          <option value="gbif">GBIF</option>
           <option value="link">Submitted links</option>
         </select>
       </label>
@@ -128,15 +125,12 @@
     <button type="button" class="crb-btn-ghost crb-more" hidden>Load more</button>
   </template>
   <section class="crb-panel" data-panel="inaturalist" hidden></section>
-  <section class="crb-panel" data-panel="mapillary" hidden></section>
-  <section class="crb-panel" data-panel="flickr" hidden></section>
-  <section class="crb-panel" data-panel="gbif" hidden></section>
 
   <!-- ===================== SUBMIT LINK ===================== -->
   <section class="crb-panel" data-panel="link" hidden>
     <p class="crb-intro">Paste one or more links, one per line. These can be an
-      iNaturalist observation, a GBIF occurrence, a Mapillary or Flickr photo page,
-      a direct image address, or a news page with a palm photo. Check the preview,
+      iNaturalist observation, a GBIF occurrence, a direct image address, or a news
+      page with a palm photo. Check the preview,
       then send them for analysis.</p>
     <textarea id="linkInput" rows="5" placeholder="https://www.inaturalist.org/observations/123456789&#10;https://www.flickr.com/photos/someone/53000000000&#10;https://example.com/palms.jpg"></textarea>
     <div class="crb-row">
@@ -154,31 +148,24 @@
   <section class="crb-panel crb-about" data-panel="about" hidden>
     <div class="crb-about-grid">
       <div>
-        <h3>How a photo is screened</h3>
+        <h3>How a palm photo is screened</h3>
         <ol class="crb-steps">
           <li><span class="mono">01 · Search filters</span>
-            Each source is asked only for photos in the chosen areas and dates.
-            Photos must have open licences. iNaturalist and GBIF are limited to
-            records identified as coconut palm. Photos already screened are
-            skipped, so each scan only looks at what is new.</li>
-          <li><span class="mono">02 · Thinning</span>
-            Street-level sequences repeat the same palms every few metres.
-            Mapillary keeps one image per ~150 m per day.</li>
-          <li><span class="mono">03 · Palm check (cheap)</span>
-            A small image–text model (CLIP) looks at the thumbnail and asks
-            "is a palm crown visible?". Beetles, grubs, coconuts, people and
-            palm-free streets are dropped here. This takes a fraction of a second
-            per photo on an ordinary CPU.</li>
-          <li><span class="mono">04 · Damage detector (expensive)</span>
-            Only photos that pass go to Aubrey Moore's detector. SAM3 outlines
-            each coconut palm. The outline is smoothed with elliptic Fourier
-            descriptors, and the gaps between the smooth and real outlines are
-            candidate V-cuts. A shape classifier trained by Aubrey then keeps the
-            cut-shaped ones. Palms touching the photo edge are flagged and their
-            cuts are not counted.</li>
-          <li><span class="mono">05 · Human review</span>
-            Results are screening only. Open any photo and confirm or reject it.
-            Your decision is saved with the record.</li>
+            iNaturalist is asked only for openly licensed photos identified as
+            coconut palm, in the watch regions and dates, and added since the last
+            scan. Photos already screened are skipped.</li>
+          <li><span class="mono">02 · Palm check (cheap)</span>
+            A small image–text model (CLIP) looks at the thumbnail and asks "is a
+            palm crown visible?". Nuts, flowers, trunks, people and palm-free scenes
+            are dropped. This takes a fraction of a second per photo on an ordinary CPU.</li>
+          <li><span class="mono">03 · Damage detector (expensive)</span>
+            Only photos that pass go to Aubrey Moore's detector. SAM3 outlines each
+            coconut palm. The outline is smoothed with elliptic Fourier descriptors,
+            and the gaps between the smooth and real outlines are candidate V-cuts.
+            A shape classifier trained by Aubrey keeps the cut-shaped ones. Palms
+            touching the photo edge are flagged and their cuts are not counted.</li>
+          <li><span class="mono">04 · Human review</span>
+            Results are screening only. Open any photo and confirm or reject it.</li>
         </ol>
       </div>
       <div>
@@ -195,9 +182,7 @@
           [Web application]. https://s-paudel.github.io/crb-monitor.html</p>
         <h3>Image sources</h3>
         <p>Photos are shown directly from
-          <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>,
-          <a href="https://www.mapillary.com" target="_blank" rel="noopener">Mapillary</a> (CC BY-SA),
-          <a href="https://www.flickr.com" target="_blank" rel="noopener">Flickr</a> and
+          <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a> and
           <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a>.
           They are credited to their photographers under the licence shown on each
           photo, and are not copied or stored here. SAM3 is by Meta AI. CLIP is by OpenAI.</p>
@@ -243,6 +228,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=1"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=3"></script>
 </body>
 </html>

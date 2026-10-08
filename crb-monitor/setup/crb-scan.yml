@@ -1,10 +1,9 @@
-# CRB Damage Monitor — scheduled scan of iNaturalist, GBIF, Mapillary and Flickr.
+# CRB Monitor — weekly palm-damage scan of iNaturalist coconut palm photos in the watch regions
+# (South America, Caribbean, continental US; set in crb-monitor/pipeline/config.toml).
 # Collects new palm photos, pre-filters them, analyses a few on CPU, and commits
 # crb-monitor/data/*.json (links + results only). Settings: crb-monitor/pipeline/config.toml
 #
-# Repository secrets (Settings → Secrets and variables → Actions), all optional:
-#   MAPILLARY_TOKEN  Mapillary client token        (without it Mapillary is skipped)
-#   FLICKR_API_KEY   Flickr API key                (without it Flickr is skipped)
+# Repository secret (Settings → Secrets and variables → Actions), optional:
 #   HF_TOKEN         Hugging Face read token with access to facebook/sam3
 #                    (without it, images are collected and queued for a GPU run instead)
 
@@ -19,7 +18,7 @@ on:
         description: "Region keys, space-separated (blank = config.toml)"
         required: false
       sources:
-        description: "inaturalist gbif mapillary flickr (blank = all enabled)"
+        description: "inaturalist (blank = all enabled in config.toml)"
         required: false
       max_analyze:
         description: "Max images to analyse on CPU this run"

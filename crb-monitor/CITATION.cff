@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: >-
   If you use the CRB Damage Monitor or its results, please cite it as below,
   and also cite the detection method by Aubrey Moore (see references).
-title: "CRB Damage Monitor: screening public palm images for coconut rhinoceros beetle damage"
+title: "CRB Monitor: pre-border surveillance and palm-damage screening for the coconut rhinoceros beetle in the Americas"
 type: software
 authors:
   - family-names: Paudel

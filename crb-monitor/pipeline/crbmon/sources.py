@@ -27,6 +27,41 @@ FLICKR_LICENSES = {"0": "all rights reserved", "1": "CC BY-NC-SA 2.0", "2": "CC 
                    "10": "Public Domain Mark 1.0"}
 
 
+def inat_area_params(region: dict) -> dict:
+    """iNaturalist place filter for a region: its countries' place ids (minus excluded places)."""
+    places = [a["inat_place"] for a in region["areas"] if a.get("inat_place")]
+    if len(places) == len(region["areas"]):
+        out = {"place_id": ",".join(map(str, places))}
+        excl = sorted({p for a in region["areas"] for p in a.get("inat_not_in_place", [])})
+        if excl:
+            out["not_in_place"] = ",".join(map(str, excl))
+        return out
+    w, s, e, n = region["bbox"]
+    return {"swlat": s, "swlng": w, "nelat": n, "nelng": e}
+
+
+def gbif_area_queries(region: dict) -> list[dict]:
+    """GBIF filters for a region: one query for whole countries, one per area needing a box (lower-48 US)."""
+    whole = [a["country"] for a in region["areas"] if not a.get("gbif_bbox_filter")]
+    out = [{"country": whole}] if whole else []
+    for a in region["areas"]:
+        if a.get("gbif_bbox_filter"):
+            w, s, e, n = a["bbox"]
+            out.append({"country": a["country"], "decimalLatitude": f"{s},{n}", "decimalLongitude": f"{w},{e}"})
+    return out
+
+
+def area_of(region: dict, place_ids=None, country=None) -> str | None:
+    """Which area (country key) a record falls in, from iNaturalist place ids or a GBIF country code."""
+    for a in region["areas"]:
+        if place_ids is not None and a.get("inat_place") in place_ids \
+                and not set(a.get("inat_not_in_place", [])) & set(place_ids):
+            return a["key"]
+        if country is not None and a["country"] == country:
+            return a["key"]
+    return None
+
+
 def _candidate(**kw) -> dict:
     base = dict(uid="", source="", source_id="", kind="palm", page_url="", image_url="", thumb_url="",
                 lat=None, lon=None, observed_on=None, license=None, attribution=None, label=None,
@@ -77,13 +112,11 @@ def _inat_obs_to_candidates(obs: dict, kind: str, max_photos: int) -> list[dict]
 def collect_inaturalist(http: Http, cfg: Settings, store: Store, region_key: str, region: dict) -> Iterator[dict]:
     sc, f = cfg["sources"]["inaturalist"], cfg["filters"]
     d1, d2 = cfg.date_window()
-    w, s, e, n = region["bbox"]
     for kind, names in (("palm", sc.get("palm_taxa", [])), ("beetle", sc.get("beetle_taxa", []))):
         if not names:
             continue
-        params = {"taxon_id": ",".join(str(inat_taxon_id(http, nm)) for nm in names),
-                  "swlat": s, "swlng": w, "nelat": n, "nelng": e, "d1": d1, "d2": d2,
-                  "photos": "true", "per_page": 200, "order_by": "created_at", "order": "desc"}
+        params = {"taxon_id": ",".join(str(inat_taxon_id(http, nm)) for nm in names), **inat_area_params(region),
+                  "d1": d1, "d2": d2, "photos": "true", "per_page": 200, "order_by": "created_at", "order": "desc"}
         if f.get("cc_licensed_only"):
             params["photo_license"] = INAT_CC
         last = store.last_scan("inaturalist", region_key)
@@ -95,6 +128,7 @@ def collect_inaturalist(http: Http, cfg: Settings, store: Store, region_key: str
             results = http.json(f"{INAT_API}/observations", params)["results"]
             for obs in results:
                 for c in _inat_obs_to_candidates(obs, kind, sc.get("photos_per_observation", 2)):
+                    c["area"] = area_of(region, place_ids=obs.get("place_ids") or [])
                     if not store.known(c["uid"]):
                         yield c
                         yielded += 1
@@ -139,23 +173,24 @@ def _gbif_occ_to_candidates(occ: dict) -> list[dict]:
 def collect_gbif(http: Http, cfg: Settings, store: Store, region_key: str, region: dict) -> Iterator[dict]:
     sc, f = cfg["sources"]["gbif"], cfg["filters"]
     d1, d2 = cfg.date_window()
-    w, s, e, n = region["bbox"]
-    params = {"taxonKey": [gbif_taxon_key(http, nm) for nm in sc["palm_taxa"]], "mediaType": "StillImage",
-              "hasCoordinate": "true", "decimalLatitude": f"{s},{n}", "decimalLongitude": f"{w},{e}",
-              "eventDate": f"{d1},{d2}", "limit": 300}
     yielded = 0
-    for offset in range(0, 6000, 300):
-        params["offset"] = offset
-        data = http.json(f"{GBIF_API}/occurrence/search", params)
-        for occ in data.get("results", []):
-            if sc.get("skip_inaturalist_duplicates", True) and occ.get("datasetKey") == GBIF_INAT_DATASET:
-                continue
-            for c in _gbif_occ_to_candidates(occ):
-                if not store.known(c["uid"]):
-                    yield c
-                    yielded += 1
-        if data.get("endOfRecords", True) or yielded >= f["max_new_per_source"]:
-            break
+    for area_q in gbif_area_queries(region):
+        params = {"taxonKey": [gbif_taxon_key(http, nm) for nm in sc["palm_taxa"]], "mediaType": "StillImage",
+                  "hasCoordinate": "true", "occurrenceStatus": "PRESENT", "eventDate": f"{d1},{d2}",
+                  "limit": 300, **area_q}
+        for offset in range(0, 6000, 300):
+            params["offset"] = offset
+            data = http.json(f"{GBIF_API}/occurrence/search", params)
+            for occ in data.get("results", []):
+                if sc.get("skip_inaturalist_duplicates", True) and occ.get("datasetKey") == GBIF_INAT_DATASET:
+                    continue
+                for c in _gbif_occ_to_candidates(occ):
+                    c["area"] = area_of(region, country=occ.get("countryCode"))
+                    if not store.known(c["uid"]):
+                        yield c
+                        yielded += 1
+            if data.get("endOfRecords", True) or yielded >= f["max_new_per_source"]:
+                break
 
 
 # ==========================================================================

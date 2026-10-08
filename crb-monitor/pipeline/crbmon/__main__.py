@@ -3,7 +3,8 @@
   scan      collect new images from the sources, pre-filter, analyse (scheduled job)
   analyze   run the detector on images waiting in the queue (use on a GPU machine)
   link      add one or more pasted links and analyse them straight away
-  review    record a human decision (confirmed / rejected) for an analysed image
+  review    record a human decision (confirmed / rejected) for an analysed image or a surveillance record
+  surveil   pre-border surveillance: check GBIF + iNaturalist for new watch-list records (daily job)
   stats     print counts
 """
 from __future__ import annotations
@@ -194,6 +195,12 @@ def cmd_link(args, cfg: Settings) -> None:
 
 
 def cmd_review(args, cfg: Settings) -> None:
+    if args.uid.startswith(("inat:", "gbif:")):          # a surveillance record
+        from . import surveillance
+        if not surveillance.review(cfg, args.uid, args.decision, args.by, args.note):
+            sys.exit(f"unknown surveillance record {args.uid}")
+        print(f"{args.uid}: {args.decision}")
+        return
     store = Store(cfg)
     if args.uid not in store.items:
         sys.exit(f"unknown uid {args.uid}")
@@ -219,7 +226,8 @@ def cmd_issue(args, cfg: Settings) -> None:
         else:
             cmd_review(argparse.Namespace(uid=uid.group(1), decision=dec.group(1), by=who,
                                           note=note.group(1) if note else ""), cfg)
-            text = f"Recorded **{dec.group(1)}** for `{uid.group(1)}`. Thank you!\n\n{PAGE}#item={uid.group(1)}"
+            page = "https://s-paudel.github.io/crb-surveillance.html" if uid.group(1).startswith(("inat:", "gbif:")) else PAGE
+            text = f"Recorded **{dec.group(1)}** for `{uid.group(1)}`. Thank you!\n\n{page}#item={uid.group(1)}"
         if args.summary:
             Path(args.summary).write_text(text, encoding="utf-8")
         return
@@ -227,6 +235,14 @@ def cmd_issue(args, cfg: Settings) -> None:
     urls = list(dict.fromkeys(u.rstrip(").,>_*") for u in re.findall(r"https?://\S+", body)))
     urls = [u for u in urls if "s-paudel.github.io" not in u.lower() and "github.com/s-paudel" not in u.lower()][:30]
     cmd_link(argparse.Namespace(urls=urls or ["(none)"], by=who, issue=number, summary=args.summary), cfg)
+
+
+def cmd_surveil(args, cfg: Settings) -> None:
+    from . import surveillance
+    out = surveillance.run(cfg, Http(cfg["general"]["user_agent"]), args.alert_file)
+    new_alerts = [a for a in out["alerts"] if a["date"] == today()]
+    if args.title_file and new_alerts:
+        Path(args.title_file).write_text(surveillance.alert_title(new_alerts, cfg), encoding="utf-8")
 
 
 def cmd_stats(args, cfg: Settings) -> None:
@@ -263,11 +279,14 @@ def main(argv=None) -> None:
     iss = sub.add_parser("issue", help="process a GitHub issue event (used by the workflow)")
     iss.add_argument("--event", default=os.environ.get("GITHUB_EVENT_PATH"))
     iss.add_argument("--summary")
+    sv = sub.add_parser("surveil", help="pre-border surveillance: new GBIF/iNaturalist records of watch-list species")
+    sv.add_argument("--alert-file", help="write a Markdown alert summary here when there are new alerts")
+    sv.add_argument("--title-file", help="write a one-line issue title here when there are new alerts")
     sub.add_parser("stats")
     args = p.parse_args(argv)
     cfg = Settings(args.config)
     {"scan": cmd_scan, "analyze": cmd_analyze, "link": cmd_link, "review": cmd_review,
-     "issue": cmd_issue, "stats": cmd_stats}[args.cmd](args, cfg)
+     "issue": cmd_issue, "surveil": cmd_surveil, "stats": cmd_stats}[args.cmd](args, cfg)
 
 
 if __name__ == "__main__":

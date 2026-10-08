@@ -1,15 +1,632 @@
 {
-  "_note": "Preset search areas shared by the web page and the pipeline. bbox = [west, south, east, north] in decimal degrees (WGS84). Edit or add regions here.",
-  "guam":            {"name": "Guam",                          "bbox": [144.60, 13.20, 145.00, 13.70]},
-  "cnmi":            {"name": "Northern Mariana Islands",      "bbox": [145.10, 14.00, 145.90, 15.30]},
-  "palau":           {"name": "Palau",                         "bbox": [134.00, 6.80, 134.80, 8.20]},
-  "hawaii_oahu":     {"name": "Hawaiʻi — Oʻahu",               "bbox": [-158.30, 21.25, -157.60, 21.75]},
-  "hawaii":          {"name": "Hawaiʻi — main islands",        "bbox": [-160.30, 18.80, -154.70, 22.30]},
-  "png":             {"name": "Papua New Guinea",              "bbox": [140.80, -11.70, 156.00, -1.00]},
-  "solomon_islands": {"name": "Solomon Islands",               "bbox": [155.40, -12.40, 168.00, -6.50]},
-  "vanuatu":         {"name": "Vanuatu",                       "bbox": [166.40, -20.30, 170.30, -13.00]},
-  "new_caledonia":   {"name": "New Caledonia",                 "bbox": [163.50, -22.80, 168.20, -19.50]},
-  "fiji":            {"name": "Fiji",                          "bbox": [176.80, -19.30, 180.00, -16.00]},
-  "samoa":           {"name": "Samoa",                         "bbox": [-172.90, -14.10, -171.30, -13.40]},
-  "american_samoa":  {"name": "American Samoa — Tutuila",      "bbox": [-170.90, -14.40, -169.40, -14.10]}
+ "_note": "Search areas shared by the web page and the pipeline. 'areas' are countries (ISO code, iNaturalist place id, bbox = [west, south, east, north]); 'groups' bundle areas. The continental US uses iNaturalist's United States place minus Hawaii (11) and Alaska (6), and for GBIF the US records inside the lower-48 box.",
+ "groups": {
+  "south_america": {
+   "name": "South America",
+   "members": [
+    "AR",
+    "BO",
+    "BR",
+    "CL",
+    "CO",
+    "EC",
+    "GF",
+    "GY",
+    "PY",
+    "PE",
+    "SR",
+    "UY",
+    "VE"
+   ]
+  },
+  "caribbean": {
+   "name": "Caribbean",
+   "members": [
+    "AG",
+    "AI",
+    "AW",
+    "BB",
+    "BL",
+    "BQ",
+    "BS",
+    "CU",
+    "CW",
+    "DM",
+    "DO",
+    "GD",
+    "GP",
+    "HT",
+    "JM",
+    "KN",
+    "KY",
+    "LC",
+    "MF",
+    "MQ",
+    "MS",
+    "PR",
+    "SX",
+    "TC",
+    "TT",
+    "VC",
+    "VG",
+    "VI"
+   ]
+  },
+  "us_contiguous": {
+   "name": "United States (continental)",
+   "members": [
+    "US48"
+   ]
+  },
+  "mexico_central_america": {
+   "name": "Mexico & Central America (neighbouring)",
+   "members": [
+    "MX",
+    "GT",
+    "BZ",
+    "SV",
+    "HN",
+    "NI",
+    "CR",
+    "PA"
+   ]
+  }
+ },
+ "areas": {
+  "AR": {
+   "name": "Argentina",
+   "country": "AR",
+   "inat_place": 7190,
+   "bbox": [
+    -73.58,
+    -55.11,
+    -53.59,
+    -21.78
+   ]
+  },
+  "BO": {
+   "name": "Bolivia",
+   "country": "BO",
+   "inat_place": 6783,
+   "bbox": [
+    -69.64,
+    -22.9,
+    -57.45,
+    -9.67
+   ]
+  },
+  "BR": {
+   "name": "Brazil",
+   "country": "BR",
+   "inat_place": 6878,
+   "bbox": [
+    -73.99,
+    -33.79,
+    -28.8,
+    5.26
+   ]
+  },
+  "CL": {
+   "name": "Chile",
+   "country": "CL",
+   "inat_place": 7182,
+   "bbox": [
+    -109.5,
+    -56.03,
+    -66.37,
+    -17.51
+   ]
+  },
+  "CO": {
+   "name": "Colombia",
+   "country": "CO",
+   "inat_place": 7196,
+   "bbox": [
+    -81.89,
+    -4.23,
+    -66.87,
+    15.96
+   ]
+  },
+  "EC": {
+   "name": "Ecuador",
+   "country": "EC",
+   "inat_place": 7512,
+   "bbox": [
+    -92.06,
+    -5.02,
+    -75.2,
+    1.73
+   ]
+  },
+  "GF": {
+   "name": "French Guiana",
+   "country": "GF",
+   "inat_place": 6949,
+   "bbox": [
+    -54.54,
+    2.13,
+    -51.6,
+    5.8
+   ]
+  },
+  "GY": {
+   "name": "Guyana",
+   "country": "GY",
+   "inat_place": 8142,
+   "bbox": [
+    -61.39,
+    1.18,
+    -56.48,
+    8.56
+   ]
+  },
+  "PY": {
+   "name": "Paraguay",
+   "country": "PY",
+   "inat_place": 7254,
+   "bbox": [
+    -62.65,
+    -27.61,
+    -54.26,
+    -19.29
+   ]
+  },
+  "PE": {
+   "name": "Peru",
+   "country": "PE",
+   "inat_place": 7513,
+   "bbox": [
+    -81.38,
+    -18.39,
+    -68.65,
+    -0.04
+   ]
+  },
+  "SR": {
+   "name": "Suriname",
+   "country": "SR",
+   "inat_place": 7827,
+   "bbox": [
+    -58.09,
+    1.83,
+    -53.95,
+    6.06
+   ]
+  },
+  "UY": {
+   "name": "Uruguay",
+   "country": "UY",
+   "inat_place": 7259,
+   "bbox": [
+    -58.49,
+    -35.02,
+    -53.09,
+    -30.08
+   ]
+  },
+  "VE": {
+   "name": "Venezuela",
+   "country": "VE",
+   "inat_place": 1303,
+   "bbox": [
+    -73.39,
+    0.65,
+    -59.81,
+    15.72
+   ]
+  },
+  "AG": {
+   "name": "Antigua and Barbuda",
+   "country": "AG",
+   "inat_place": 10283,
+   "bbox": [
+    -62.4,
+    16.88,
+    -61.61,
+    17.78
+   ]
+  },
+  "AI": {
+   "name": "Anguilla",
+   "country": "AI",
+   "inat_place": 10281,
+   "bbox": [
+    -63.48,
+    18.11,
+    -62.87,
+    18.65
+   ]
+  },
+  "AW": {
+   "name": "Aruba",
+   "country": "AW",
+   "inat_place": 8359,
+   "bbox": [
+    -70.11,
+    12.37,
+    -69.82,
+    12.67
+   ]
+  },
+  "BB": {
+   "name": "Barbados",
+   "country": "BB",
+   "inat_place": 10285,
+   "bbox": [
+    -59.7,
+    12.99,
+    -59.37,
+    13.38
+   ]
+  },
+  "BL": {
+   "name": "Saint Barthélemy",
+   "country": "BL",
+   "inat_place": 51356,
+   "bbox": [
+    -63,
+    17.82,
+    -62.74,
+    18.01
+   ]
+  },
+  "BQ": {
+   "name": "Caribbean Netherlands",
+   "country": "BQ",
+   "inat_place": 8360,
+   "bbox": [
+    -68.47,
+    11.97,
+    -62.89,
+    17.7
+   ]
+  },
+  "BS": {
+   "name": "Bahamas",
+   "country": "BS",
+   "inat_place": 7313,
+   "bbox": [
+    -80.53,
+    20.86,
+    -72.66,
+    27.32
+   ]
+  },
+  "CU": {
+   "name": "Cuba",
+   "country": "CU",
+   "inat_place": 6944,
+   "bbox": [
+    -85,
+    19.78,
+    -74.08,
+    23.33
+   ]
+  },
+  "CW": {
+   "name": "Curaçao",
+   "country": "CW",
+   "inat_place": 10408,
+   "bbox": [
+    -69.21,
+    11.93,
+    -68.59,
+    12.44
+   ]
+  },
+  "DM": {
+   "name": "Dominica",
+   "country": "DM",
+   "inat_place": 9184,
+   "bbox": [
+    -61.53,
+    15.16,
+    -61.19,
+    15.69
+   ]
+  },
+  "DO": {
+   "name": "Dominican Republic",
+   "country": "DO",
+   "inat_place": 6931,
+   "bbox": [
+    -72,
+    17.42,
+    -68.27,
+    19.98
+   ]
+  },
+  "GD": {
+   "name": "Grenada",
+   "country": "GD",
+   "inat_place": 9992,
+   "bbox": [
+    -61.85,
+    11.93,
+    -61.33,
+    12.57
+   ]
+  },
+  "GP": {
+   "name": "Guadeloupe",
+   "country": "GP",
+   "inat_place": 8177,
+   "bbox": [
+    -61.86,
+    15.78,
+    -60.95,
+    16.56
+   ]
+  },
+  "HT": {
+   "name": "Haiti",
+   "country": "HT",
+   "inat_place": 7526,
+   "bbox": [
+    -74.53,
+    17.98,
+    -71.62,
+    20.14
+   ]
+  },
+  "JM": {
+   "name": "Jamaica",
+   "country": "JM",
+   "inat_place": 8748,
+   "bbox": [
+    -78.42,
+    16.97,
+    -75.92,
+    18.57
+   ]
+  },
+  "KN": {
+   "name": "Saint Kitts and Nevis",
+   "country": "KN",
+   "inat_place": 10297,
+   "bbox": [
+    -62.91,
+    17.05,
+    -62.49,
+    17.47
+   ]
+  },
+  "KY": {
+   "name": "Cayman Islands",
+   "country": "KY",
+   "inat_place": 7488,
+   "bbox": [
+    -81.47,
+    19.21,
+    -79.67,
+    19.8
+   ]
+  },
+  "LC": {
+   "name": "Saint Lucia",
+   "country": "LC",
+   "inat_place": 10300,
+   "bbox": [
+    -61.13,
+    13.66,
+    -60.83,
+    14.16
+   ]
+  },
+  "MF": {
+   "name": "Saint Martin",
+   "country": "MF",
+   "inat_place": 51360,
+   "bbox": [
+    -63.2,
+    18.01,
+    -62.92,
+    18.18
+   ]
+  },
+  "MQ": {
+   "name": "Martinique",
+   "country": "MQ",
+   "inat_place": 10305,
+   "bbox": [
+    -61.28,
+    14.34,
+    -60.76,
+    14.92
+   ]
+  },
+  "MS": {
+   "name": "Montserrat",
+   "country": "MS",
+   "inat_place": 10304,
+   "bbox": [
+    -62.29,
+    16.62,
+    -62.1,
+    16.87
+   ]
+  },
+  "PR": {
+   "name": "Puerto Rico",
+   "country": "PR",
+   "inat_place": 6848,
+   "bbox": [
+    -68,
+    17.83,
+    -65.17,
+    18.57
+   ]
+  },
+  "SX": {
+   "name": "Sint Maarten",
+   "country": "SX",
+   "inat_place": 10411,
+   "bbox": [
+    -63.17,
+    17.95,
+    -62.95,
+    18.06
+   ]
+  },
+  "TC": {
+   "name": "Turks and Caicos",
+   "country": "TC",
+   "inat_place": 7315,
+   "bbox": [
+    -72.53,
+    21.13,
+    -71.03,
+    22.01
+   ]
+  },
+  "TT": {
+   "name": "Trinidad and Tobago",
+   "country": "TT",
+   "inat_place": 7375,
+   "bbox": [
+    -61.98,
+    9.99,
+    -60.44,
+    11.41
+   ]
+  },
+  "VC": {
+   "name": "Saint Vincent & the Grenadines",
+   "country": "VC",
+   "inat_place": 10317,
+   "bbox": [
+    -61.51,
+    12.55,
+    -61.06,
+    13.43
+   ]
+  },
+  "VG": {
+   "name": "British Virgin Islands",
+   "country": "VG",
+   "inat_place": 10318,
+   "bbox": [
+    -64.89,
+    18.26,
+    -64.22,
+    18.8
+   ]
+  },
+  "VI": {
+   "name": "US Virgin Islands",
+   "country": "VI",
+   "inat_place": 10319,
+   "bbox": [
+    -65.15,
+    17.62,
+    -64.51,
+    18.46
+   ]
+  },
+  "MX": {
+   "name": "Mexico",
+   "country": "MX",
+   "inat_place": 6793,
+   "bbox": [
+    -118.46,
+    14.49,
+    -86.66,
+    32.72
+   ]
+  },
+  "GT": {
+   "name": "Guatemala",
+   "country": "GT",
+   "inat_place": 6940,
+   "bbox": [
+    -92.28,
+    13.7,
+    -88.21,
+    17.88
+   ]
+  },
+  "BZ": {
+   "name": "Belize",
+   "country": "BZ",
+   "inat_place": 6953,
+   "bbox": [
+    -89.22,
+    15.89,
+    -87.44,
+    18.5
+   ]
+  },
+  "SV": {
+   "name": "El Salvador",
+   "country": "SV",
+   "inat_place": 7563,
+   "bbox": [
+    -90.14,
+    13.1,
+    -87.63,
+    14.45
+   ]
+  },
+  "HN": {
+   "name": "Honduras",
+   "country": "HN",
+   "inat_place": 6929,
+   "bbox": [
+    -89.35,
+    12.98,
+    -82.36,
+    17.47
+   ]
+  },
+  "NI": {
+   "name": "Nicaragua",
+   "country": "NI",
+   "inat_place": 6925,
+   "bbox": [
+    -87.74,
+    10.71,
+    -81.95,
+    15.03
+   ]
+  },
+  "CR": {
+   "name": "Costa Rica",
+   "country": "CR",
+   "inat_place": 6924,
+   "bbox": [
+    -87.14,
+    5.45,
+    -82.53,
+    11.22
+   ]
+  },
+  "PA": {
+   "name": "Panama",
+   "country": "PA",
+   "inat_place": 7003,
+   "bbox": [
+    -83.05,
+    7.15,
+    -77.17,
+    9.7
+   ]
+  },
+  "US48": {
+   "name": "United States (continental)",
+   "country": "US",
+   "inat_place": 1,
+   "inat_not_in_place": [
+    11,
+    6
+   ],
+   "bbox": [
+    -124.8,
+    24.4,
+    -66.9,
+    49.4
+   ],
+   "gbif_bbox_filter": true
+  }
+ }
 }

@@ -1,0 +1,63 @@
+# CRB Monitor — daily pre-border surveillance.
+# Checks GBIF and iNaturalist for new records of the watch-list species in the watch regions
+# (settings: [surveillance] in crb-monitor/pipeline/config.toml), saves them to
+# crb-monitor/data/surveillance.json, and opens a GitHub issue when there is something new.
+# GitHub e-mails new issues to the repository owner, so this works as an e-mail alert.
+# Light job: no models, no secrets needed, runs in about a minute.
+
+name: CRB monitor — daily surveillance
+
+on:
+  schedule:
+    - cron: "41 17 * * *"        # 17:41 UTC every day = early morning in New Zealand
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: crb-monitor-data
+  cancel-in-progress: false
+
+jobs:
+  surveil:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: crb-monitor/pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install requests
+
+      - name: Check GBIF and iNaturalist
+        run: python -m crbmon surveil --alert-file "$RUNNER_TEMP/alert.md" --title-file "$RUNNER_TEMP/title.txt"
+
+      - name: Commit results
+        working-directory: .
+        run: |
+          git config user.name "crb-monitor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crb-monitor/data/surveillance.json
+          git diff --cached --quiet && { echo "No changes"; exit 0; }
+          git commit -m "CRB monitor: surveillance $(date -u +%Y-%m-%d)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push
+
+      - name: Open an alert issue
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f "$RUNNER_TEMP/alert.md" ]; then
+            gh issue create --title "$(cat "$RUNNER_TEMP/title.txt")" --body-file "$RUNNER_TEMP/alert.md"
+          else
+            echo "Nothing new today."
+          fi

@@ -11,7 +11,7 @@ user_agent = "CRB-Damage-Monitor/1.0 (+https://s-paudel.github.io/crb-monitor.ht
 # STAGE 1 — query filters (free: applied by the source APIs themselves)
 # ---------------------------------------------------------------------------
 [filters]
-regions = ["guam", "palau", "hawaii_oahu", "solomon_islands", "vanuatu", "png", "fiji", "samoa"]  # keys in data/regions.json
+regions = ["south_america", "caribbean", "us_contiguous"]  # group or country keys from data/regions.json (e.g. "BR", "PR")
 observed_from = "2024-01-01"   # only photos taken on or after this date
 observed_to = ""               # "" = up to today
 cc_licensed_only = true        # only Creative Commons / public-domain photos (iNaturalist, Flickr)
@@ -24,24 +24,37 @@ only_new_since_last_scan = true  # iNaturalist/Flickr: ask only for records adde
 [sources.inaturalist]
 enabled = true
 palm_taxa = ["Cocos nucifera"]          # pre-selects palm photos by identification
-beetle_taxa = ["Oryctes rhinoceros"]    # beetle sightings are recorded on the map but not run through the detector
+beetle_taxa = []                        # beetle sightings are handled by the surveillance dashboard instead
 photos_per_observation = 2
 
 [sources.gbif]
-enabled = true
+enabled = false                         # photo scanning: iNaturalist only for now
 palm_taxa = ["Cocos nucifera"]
 skip_inaturalist_duplicates = true      # GBIF re-publishes iNaturalist research-grade records
 
 [sources.mapillary]
-enabled = true                          # needs the MAPILLARY_TOKEN secret / environment variable
+enabled = false                         # needs the MAPILLARY_TOKEN secret / environment variable
 tile_deg = 0.1                          # Mapillary limits each search box to 0.01 square degrees
 max_tiles_per_region = 300
 thin_metres = 150                       # keep one image per ~150 m grid cell per day (roadside sequences repeat a lot)
 include_panoramas = false
 
 [sources.flickr]
-enabled = true                          # needs the FLICKR_API_KEY secret / environment variable
+enabled = false                         # needs the FLICKR_API_KEY secret / environment variable
 text = "coconut palm"
+
+# ---------------------------------------------------------------------------
+# PRE-BORDER SURVEILLANCE — new GBIF / iNaturalist records of watch-list species
+# (python -m crbmon surveil; runs daily, light: no models needed)
+# ---------------------------------------------------------------------------
+[surveillance]
+path = "../data/surveillance.json"
+species = ["Oryctes rhinoceros"]        # add more watch-list species here, e.g. "Rhynchophorus ferrugineus"
+regions = ["south_america", "caribbean", "us_contiguous", "mexico_central_america"]
+include_captive = true                  # iNaturalist "captive / cultivated" records (pets, labs, interceptions)
+jump_km = 100                           # alert when a new confirmed record is this far from any earlier one
+spike_min_records = 3                   # month-on-month alert (your R rule: >100% increase) needs at least this many
+max_records_per_species = 10000
 
 # ---------------------------------------------------------------------------
 # STAGE 2 — cheap "is there a palm in this photo?" pre-filter (CLIP, runs on CPU)

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRB Surveillance — Sulav Paudel, Ph.D.</title>
+<meta name="description" content="Pre-border surveillance dashboard for the coconut rhinoceros beetle (CRB) in South America, the Caribbean and the continental United States: every new GBIF and iNaturalist record, graded by evidence, with daily alerts.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=3">
+</head>
+<body>
+
+<header class="site-nav" id="top">
+  <a class="nav-mark" href="index.html">SP</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="professional.html">Professional</a>
+    <a href="community.html">Community</a>
+    <a href="blogs.html">Blogs</a>
+    <a href="crb-surveillance.html">CRB Surveillance</a>
+    <a href="crb-monitor.html">CRB Damage</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="page-header">
+  <p class="eyebrow">Pre-border surveillance</p>
+  <h1>CRB Surveillance</h1>
+  <p class="page-lede">
+    Every GBIF and iNaturalist record of the coconut rhinoceros beetle
+    (<em>Oryctes rhinoceros</em>) in South America, the Caribbean and the continental
+    United States, checked daily. Each record keeps the date it was <strong>first seen</strong>,
+    so you can see exactly what is new. Many records in new regions are
+    mis-identifications, so each one is graded by how much evidence it carries.
+  </p>
+  <p class="crb-switch"><a href="crb-monitor.html">→ For palm photos screened for beetle damage, see the CRB Damage Monitor</a></p>
+</div>
+
+<main class="crb-main">
+  <!-- ===================== SURVEILLANCE ===================== -->
+  <section class="sv-page" id="surveillance-panel">
+    <p class="sv-status-line mono" id="svStatus" aria-live="polite"></p>
+    <form class="crb-filters sv-filters" onsubmit="return false">
+      <label hidden>Species <select id="svSpecies"></select></label>
+      <label>What's new since <input type="date" id="svSince"></label>
+      <div class="sv-quick"><button type="button" class="crb-btn-ghost" data-since="7">7 days</button><button type="button" class="crb-btn-ghost" data-since="30">30 days</button><button type="button" class="crb-btn-ghost" data-since="365">1 year</button><small id="svSinceHint" class="mono"></small></div>
+      <button type="button" class="btn btn-primary" id="svLive">Check live now</button>
+    </form>
+    <div class="sv-chips" id="svGroups" aria-label="Regions"></div>
+    <div class="sv-chips" id="svEv" aria-label="Evidence"></div>
+
+    <div class="sv-kpis" id="svKpis"></div>
+
+    <div class="sv-two">
+      <div>
+        <h3 class="sv-h">Alerts</h3>
+        <div class="sv-alerts" id="svAlerts"></div>
+        <p class="crb-hint">Alerts are also opened as GitHub issues, and GitHub e-mails them to you.
+          <a href="https://github.com/S-Paudel/S-Paudel.github.io/issues?q=is%3Aissue+%22CRB+alert%22" target="_blank" rel="noopener">See all alerts ↗</a></p>
+      </div>
+      <div>
+        <h3 class="sv-h">Map</h3>
+        <div class="crb-map sv-map" id="svMap"></div>
+        <p class="sv-legend" id="svMapLegend"></p>
+      </div>
+    </div>
+
+    <h3 class="sv-h">Country status <small>click a country to focus the chart, map and table</small></h3>
+    <div id="svBoard"></div>
+
+    <div class="sv-chart" id="svChart"></div>
+
+    <div class="sv-table-head">
+      <h3 class="sv-h">Records</h3>
+      <span class="crb-count mono" id="svCount"></span>
+      <button type="button" class="crb-btn-ghost" id="svCsv">Download CSV</button>
+    </div>
+    <div class="sv-table-wrap">
+      <table class="sv-table" id="svTable">
+        <thead><tr><th>Photo</th><th>Observed</th><th>Country / place</th><th>Evidence</th><th>Source</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button type="button" class="crb-btn-ghost crb-more" id="svMore" hidden>Show more</button>
+  </section>
+
+
+  <section class="crb-about sv-about" id="about">
+    <div class="crb-about-grid">
+      <div>
+        <h3>How it works</h3>
+        <ol class="crb-steps">
+          <li><span class="mono">Every day · GBIF + iNaturalist</span>
+            Every record of the beetle in South America, the Caribbean and the
+            continental US is collected, plus Mexico and Central America, where the
+            beetle is established on the Pacific coast. The continental US excludes
+            Hawaiʻi and Alaska. GBIF copies of iNaturalist records are merged, so
+            nothing is counted twice.</li>
+          <li><span class="mono">Evidence grading</span>
+            <b>Confirmed</b> means research grade on iNaturalist, or confirmed by a
+            reviewer here. <b>Needs checking</b> covers "needs ID" and casual records,
+            plus museum, survey, laboratory and DNA records from GBIF.
+            <b>Captive / lab</b> covers pets, cultures and interceptions.</li>
+          <li><span class="mono">Alerts</span>
+            New record · first record in a country · first confirmed record ·
+            a jump of more than 100 km from any earlier confirmed record ·
+            a record upgraded to confirmed · a monthly spike (more than double the
+            previous month) · a record withdrawn at its source. Alerts are e-mailed
+            as GitHub issues.</li>
+          <li><span class="mono">Human review</span>
+            Open any record and mark it "Confirmed CRB" or "Not CRB". Records marked
+            "Not CRB" drop out of counts and alerts.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Sources &amp; citation</h3>
+        <p>Records come from <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a>
+          and <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>.
+          They remain the property of their publishers and observers. Each one links back
+          to its source. Records can be mis-identified, so check the photo before acting.</p>
+        <p>The dashboard grew out of Sulav Paudel's automated pre-border surveillance
+          scripts (B3 2026).</p>
+        <p class="crb-cite">Paudel, S. (2026). <em>CRB Surveillance: pre-border monitoring of
+          Oryctes rhinoceros in the Americas</em> [Web application]. https://s-paudel.github.io/crb-surveillance.html</p>
+        <p><a href="https://github.com/S-Paudel/S-Paudel.github.io/tree/main/crb-monitor" target="_blank" rel="noopener">Source code, settings and data →</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- detail viewer -->
+<dialog class="crb-dialog" id="viewer">
+  <button class="crb-close" id="viewerClose" aria-label="Close">×</button>
+  <div class="crb-viewer-body">
+    <div class="crb-figure" id="viewerFigure"></div>
+    <div class="crb-viewer-meta" id="viewerMeta"></div>
+  </div>
+</dialog>
+
+<footer id="contact" class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-copy">
+      <p class="eyebrow">Get in touch</p>
+      <h2>Let's talk pests, Pacific biosecurity,<br>or where the two meet policy.</h2>
+      <a class="btn btn-primary" href="mailto:sulav.paudel@agresearch.co.nz">sulav.paudel@agresearch.co.nz</a>
+    </div>
+    <div class="footer-links">
+      <a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+      <a href="https://www.researchgate.net/profile/Sulav-Paudel" target="_blank" rel="noopener">ResearchGate</a>
+      <a href="https://www.linkedin.com/in/sulav-paudel-ph-d-21323836/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/S-Paudel" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.agresearch.co.nz/about-us/our-people/sulav-paudel/" target="_blank" rel="noopener">BSI Profile</a>
+    </div>
+  </div>
+  <p class="footer-fine">© <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS &amp; JS — hosted on GitHub Pages.</p>
+</footer>
+
+<script src="script.js?v=2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="crb-monitor/assets/crb-surveillance.js?v=2"></script>
+</body>
+</html>

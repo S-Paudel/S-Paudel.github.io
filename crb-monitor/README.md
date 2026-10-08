@@ -1,86 +1,99 @@
-# CRB Damage Monitor
+# CRB Monitor
 
-**Live page:** https://s-paudel.github.io/crb-monitor.html
+**Two pages:**
+- **CRB Surveillance:** https://s-paudel.github.io/crb-surveillance.html
+- **CRB Damage Monitor:** https://s-paudel.github.io/crb-monitor.html
 
-This tool screens public palm photos for the V-shaped frond cuts left by the coconut
-rhinoceros beetle (*Oryctes rhinoceros*, CRB). It searches iNaturalist, GBIF,
-Mapillary and Flickr, and also accepts pasted links. Photos are **never copied**.
-The page hot-links them from their source and keeps only the link and the analysis.
-Every record is dated by when it was **first seen**, so you can always ask
-"what new damage has turned up since …?".
+Two tools for the coconut rhinoceros beetle (*Oryctes rhinoceros*, CRB) in **South
+America, the Caribbean and the continental United States**:
 
-The damage-detection method is by **Aubrey Moore** (University of Guam).
-See [Credits](#credits).
+1. **Surveillance dashboard** (daily; `crb-surveillance.html`). It tracks every GBIF and iNaturalist record of the
+   beetle in the watch regions, plus Mexico & Central America, where the beetle is
+   already established on the Pacific coast. Each record keeps the date it was
+   **first seen**, is graded by evidence, and triggers alerts: a new record, a first
+   record in a country, a first confirmed record, a jump of more than 100 km, an
+   upgrade to confirmed, a monthly spike, or a withdrawn record. Alerts are e-mailed
+   as GitHub issues. It grew out of Sulav Paudel's *Automated Pre-border
+   surveillance.R* (B3 2026).
+2. **Palm damage screening** (weekly; `crb-monitor.html`). Coconut palm photos on iNaturalist in the
+   watch regions are screened for the beetle's V-shaped frond cuts with Aubrey Moore's
+   SAM3 + elliptic Fourier detector. Photos are **never copied**: the page hot-links
+   them and keeps only the link and the analysis.
 
 ## What's in this folder
 
 ```
-crb-monitor.html                  (one level up) the web page, linked from the site menu
+crb-surveillance.html             (one level up) the surveillance page ("CRB Surveillance" in the site menu)
+crb-monitor.html                  (one level up) the palm-damage page ("CRB Damage" in the site menu)
 crb-monitor/
-  assets/crb-monitor.js, .css     page code: tabs, live source search, map, viewer
+  assets/crb-surveillance.js      surveillance page script (also does a live check from the browser)
+  assets/crb-monitor.js           palm-damage page script: results, iNaturalist browsing, links, viewer
+  assets/crb-monitor.css          styles for both pages
   data/
-    results.json                  everything screened: links, location, dates, analysis, reviews
+    surveillance.json             every watch-list record: source link, country, dates, evidence, reviews, alerts
+    results.json                  palm photos screened: links, location, dates, analysis, reviews
     rejected.json                 photos the palm check ruled out (so they are never re-checked)
-    scan_log.json                 one entry per scan
-    regions.json                  preset search areas (shared by page and pipeline)
+    scan_log.json                 one entry per photo scan
+    regions.json                  watch regions and countries (iNaturalist place ids, ISO codes, boxes)
   pipeline/
-    config.toml                   ALL settings: regions, dates, sources, filters, detector
+    config.toml                   ALL settings: regions, species, dates, filters, detector
     crbmon/                       Python package (python -m crbmon …)
-    tests/                        detector tests on Aubrey's synthetic palms
+    tests/                        detector tests (Aubrey's synthetic palms) + surveillance tests (real records)
   vendor/aubreymoore-CRB-2026-05-13/   unmodified snapshot of Aubrey's repository (commit 5734f35)
   CITATION.cff
-  setup/                          the two GitHub Actions workflows, to move into ../.github/workflows/:
-    crb-scan.yml                  weekly scan (+ "Run workflow" button)
+  setup/                          the GitHub Actions workflows, to move into ../.github/workflows/:
+    crb-surveillance.yml          daily surveillance + alert issues   (no keys needed)
+    crb-scan.yml                  weekly palm-photo scan              (HF_TOKEN for the detector)
     crb-issue.yml                 handles "Send for analysis" and review issues from the page
 ```
 
-## How a photo is screened, cheapest step first
+## Surveillance: evidence grades
+
+| Grade | Means |
+|---|---|
+| Confirmed | iNaturalist research grade (wild), or confirmed by a reviewer on the page |
+| Needs checking | iNaturalist "needs ID" / casual, or a non-iNaturalist GBIF record (museum, survey, lab, DNA) |
+| Captive / lab | iNaturalist captive or cultivated (pets, cultures, interceptions) |
+| Not this species | marked as a mis-identification by a reviewer; excluded from counts and alerts |
+
+Records already published when monitoring began are marked as such. The page treats
+their iNaturalist upload date as the date they arrived, so "new since" still works for
+the past.
+
+## How a palm photo is screened, cheapest step first
 
 | Stage | What it does | Cost |
 |---|---|---|
-| 1. Search filters | Only the chosen **regions** and **dates**. Only **open licences**. iNaturalist/GBIF limited to records **identified as coconut palm**. iNaturalist/Flickr ask only for records **added since the last scan**. | free (done by the source) |
+| 1. Search filters | Only the chosen **regions** and **dates**. Only **open licences**. Only records **identified as coconut palm**. Only records **added since the last scan**. | free (done by iNaturalist) |
 | 2. Skip known | Anything already in `results.json` or `rejected.json` is skipped | free |
-| 3. Thinning | Mapillary keeps one image per ~150 m per day | free |
-| 4. Palm check | CLIP looks at the small thumbnail: "is a palm crown visible?" Drops beetles, grubs, coconuts, people and palm-free streets | ~0.2 s/photo on CPU |
-| 5. Detector | Aubrey Moore's SAM3 + elliptic Fourier V-cut detector, then his cut-shape classifier | seconds–minutes on CPU, <1 s on GPU |
-| 6. Human review | "Confirm damage / Not CRB damage" buttons on each photo | — |
+| 3. Palm check | CLIP looks at the small thumbnail: "is a palm crown visible?" Drops nuts, flowers, trunks, people and palm-free scenes | ~0.2 s/photo on CPU |
+| 4. Detector | Aubrey Moore's SAM3 + elliptic Fourier V-cut detector, then his cut-shape classifier | seconds–minutes on CPU, <1 s on GPU |
+| 5. Human review | "Confirm damage / Not CRB damage" buttons on each photo | — |
 
-iNaturalist sightings of the beetle itself are recorded on the map as **beetle
-sightings**. They are not run through the detector.
+GBIF, Mapillary and Flickr photo collectors are still in the code, switched off in
+`config.toml` (`[sources.*] enabled = false`), for later.
 
-## One-time setup (about 15 minutes)
+## One-time setup
 
-0. **Put the two workflow files in place.** Move `setup/crb-scan.yml` and
-   `setup/crb-issue.yml` into the repository's `.github/workflows/` folder (see
-   `setup/README.md`). Nothing runs automatically until you do this.
+See `setup/README.md` for step-by-step instructions. In short:
 
-Steps 1–3 are optional. Without them, the monitor still searches iNaturalist and GBIF.
+1. Move the three workflow files from `setup/` into `.github/workflows/`, then commit and push.
+2. Under **Settings → Actions → General**, set workflow permissions to *Read and write*.
+3. Optional: add the `HF_TOKEN` secret (Hugging Face, with SAM3 access) to turn on
+   automatic damage analysis. The surveillance dashboard needs no keys.
 
-1. **Hugging Face access to SAM3** (turns on automatic analysis).
-   Sign in at https://huggingface.co/facebook/sam3, accept the licence and wait
-   for approval. Then create a *read* token at https://huggingface.co/settings/tokens.
-2. **Mapillary token.** Go to https://www.mapillary.com/dashboard/developers, then
-   *Register application*, and copy the **client token**.
-3. **Flickr key.** Get one at https://www.flickr.com/services/apps/create (non-commercial).
-4. Add these on GitHub under **Settings → Secrets and variables → Actions →
-   New repository secret**: `HF_TOKEN`, `MAPILLARY_TOKEN`, `FLICKR_API_KEY`.
-5. Check that **Settings → Actions → General → Workflow permissions** is set to
-   *Read and write*.
-6. Under **Actions → "CRB monitor — scan" → Run workflow**, run the first scan now
-   instead of waiting for Monday.
+## Changing what is watched
 
-To *browse* Mapillary and Flickr on the page itself, paste the same Mapillary
-token or Flickr key into the box on that tab. It is saved only in your browser.
+Edit `pipeline/config.toml` and commit the change. The next run uses it.
 
-## Changing what is searched
-
-Edit `pipeline/config.toml` and commit the change. The next scan uses it. The usual settings:
-
-- `filters.regions`: which preset areas to search (`data/regions.json` lists them; add your own)
-- `filters.observed_from` / `observed_to`: photo date window
-- `filters.max_new_per_source`: cap per source per region per scan
-- `prefilter.threshold`: raise it to send fewer, more palm-like photos to the detector
-- `detector.max_per_run_cpu`: how many photos the free GitHub runner analyses per scan
+- `[surveillance] species`: watch-list species. Add more, e.g. `"Rhynchophorus ferrugineus"`.
+- `[surveillance] regions`: watch regions (group keys from `data/regions.json`)
+- `[surveillance] jump_km`, `spike_min_records`: alert sensitivity
+- `[filters] regions`: regions for palm-photo screening, as group keys or ISO codes such as `"PR"` or `"BR"`
+- `[filters] observed_from` / `observed_to`: photo date window
+- `[filters] max_new_per_source`: photos collected per region per scan
+- `[prefilter] threshold`: raise it to send fewer, more palm-like photos to the detector
+- `[detector] max_per_run_cpu`: how many photos the free GitHub runner analyses per scan
 
 ## Running the detector on a GPU (recommended for large batches)
 
@@ -100,10 +113,12 @@ cd ../.. && git add crb-monitor/data && git commit -m "CRB monitor: GPU analysis
 Other commands:
 
 ```bash
-python -m crbmon scan --regions guam palau --no-analyze   # collect + palm check only
+python -m crbmon surveil                                   # surveillance check (what the daily job runs)
+python -m crbmon review inat:405688598 rejected --by "Sulav Paudel" --note "Strategus"   # surveillance review
+python -m crbmon scan --regions caribbean PR --no-analyze  # collect + palm check only
 python -m crbmon link https://www.inaturalist.org/observations/123456789
 python -m crbmon review inaturalist:123:456 confirmed --by "Aubrey Moore"
-python -m pytest -q tests                                  # detector tests (no GPU needed)
+python -m pytest -q tests                                  # all tests (no GPU or network needed)
 ```
 
 ## Status of the detector settings
@@ -124,10 +139,10 @@ quantitatively. Treat "possible damage" as a screening flag, not a diagnosis.
 
 - Photos are shown from their original location, with the photographer's credit and
   licence. By default the monitor only uses openly licensed photos.
-- Mapillary imagery is CC BY-SA 4.0.
+- Surveillance records stay the property of their publishers and observers. The
+  dashboard links to each one.
 - The original sources' terms apply: [iNaturalist](https://www.inaturalist.org/pages/terms),
-  [GBIF](https://www.gbif.org/terms), [Mapillary](https://www.mapillary.com/terms),
-  [Flickr API](https://www.flickr.com/help/terms/api).
+  [GBIF](https://www.gbif.org/terms).
 - SAM3 is used under Meta's SAM licence. CLIP is used under its MIT licence.
 
 ## Credits
@@ -137,10 +152,11 @@ quantitatively. Treat "possible damage" as a screening flag, not a diagnosis.
   `vendor/aubreymoore-CRB-2026-05-13` (see its `SNAPSHOT.md`). That repository has
   no licence file, so it is included as part of our collaboration and copyright
   stays with the author.
-- **Monitor, data pipeline and web page:** Sulav Paudel.
+- **Surveillance concept** (from *Automated Pre-border surveillance.R*), **monitor, data
+  pipeline and web page:** Sulav Paudel.
 
 Cite as:
 
 > Moore, A. (2026). *CRB-2026-05-13* [Computer software]. GitHub. https://github.com/aubreymoore/CRB-2026-05-13
 >
-> Paudel, S., & Moore, A. (2026). *CRB Damage Monitor* [Web application]. https://s-paudel.github.io/crb-monitor.html
+> Paudel, S., & Moore, A. (2026). *CRB Monitor* [Web application]. https://s-paudel.github.io/crb-monitor.html

@@ -108,12 +108,14 @@ under `:root{ ... }` if you want to adjust the palette.
 
 ---
 
-## 6. CRB Damage Monitor (`crb-monitor.html`)
+## 6. CRB Surveillance and CRB Damage pages
 
-`crb-monitor.html` screens public palm photos from iNaturalist, GBIF, Mapillary and
-Flickr for coconut rhinoceros beetle damage. It is linked from the site menu. It
-uses Aubrey Moore's SAM3 + elliptic Fourier detector
-([aubreymoore/CRB-2026-05-13](https://github.com/aubreymoore/CRB-2026-05-13)).
+- `crb-surveillance.html` ("CRB Surveillance" in the menu) is a daily dashboard of new
+  GBIF and iNaturalist records of the coconut rhinoceros beetle in South America, the
+  Caribbean and the continental US.
+- `crb-monitor.html` ("CRB Damage" in the menu) screens iNaturalist coconut palm photos
+  from the same regions for beetle damage. It uses Aubrey Moore's SAM3 + elliptic
+  Fourier detector ([aubreymoore/CRB-2026-05-13](https://github.com/aubreymoore/CRB-2026-05-13)).
 Everything for the tool, including setup steps, settings and credits, is in
 [`crb-monitor/README.md`](crb-monitor/README.md). The two automated jobs live in
 `.github/workflows/crb-*.yml`.

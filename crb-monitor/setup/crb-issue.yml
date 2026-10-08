@@ -1,6 +1,7 @@
 # CRB Damage Monitor — handles issues opened from the web page:
 #   "[CRB link] …"   analyse pasted links / selected photos
-#   "[CRB review] …" record a confirmed / rejected decision
+#   "[CRB review] …" record a confirmed / rejected decision (palm photos and surveillance records)
+# ("[CRB alert]" issues are opened by the daily surveillance job and are not processed here.)
 # Runs automatically for the repository owner and collaborators. For anyone else,
 # add the label "crb-approved" to the issue to let it run.
 
@@ -21,7 +22,7 @@ concurrency:
 jobs:
   handle:
     if: >-
-      startsWith(github.event.issue.title, '[CRB') &&
+      (startsWith(github.event.issue.title, '[CRB link]') || startsWith(github.event.issue.title, '[CRB review]')) &&
       (
         (github.event.action == 'opened' &&
          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)) ||

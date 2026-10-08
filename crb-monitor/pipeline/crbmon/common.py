@@ -36,17 +36,29 @@ class Settings(dict):
         self.base = path.parent
         regions_file = self.base.parent / "data" / "regions.json"
         regions = json.loads(regions_file.read_text(encoding="utf-8"))
-        self.regions = {k: v for k, v in regions.items() if not k.startswith("_")}
+        self.groups = regions["groups"]
+        self.areas = {k: dict(v, key=k) for k, v in regions["areas"].items()}
 
     def path(self, rel: str) -> Path:
         return (self.base / rel).resolve()
 
+    def region(self, key: str) -> dict:
+        """A group ('caribbean') or a single area ('BR') as {name, areas[], bbox}."""
+        if key in self.groups:
+            g = self.groups[key]
+            areas = [self.areas[m] for m in g["members"]]
+            name = g["name"]
+        elif key in self.areas:
+            areas, name = [self.areas[key]], self.areas[key]["name"]
+        else:
+            raise SystemExit(f"Unknown region {key!r}. Groups: {sorted(self.groups)}; areas: {sorted(self.areas)}")
+        bb = [a["bbox"] for a in areas]
+        return {"key": key, "name": name, "areas": areas,
+                "bbox": [min(b[0] for b in bb), min(b[1] for b in bb), max(b[2] for b in bb), max(b[3] for b in bb)]}
+
     def selected_regions(self, override: list[str] | None = None) -> dict:
         keys = override or self["filters"]["regions"]
-        missing = [k for k in keys if k not in self.regions]
-        if missing:
-            raise SystemExit(f"Unknown region(s) {missing}. Known: {sorted(self.regions)}")
-        return {k: self.regions[k] for k in keys}
+        return {k: self.region(k) for k in keys}
 
     def date_window(self) -> tuple[str, str]:
         f = self["filters"]

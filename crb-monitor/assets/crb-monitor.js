@@ -54,7 +54,7 @@
       getJSON(DATA + 'scan_log.json', nc).catch(() => []),
       getJSON(DATA + 'rejected.json', nc).catch(() => ({})),
     ]);
-    state.regions = Object.fromEntries(Object.entries(regions).filter(([k]) => !k.startsWith('_')));
+    state.regions = regions;   // { groups: {key: {name, members}}, areas: {ISO: {name, inat_place, bbox, …}} }
     state.items = results.items || [];
     state.log = log; state.rejected = rejected;
     for (const it of state.items) {
@@ -121,13 +121,37 @@
     ].join('');
   }
 
-  function fillRegionSelect(sel) {
-    const mode = sel.dataset.regions;
-    const opts = mode === 'all' ? ['<option value="">All regions</option>'] : ['<option value="__map">Current map view</option>'];
-    for (const [k, r] of Object.entries(state.regions)) opts.push(`<option value="${esc(k)}">${esc(r.name)}</option>`);
+  /** Region select: watch groups first, then single countries grouped under them. */
+  function fillRegionSelect(sel, groups) {
+    const { groups: G, areas: A } = state.regions;
+    const keys = groups || Object.keys(G);
+    const opts = sel.dataset.regions === 'all' ? ['<option value="">All regions</option>'] : [];
+    opts.push('<optgroup label="Regions">' + keys.map(k => `<option value="${esc(k)}">${esc(G[k].name)}</option>`).join('') + '</optgroup>');
+    for (const k of keys) {
+      if (G[k].members.length < 2) continue;
+      const members = [...G[k].members].sort((a, b) => A[a].name.localeCompare(A[b].name));
+      opts.push(`<optgroup label="${esc(G[k].name)}">` + members.map(m => `<option value="${esc(m)}">${esc(A[m].name)}</option>`).join('') + '</optgroup>');
+    }
     sel.innerHTML = opts.join('');
-    if (mode === 'map') sel.value = 'guam';
   }
+  /** The countries (areas) behind a group or area key. */
+  function areasOf(key) {
+    const { groups: G, areas: A } = state.regions;
+    if (G[key]) return G[key].members.map(m => ({ key: m, ...A[m] }));
+    return A[key] ? [{ key, ...A[key] }] : [];
+  }
+  function regionBBox(key) {
+    const bb = areasOf(key).map(a => a.bbox);
+    return bb.length ? [Math.min(...bb.map(b => b[0])), Math.min(...bb.map(b => b[1])), Math.max(...bb.map(b => b[2])), Math.max(...bb.map(b => b[3]))] : null;
+  }
+  function inatPlaceParams(key) {
+    const areas = areasOf(key);
+    const out = { place_id: areas.map(a => a.inat_place).join(',') };
+    const excl = [...new Set(areas.flatMap(a => a.inat_not_in_place || []))];
+    if (excl.length) out.not_in_place = excl.join(',');
+    return out;
+  }
+  window.CRB = Object.assign(window.CRB || {}, { areasOf, regionBBox, inatPlaceParams, getRegions: () => state.regions });
 
   // ------------------------------------------------------------------ maps
   const COLORS = { damage: '#FF8A3D', clear: '#D6F24C', queued: '#7FC8F8', nopalm: '#7C8274', beetle: '#E7A6F0', error: '#F06C6C', none: '#F5F2E9' };
@@ -135,7 +159,7 @@
   function getMap(name, el) {
     if (state.maps[name]) return state.maps[name];
     if (typeof L === 'undefined') { el.innerHTML = '<p class="crb-empty">Map unavailable.</p>'; return null; }
-    const map = L.map(el, { worldCopyJump: true, scrollWheelZoom: false }).setView([13.45, 144.78], 9);
+    const map = L.map(el, { worldCopyJump: true, scrollWheelZoom: false }).setView([10, -75], 3);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19, subdomains: 'abcd',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -163,14 +187,14 @@
   }
 
   function fitRegion(name, key) {
-    const map = state.maps[name], r = state.regions[key];
-    if (map && r) { const [w, s, e, n] = r.bbox; map.fitBounds([[s, w], [n, e]]); }
+    const map = state.maps[name], bb = regionBBox(key);
+    if (map && bb) { const [w, s, e, n] = bb; map.fitBounds([[s, w], [n, e]]); }
   }
 
   function bboxFor(name, regionKey) {
-    if (regionKey && regionKey !== '__map' && state.regions[regionKey]) return state.regions[regionKey].bbox;
+    if (regionKey && regionKey !== '__map' && regionBBox(regionKey)) return regionBBox(regionKey);
     const b = state.maps[name]?.getBounds();
-    if (!b) return state.regions.guam.bbox;
+    if (!b) return regionBBox('caribbean');
     const w = Math.max(-180, b.getWest()), e = Math.min(180, b.getEast());
     return [w, Math.max(-90, b.getSouth()), e, Math.min(90, b.getNorth())].map(v => +v.toFixed(5));
   }
@@ -361,7 +385,7 @@
       }[f.status];
       if (!okStatus) return false;
       if (f.source && it.source !== f.source) return false;
-      if (f.region && it.region !== f.region) return false;
+      if (f.region && it.region !== f.region && !areasOf(f.region).some(a => a.key === it.area)) return false;
       if (f.since && (it.first_seen || '') < f.since) return false;
       if (f.review === 'none' && it.review) return false;
       if (f.review && f.review !== 'none' && it.review?.decision !== f.review) return false;
@@ -478,11 +502,10 @@
 
   const SOURCES = {
     inaturalist: {
-      intro: 'Live search of iNaturalist observations with photos. <strong>Pre-select</strong> limits results to records identified as coconut palm, all palms, or the beetle itself. <strong>Added since</strong> shows only records uploaded after a date, so you can check what is new.',
+      intro: 'Live search of iNaturalist photos in the surveillance regions. <strong>Pre-select</strong> limits results to records identified as coconut palm or all palms. <strong>Added since</strong> shows only records uploaded after a date, so you can check what is new. Tick photos to send them for damage analysis.',
       fields: { taxon: true, text: false, added: true, cc: true },
       async search(f, page) {
-        const [w, s, e, n] = f.bbox;
-        const q = new URLSearchParams({ taxon_id: await inatTaxon(f.taxon), swlat: s, swlng: w, nelat: n, nelng: e,
+        const q = new URLSearchParams({ taxon_id: await inatTaxon(f.taxon), ...inatPlaceParams(f.region),
           photos: 'true', per_page: PAGE_SIZE, page, order_by: 'created_at', order: 'desc' });
         if (f.d1) q.set('d1', f.d1); if (f.d2) q.set('d2', f.d2);
         if (f.added) q.set('created_d1', f.added);
@@ -583,7 +606,7 @@
     $('.crb-intro', panel).innerHTML = cfg.intro;
     const form = $('form', panel), mapEl = $('.crb-map', panel), grid = $('.crb-grid', panel), count = $('.crb-count', panel), more = $('.crb-more', panel);
     for (const [fld, on] of Object.entries(cfg.fields)) $$(`.f-${fld}`, form).forEach(el => { el.hidden = !on; });
-    if (name === 'gbif') $('[name="taxon"] option[value="Oryctes rhinoceros"]', form).remove();
+    $('[name="taxon"] option[value="Oryctes rhinoceros"]', form)?.remove();   // beetle records live on the Surveillance tab
     if (cfg.key) {
       const box = $('.crb-keys', panel), input = $('input', box);
       box.hidden = false; $('.key-label', box).textContent = cfg.key.label; $('.crb-hint', box).innerHTML = cfg.key.hint;
@@ -592,8 +615,9 @@
     }
     form.d1.value = name === 'mapillary' ? yearsAgo(2) : yearsAgo(3);
     form.d2.value = today();
-    fillRegionSelect(form.region);
-    if (name === 'mapillary') form.region.value = '__map';
+    fillRegionSelect(form.region, ['south_america', 'caribbean', 'us_contiguous']);
+    form.region.value = 'caribbean';
+    if (name === 'mapillary') { form.region.insertAdjacentHTML('afterbegin', '<option value="__map">Current map view</option>'); form.region.value = '__map'; }
     const st = state.sourceState[name] = { page: 1, entries: [] };
 
     const map = getMap(name, mapEl);
@@ -704,6 +728,7 @@
   window.addEventListener('hashchange', () => {
     const uid = new URLSearchParams(location.hash.slice(1)).get('item');
     if (uid && state.byUid.has(uid)) { showTab('results'); openViewer(entryFromItem(state.byUid.get(uid))); }
+    else if (uid && /^(inat|gbif):/.test(uid)) location.href = `crb-surveillance.html#item=${encodeURIComponent(uid)}`;
   });
   $('#crbTabs').addEventListener('keydown', ev => {
     if (!['ArrowRight', 'ArrowLeft'].includes(ev.key)) return;
@@ -718,11 +743,12 @@
       return;
     }
     renderStats();
-    $$('select[data-regions="all"]').forEach(fillRegionSelect);
+    $$('select[data-regions="all"]').forEach(sel => fillRegionSelect(sel, ['south_america', 'caribbean', 'us_contiguous']));
     const hash = new URLSearchParams(location.hash.slice(1));
+    const uid = hash.get('item');
+    if (uid && /^(inat|gbif):/.test(uid)) { location.replace(`crb-surveillance.html#item=${encodeURIComponent(uid)}`); return; }
     showTab(hash.get('tab') || 'results');
     filterResults();
-    const uid = hash.get('item');
     if (uid && state.byUid.has(uid)) {
       $('#resFilters').status.value = 'everything'; filterResults();
       openViewer(entryFromItem(state.byUid.get(uid)));
