@@ -7,7 +7,7 @@
 (() => {
   'use strict';
 
-  const REPO = 'S-Paudel/S-Paudel.github.io';
+  const REPO = 'S-Paudel/crb-monitor-private';   // private project repository: issues for links and reviews
   const DATA = 'crb-monitor/data/';
   const API = {
     inat: 'https://api.inaturalist.org/v1',
@@ -354,7 +354,7 @@
            <button class="crb-btn-ghost confirm" data-rev="confirmed">Confirm damage</button>
            <button class="crb-btn-ghost" data-rev="rejected">Not CRB damage</button>
            <button class="crb-btn-ghost" data-rev="unsure">Unsure</button>
-         </div><p class="crb-note">Opens a short GitHub issue that records your decision.</p>`
+         </div><p class="crb-note">Project members only: opens a short issue in the private project repository that records your decision.</p>`
       : (['none', 'error'].includes(st) ? `<button class="btn btn-primary" data-send>Send for analysis</button>` : '');
     $('#viewerMeta').innerHTML = `
       <div>${badgeHTML(it, it ? undefined : e.rejected)}</div>

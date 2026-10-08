@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=3">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=4">
 </head>
 <body>
 
@@ -137,10 +137,10 @@
       <button type="button" class="btn btn-ghost" id="linkPreview">Preview</button>
       <button type="button" class="btn btn-primary" id="linkSend">Send for analysis</button>
     </div>
-    <p class="crb-hint">"Send for analysis" opens a pre-filled GitHub issue. Submit
-      it and the analysis runs automatically. The issue gets a reply with the
-      result, and the result appears under <strong>Results</strong>. Links from
-      people outside the project wait until a maintainer approves them.</p>
+    <p class="crb-hint">"Send for analysis" opens a pre-filled issue in the project's private
+      GitHub repository. Submit it and the analysis runs automatically. The issue gets a
+      reply with the result, and the result appears under <strong>Palm damage results</strong>.
+      Sending needs access to that repository, so if you would like to contribute, contact Sulav Paudel.</p>
     <div class="crb-grid" id="grid-link"></div>
   </section>
 
@@ -173,9 +173,8 @@
         <p>The damage-detection method and code are by <strong>Aubrey Moore</strong>
           (University of Guam):
           <a href="https://github.com/aubreymoore/CRB-2026-05-13" target="_blank" rel="noopener">aubreymoore/CRB-2026-05-13</a>.
-          A snapshot of that repository (commit <span class="mono">5734f35</span>)
-          is kept with this page in
-          <a href="https://github.com/S-Paudel/S-Paudel.github.io/tree/main/crb-monitor/vendor/aubreymoore-CRB-2026-05-13" target="_blank" rel="noopener">crb-monitor/vendor</a>.</p>
+          The monitor uses a snapshot of that repository (commit <span class="mono">5734f35</span>),
+          kept with the project's code.</p>
         <p class="crb-cite">Moore, A. (2026). <em>CRB-2026-05-13</em> [Computer software].
           GitHub. https://github.com/aubreymoore/CRB-2026-05-13</p>
         <p class="crb-cite">Paudel, S., &amp; Moore, A. (2026). <em>CRB Damage Monitor</em>
@@ -186,7 +185,6 @@
           <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a>.
           They are credited to their photographers under the licence shown on each
           photo, and are not copied or stored here. SAM3 is by Meta AI. CLIP is by OpenAI.</p>
-        <p><a href="https://github.com/S-Paudel/S-Paudel.github.io/tree/main/crb-monitor" target="_blank" rel="noopener">Source code, settings and data →</a></p>
       </div>
     </div>
   </section>
@@ -228,6 +226,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=3"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=4"></script>
 </body>
 </html>

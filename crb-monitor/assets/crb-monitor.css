@@ -261,3 +261,6 @@ button.btn{ cursor:pointer; }
 .crb-switch a:hover{ color:var(--ink); border-bottom-color:var(--ink); }
 .sv-page{ padding-top:8px; }
 .sv-about{ margin-top:70px; padding-top:40px; border-top:1px solid var(--line); }
+
+/* OpenStreetMap tiles, darkened to match the site (no API key needed) */
+.crb-tiles{ filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85) saturate(0.6); }

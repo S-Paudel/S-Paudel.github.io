@@ -7,7 +7,7 @@
 (() => {
   'use strict';
 
-  const REPO = 'S-Paudel/S-Paudel.github.io';
+  const REPO = 'S-Paudel/crb-monitor-private';   // private project repository: issues for links and reviews
   const DATA = 'crb-monitor/data/surveillance.json';
   const INAT = 'https://api.inaturalist.org/v1';
   const GBIF = 'https://api.gbif.org/v1';
@@ -391,7 +391,7 @@
         <button class="crb-btn-ghost" data-sv-rev="rejected">Not CRB</button>
         <button class="crb-btn-ghost" data-sv-rev="unsure">Unsure</button>
       </div>
-      <p class="crb-note">Your decision is recorded through a short GitHub issue. "Not CRB" removes the record from counts and alerts.</p>`;
+      <p class="crb-note">Project members only: your decision is recorded through a short issue in the private project repository. "Not CRB" removes the record from counts and alerts.</p>`;
     $$('[data-sv-rev]', dlg).forEach(b => b.onclick = () => {
       const body = `<!-- crb-monitor:review -->\nuid: ${r.uid}\ndecision: ${b.dataset.svRev}\nnote: \n\nRecord: ${r.url}\n\n_(Add a note on the "note:" line if you like, then submit.)_`;
       window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent(`[CRB review] ${b.dataset.svRev}: ${r.uid}`)}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');

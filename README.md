@@ -114,8 +114,8 @@ under `:root{ ... }` if you want to adjust the palette.
   GBIF and iNaturalist records of the coconut rhinoceros beetle in South America, the
   Caribbean and the continental US.
 - `crb-monitor.html` ("CRB Damage" in the menu) screens iNaturalist coconut palm photos
-  from the same regions for beetle damage. It uses Aubrey Moore's SAM3 + elliptic
-  Fourier detector ([aubreymoore/CRB-2026-05-13](https://github.com/aubreymoore/CRB-2026-05-13)).
-Everything for the tool, including setup steps, settings and credits, is in
-[`crb-monitor/README.md`](crb-monitor/README.md). The two automated jobs live in
-`.github/workflows/crb-*.yml`.
+  from the same regions for beetle damage, using Aubrey Moore's detector.
+
+Only the pages, `crb-monitor/assets/` and the results files in `crb-monitor/data/` live
+here. The code, settings, Aubrey's files and the automation are in the private repository
+`S-Paudel/crb-monitor-private`, which updates `crb-monitor/data/` automatically.
