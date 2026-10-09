@@ -1,1 +1,22 @@
-[]
+[
+ {
+  "command": "scan",
+  "started": "2026-10-09T00:15:35+00:00",
+  "finished": "2026-10-09T00:33:07+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 712
+  },
+  "analysed": 3,
+  "failed": [],
+  "queued_after": 583,
+  "window": [
+   "2024-01-01",
+   "2026-10-09"
+  ]
+ }
+]
