@@ -1,1 +1,82 @@
-[]
+[
+ {
+  "command": "scan",
+  "started": "2026-10-09T00:15:35+00:00",
+  "finished": "2026-10-09T00:33:07+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 712
+  },
+  "analysed": 3,
+  "failed": [],
+  "queued_after": 583,
+  "window": [
+   "2024-01-01",
+   "2026-10-09"
+  ]
+ },
+ {
+  "command": "scan",
+  "started": "2026-10-09T00:48:13+00:00",
+  "finished": "2026-10-09T01:02:11+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 0
+  },
+  "analysed": 10,
+  "failed": [],
+  "queued_after": 573,
+  "window": [
+   "2024-01-01",
+   "2026-10-09"
+  ]
+ },
+ {
+  "command": "scan",
+  "started": "2026-10-10T21:40:55+00:00",
+  "finished": "2026-10-10T22:05:44+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 10
+  },
+  "analysed": 20,
+  "failed": [],
+  "queued_after": 563,
+  "window": [
+   "2024-01-01",
+   "2026-10-10"
+  ]
+ },
+ {
+  "command": "scan",
+  "started": "2026-10-11T21:56:35+00:00",
+  "finished": "2026-10-11T22:23:43+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 7
+  },
+  "analysed": 20,
+  "failed": [],
+  "queued_after": 547,
+  "window": [
+   "2024-01-01",
+   "2026-10-11"
+  ]
+ }
+]
