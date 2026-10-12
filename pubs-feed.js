@@ -129,6 +129,35 @@
         " · " + works.length + " publications · full record on " +
         '<a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>';
     }
+
+    // Feed the "collaborating institution" map layer (see collab-map.js)
+    // with real co-author institutions/countries pulled straight off
+    // these works — no hand-maintained list to keep in sync.
+    if (typeof window.SP_addCollabPins === "function") {
+      window.SP_addCollabPins(collectCollaboratorCountries(works));
+    }
+  }
+
+  function collectCollaboratorCountries(works) {
+    var byCountry = {};
+    works.forEach(function (w) {
+      (w.authorships || []).forEach(function (a) {
+        var name = (a.author && a.author.display_name) || "";
+        if (!name || isSulav(name)) return; // only co-authors, not Sulav himself
+        (a.institutions || []).forEach(function (inst) {
+          var cc = inst.country_code;
+          if (!cc) return;
+          if (!byCountry[cc]) byCountry[cc] = { institutions: [], authors: [] };
+          if (inst.display_name && byCountry[cc].institutions.indexOf(inst.display_name) === -1) {
+            byCountry[cc].institutions.push(inst.display_name);
+          }
+          if (byCountry[cc].authors.indexOf(name) === -1) {
+            byCountry[cc].authors.push(name);
+          }
+        });
+      });
+    });
+    return byCountry;
   }
 
   function fetchWorks() {
