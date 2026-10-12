@@ -1,13 +1,19 @@
 /* CRB Damage Monitor — S-Paudel.github.io
  * Browses public palm photos (iNaturalist, Mapillary, Flickr, GBIF) live from their APIs,
- * shows the pipeline's analysis results (crb-monitor/data/results.json), and sends photos
- * for analysis by opening a pre-filled GitHub issue. Images are hot-linked, never stored.
+ * shows the pipeline's analysis results (crb-monitor/data/results.json), and checks single
+ * photos straight away through the "CRB damage check" Hugging Face Space (SPACE below).
+ * Images are hot-linked or analysed in memory, never stored. Enquiries go by e-mail (CONTACT).
  * Damage-detection method: Aubrey Moore, https://github.com/aubreymoore/CRB-2026-05-13
  */
 (() => {
   'use strict';
 
-  const REPO = 'S-Paudel/crb-monitor-private';   // private project repository: issues for links and reviews
+  // Instant checks: the Hugging Face Space running Aubrey's detector (crb-monitor-private/space).
+  // Its address is https://<huggingface-username>-<space-name>.hf.space ('' = not set up yet).
+  const SPACE = '';
+  const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries, reviews and reports
+  const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const MAX_CHECKS = 10;
   const DATA = 'crb-monitor/data/';
   const API = {
     inat: 'https://api.inaturalist.org/v1',
@@ -21,7 +27,6 @@
     4: 'CC BY 2.0', 5: 'CC BY-SA 2.0', 6: 'CC BY-ND 2.0', 7: 'no known copyright restrictions',
     8: 'US Government work', 9: 'CC0 1.0', 10: 'Public Domain Mark 1.0' };
   const GBIF_INAT_DATASET = '50c9509d-22c7-4a22-a47d-8c48425ef4a7';
-  const MAX_ISSUE_LINKS = 30;
   const PAGE_SIZE = 60;
 
   const $ = (s, el = document) => el.querySelector(s);
@@ -36,7 +41,7 @@
 
   const state = {
     regions: {}, items: [], byUid: new Map(), bySrc: new Map(), rejected: {}, log: [],
-    selected: new Map(), maps: {}, layers: {}, entries: {}, sourceState: {},
+    maps: {}, layers: {}, entries: {}, sourceState: {},
   };
 
   // ------------------------------------------------------------------ data
@@ -106,19 +111,29 @@
 
   // ------------------------------------------------------------------ stats + regions
   function renderStats() {
-    const analysed = state.items.filter(i => i.status === 'analyzed');
+    const palms = state.items.filter(i => i.kind !== 'beetle');
+    const analysed = palms.filter(i => i.status === 'analyzed');
     const dmg = analysed.filter(i => i.analysis?.verdict === 'candidate_damage');
     const conf = state.items.filter(i => i.review?.decision === 'confirmed');
-    const screened = state.items.length + Object.keys(state.rejected).length;
-    const lastScan = [...state.log].reverse().find(e => e.command === 'scan');
-    $('#crbStats').innerHTML = [
-      `<span><b>${screened.toLocaleString()}</b>photos screened</span>`,
-      `<span><b>${analysed.length.toLocaleString()}</b>analysed</span>`,
-      `<span class="dmg"><b>${dmg.length.toLocaleString()}</b>possible damage</span>`,
-      `<span><b>${conf.length.toLocaleString()}</b>confirmed</span>`,
-      `<span><b>${state.items.filter(i => i.status === 'queued').length}</b>waiting</span>`,
-      `<span>last scan <b>${lastScan ? esc(lastScan.finished.slice(0, 10)) : '—'}</b></span>`,
-    ].join('');
+    const waiting = palms.filter(i => i.status === 'queued').length;
+    const found = palms.length + Object.keys(state.rejected).length;
+    const scans = state.log.filter(e => e.command === 'scan');
+    const last = scans.at(-1);
+    const n = v => v.toLocaleString();
+    const fmt = d => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    const step = (v, label, cls = '') => `<div class="crb-step ${cls}"><b>${n(v)}</b><span>${label}</span></div>`;
+    if (!found) { $('#crbStats').innerHTML = '<p class="crb-empty">No photos screened yet. Results appear here after the first weekly scan.</p>'; return; }
+    const lastNew = last ? Object.values(last.found || {}).reduce((a, b) => a + b, 0) : 0;
+    $('#crbStats').innerHTML = `
+      <div class="crb-steps-row">
+        ${step(found, 'coconut palm photos collected from iNaturalist')}
+        ${step(palms.length, 'passed the palm check (crown visible)')}
+        ${step(analysed.length, 'analysed for V-cuts')}
+        ${step(dmg.length, 'possible CRB damage', 'dmg')}
+      </div>
+      <p class="crb-funnel-note">${last ? `Last scan ${esc(fmt(last.finished))}: ${n(lastNew)} new photo${lastNew === 1 ? '' : 's'}, ${n(last.analysed || 0)} analysed. ` : ''}` +
+      `${n(waiting)} waiting for analysis · ${n(conf.length)} confirmed by review · scans run weekly` +
+      `${found - palms.length ? ` · ${n(found - palms.length)} photos showed no palm crown (close-ups of nuts, trunks, people…) and were skipped` : ''}.</p>`;
   }
 
   /** Region select: watch groups first, then single countries grouped under them. */
@@ -208,12 +223,11 @@
 
   function cardHTML(e) {
     const it = e.result;
-    const sel = state.selected.has(e.key);
     const meta = [e.date, e.place || (e.lat != null ? `${(+e.lat).toFixed(3)}, ${(+e.lon).toFixed(3)}` : ''), sourceName(e.source)]
       .filter(Boolean).join(' · ');
     const seen = it?.first_seen ? `<p class="crb-card-meta">first seen ${esc(it.first_seen)}</p>` : '';
-    const canSend = !it || ['none', 'error'].includes(statusOf(it));
-    return `<article class="crb-card${sel ? ' selected' : ''}" data-key="${esc(e.key)}">
+    const canCheck = SPACE && (e.image || e.page) && (!it || ['none', 'error', 'queued'].includes(statusOf(it)));
+    return `<article class="crb-card" data-key="${esc(e.key)}">
       <button class="crb-thumb" type="button" data-view aria-label="Open ${esc(e.title)}">
         ${thumbImg(e)}
         ${badgeHTML(it, it ? undefined : e.rejected)}
@@ -223,7 +237,7 @@
         <p class="crb-card-meta">${esc(meta)}</p>${seen}
         <div class="crb-card-foot">
           <a href="${esc(e.page)}" target="_blank" rel="noopener">Source ↗</a>
-          ${canSend ? `<label class="crb-pick"><input type="checkbox" data-pick ${sel ? 'checked' : ''}> analyse</label>` : ''}
+          ${canCheck ? '<button type="button" class="crb-linkbtn" data-check>Check now</button>' : ''}
         </div>
       </div>
     </article>`;
@@ -270,44 +284,19 @@
   document.addEventListener('click', ev => {
     const card = ev.target.closest('.crb-card');
     if (!card) return;
-    if (ev.target.closest('[data-view]')) { const e = findEntry(card.dataset.key); if (e) openViewer(e); }
-  });
-  document.addEventListener('change', ev => {
-    if (!ev.target.matches('[data-pick]')) return;
-    const card = ev.target.closest('.crb-card'), e = findEntry(card.dataset.key);
+    const e = findEntry(card.dataset.key);
     if (!e) return;
-    if (ev.target.checked) state.selected.set(e.key, { url: e.page || e.image, title: e.title });
-    else state.selected.delete(e.key);
-    card.classList.toggle('selected', ev.target.checked);
-    renderTray();
+    if (ev.target.closest('[data-view]')) openViewer(e);
+    else if (ev.target.closest('[data-check]')) checkEntry(e);
   });
 
-  // ------------------------------------------------------------------ GitHub issues
-  function issueURL(title, body) {
-    return `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  function reviewMail(it, decision) {
+    const a = it.analysis || {};
+    return mailto(`CRB damage review: ${decision} — ${it.uid}`,
+      `Hello Sulav,\n\nMy review of this photo on the CRB Damage Monitor: ${decision.toUpperCase()}\n\n` +
+      `Photo: ${it.page_url}\nDetector: ${a.n_palms ?? '?'} palm(s), ${a.n_cuts ?? '?'} cut(s) counted (${a.verdict || it.status})\n` +
+      `Record: ${location.origin}${location.pathname}#item=${encodeURIComponent(it.uid)}\n\nNote:\n\n`);
   }
-  function sendLinks(urls) {
-    const list = [...new Set(urls.filter(Boolean))];
-    if (!list.length) return;
-    if (list.length > MAX_ISSUE_LINKS) {
-      alert(`Please send at most ${MAX_ISSUE_LINKS} links at a time (you selected ${list.length}).`);
-      return;
-    }
-    const body = `<!-- crb-monitor:link -->\nPlease analyse these photos for CRB damage:\n\n${list.join('\n')}\n\n_Sent from ${location.origin}${location.pathname}_`;
-    window.open(issueURL(`[CRB link] ${list.length} photo${list.length > 1 ? 's' : ''} for analysis`, body), '_blank', 'noopener');
-  }
-  function sendReview(it, decision) {
-    const body = `<!-- crb-monitor:review -->\nuid: ${it.uid}\ndecision: ${decision}\nnote: \n\nPhoto: ${it.page_url}\n\n_(Add a note on the "note:" line if you like, then submit.)_`;
-    window.open(issueURL(`[CRB review] ${decision}: ${it.uid}`, body), '_blank', 'noopener');
-  }
-
-  function renderTray() {
-    const n = state.selected.size;
-    $('#tray').hidden = n === 0;
-    $('#trayCount').textContent = `${n} photo${n === 1 ? '' : 's'} selected`;
-  }
-  $('#trayClear').onclick = () => { state.selected.clear(); $$('[data-pick]').forEach(c => { c.checked = false; c.closest('.crb-card')?.classList.remove('selected'); }); renderTray(); };
-  $('#traySend').onclick = () => sendLinks([...state.selected.values()].map(v => v.url));
 
   // ------------------------------------------------------------------ viewer
   async function openViewer(e) {
@@ -320,13 +309,7 @@
       } else img = '';
     }
     const a = it?.analysis;
-    let overlay = '';
-    if (a) {
-      const pts = p => p.map(([x, y]) => `${x},${y}`).join(' ');
-      overlay = `<svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">${a.palms.map(pm =>
-        `<polygon class="palm${pm.touches_edge ? ' edge' : ''}" points="${pts(pm.poly)}"/>` +
-        pm.cuts.map(c => `<polygon class="cut${c.counted ? '' : ' ignored'}" points="${pts(c.poly)}"/>`).join('')).join('')}</svg>`;
-    }
+    const overlay = overlaySVG(a);
     $('#viewerFigure').innerHTML = img
       ? `<div class="crb-overlay-wrap"><img src="${esc(img)}" alt="${esc(e.title)}" referrerpolicy="no-referrer">${overlay}</div>`
       : `<p class="crb-empty" style="padding:40px">Preview needs a Mapillary token (see the Mapillary tab).<br><a href="${esc(e.page)}" target="_blank" rel="noopener">Open on Mapillary ↗</a></p>`;
@@ -349,11 +332,11 @@
     const st = statusOf(it);
     const actions = it && it.status === 'analyzed'
       ? `<div class="crb-review">
-           <button class="crb-btn-ghost confirm" data-rev="confirmed">Confirm damage</button>
-           <button class="crb-btn-ghost" data-rev="rejected">Not CRB damage</button>
-           <button class="crb-btn-ghost" data-rev="unsure">Unsure</button>
-         </div><p class="crb-note">Project members only: opens a short issue in the private project repository that records your decision.</p>`
-      : (['none', 'error'].includes(st) ? `<button class="btn btn-primary" data-send>Send for analysis</button>` : '');
+           <a class="crb-btn-ghost confirm" href="${esc(reviewMail(it, 'confirmed'))}">Confirm damage</a>
+           <a class="crb-btn-ghost" href="${esc(reviewMail(it, 'not CRB damage'))}">Not CRB damage</a>
+           <a class="crb-btn-ghost" href="${esc(reviewMail(it, 'unsure'))}">Unsure</a>
+         </div><p class="crb-note">Each button opens an e-mail to Sulav Paudel with this photo's details.</p>`
+      : (SPACE && ['none', 'error', 'queued'].includes(st) ? `<button class="btn btn-primary" data-check-now>Check this photo now</button>` : '');
     $('#viewerMeta').innerHTML = `
       <div>${badgeHTML(it, it ? undefined : e.rejected)}</div>
       <h3>${esc(e.title)}</h3>
@@ -362,8 +345,7 @@
       ${actions}
       <p class="crb-note">Automated screening only. V-cuts can also come from wind, other pests or
         pruning, so please confirm by eye.</p>`;
-    $$('[data-rev]', dlg).forEach(b => b.onclick = () => sendReview(it, b.dataset.rev));
-    const send = $('[data-send]', dlg); if (send) send.onclick = () => sendLinks([e.page || e.image]);
+    const chk = $('[data-check-now]', dlg); if (chk) chk.onclick = () => { dlg.close(); checkEntry(e); };
     if (!dlg.open) dlg.showModal();
     if (it) history.replaceState(null, '', `#item=${encodeURIComponent(it.uid)}`);
   }
@@ -393,7 +375,7 @@
     const total = state.items.length;
     $('#resCount').textContent = total
       ? `${resFiltered.length.toLocaleString()} of ${total.toLocaleString()} records`
-      : 'No results yet. They appear here after the first scheduled scan, or after you send photos for analysis.';
+      : 'No results yet. They appear here after the first weekly scan.';
     resShown = 0;
     $('#grid-results').innerHTML = '';
     showMoreResults();
@@ -653,63 +635,154 @@
     if (!cfg.key || ls.get(cfg.key.store)) run(false);
   }
 
-  // ------------------------------------------------------------------ link tab
-  async function sha1hex(s) {
-    const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(s));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  // ------------------------------------------------------------------ check a photo (instant)
+  /** Palm outlines and cuts (0–1 coordinates) drawn over a photo. */
+  function overlaySVG(a) {
+    if (!a) return '';
+    const pts = p => p.map(([x, y]) => `${x},${y}`).join(' ');
+    return `<svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">${a.palms.map(pm =>
+      `<polygon class="palm${pm.touches_edge ? ' edge' : ''}" points="${pts(pm.poly)}"/>` +
+      pm.cuts.map(c => `<polygon class="cut${c.counted ? '' : ' ignored'}" points="${pts(c.poly)}"/>`).join('')).join('')}</svg>`;
   }
-  async function previewLink(url) {
-    let m;
-    if ((m = url.match(/inaturalist\.org\/observations\/(\d+)/))) {
-      const o = (await getJSON(`${API.inat}/observations/${m[1]}`)).results[0]; const p = o.photos?.[0]; const c = o.geojson?.coordinates || [];
-      return { key: `inaturalist:${o.id}`, source: 'inaturalist', sourceId: String(o.id), title: o.taxon?.name || 'iNaturalist observation',
-        date: o.observed_on, lat: c[1], lon: c[0], thumb: p && inatSize(p.url, 'medium'), image: p && inatSize(p.url, 'large'), page: url,
-        license: p?.license_code, attribution: p?.attribution };
-    }
-    if ((m = url.match(/gbif\.org\/occurrence\/(\d+)/))) {
-      const o = await getJSON(`${API.gbif}/occurrence/${m[1]}`); const md = (o.media || []).find(x => x.identifier);
-      return { key: `gbif:${o.key}`, source: 'gbif', sourceId: String(o.key), title: o.scientificName, date: (o.eventDate || '').slice(0, 10),
-        lat: o.decimalLatitude, lon: o.decimalLongitude, thumb: md && gbifThumb(o.key, md.identifier), image: md?.identifier, page: url,
-        license: md?.license, attribution: md?.rightsHolder || o.recordedBy };
-    }
-    if ((m = url.match(/mapillary\.com\/.*[?&]pKey=(\d+)/))) {
-      const token = ls.get('crb.mapillaryToken'); let thumb = '';
-      if (token) try { thumb = (await getJSON(`${API.mly}/${m[1]}?fields=thumb_1024_url&access_token=${encodeURIComponent(token)}`)).thumb_1024_url; } catch { /* no preview */ }
-      return { key: `mapillary:${m[1]}`, source: 'mapillary', sourceId: m[1], title: `Street view ${m[1]}`, thumb, image: thumb, page: url, license: 'CC BY-SA 4.0' };
-    }
-    if ((m = url.match(/flickr\.com\/photos\/[^/]+\/(\d+)/))) {
-      const key = ls.get('crb.flickrKey'); let thumb = '';
-      if (key) try { const d = await flickrCall({ method: 'flickr.photos.getSizes', api_key: key, photo_id: m[1] }); thumb = (d.sizes.size.find(s => s.label === 'Medium') || d.sizes.size.at(-1)).source; } catch { /* no preview */ }
-      return { key: `flickr:${m[1]}`, source: 'flickr', sourceId: m[1], title: `Flickr photo ${m[1]}`, thumb, image: thumb, page: url };
-    }
-    const looksImage = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url);
-    const h = (await sha1hex(url)).slice(0, 16);
-    return { key: `link:${h}`, source: 'link', sourceId: url, title: url.replace(/^https?:\/\//, '').slice(0, 80),
-      thumb: looksImage ? url : '', image: looksImage ? url : '', page: url,
-      note: looksImage ? '' : 'Web page: the analysis will use its preview (og:image) photo' };
+
+  const VERDICT = {
+    candidate_damage: ['damage', 'Possible CRB damage'],
+    no_damage_detected: ['clear', 'Palm found, no V-cuts'],
+    no_palm_found: ['nopalm', 'No palm crown found'],
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let checkSeq = 0, checkQueue = Promise.resolve(), pending = 0;
+
+  function setCheckStatus(text) { $('#checkStatus').textContent = text; }
+
+  /** One call to the Space. Returns the analysis, or throws {waking:true} while it is starting up. */
+  async function callSpace(src) {
+    let r;
+    try {
+      r = await fetch(`${SPACE}/gradio_api/call/check`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: [src] }) });
+    } catch { throw Object.assign(new Error('waking'), { waking: true }); }    // asleep pages lack CORS headers
+    if (!r.ok) throw Object.assign(new Error(`Detector returned ${r.status}`), { waking: [404, 502, 503, 504].includes(r.status) });
+    const { event_id: id } = await r.json();
+    const text = await (await fetch(`${SPACE}/gradio_api/call/check/${id}`)).text();
+    const events = [...text.matchAll(/event: (\w+)\ndata: (.*)/g)];
+    const last = events.filter(m => m[1] !== 'heartbeat').at(-1);
+    if (!last) throw new Error('No answer from the detector.');
+    let data = null; try { data = JSON.parse(last[2]); } catch { /* keep null */ }
+    if (last[1] === 'complete' && Array.isArray(data)) return data[0];
+    throw new Error(data?.error || 'The detector could not analyse this photo.');
   }
-  const linkLines = () => $('#linkInput').value.split(/\s+/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s));
-  $('#linkPreview').onclick = async () => {
-    const grid = $('#grid-link'), urls = linkLines();
-    if (!urls.length) { grid.innerHTML = '<p class="crb-error">Paste at least one link starting with http.</p>'; return; }
-    grid.innerHTML = '<p class="crb-empty">Looking up…</p>';
-    const entries = [];
-    for (const u of urls.slice(0, MAX_ISSUE_LINKS)) {
+
+  async function analyseWithRetry(src, onWait) {
+    const started = Date.now();
+    for (;;) {
+      try { return await callSpace(src); }
+      catch (err) {
+        if (!err.waking || Date.now() - started > 12 * 60e3) throw err.waking ? new Error('The detector did not wake up. Please try again in a few minutes.') : err;
+        onWait(Math.round((Date.now() - started) / 1000));
+        await sleep(15000);
+      }
+    }
+  }
+
+  function checkCardHTML(c) {
+    const a = c.analysis, [cls, label] = a ? VERDICT[a.verdict] || ['clear', a.verdict] : [];
+    const img = c.display || a?.image_url;
+    const fig = img ? `<div class="crb-overlay-wrap"><img src="${esc(img)}" alt="" referrerpolicy="no-referrer">${overlaySVG(a)}</div>` : '<p class="crb-empty">no preview</p>';
+    let body;
+    if (c.error) body = `<p class="crb-error">${esc(c.error)}</p>`;
+    else if (!a) body = `<p class="crb-wait"><span class="crb-spin" aria-hidden="true"></span>${esc(c.wait || 'Analysing…')}</p>`;
+    else {
+      const edge = a.palms.filter(p => p.touches_edge).length;
+      const mail = mailto(`CRB damage check: ${label}`,
+        `Hello Sulav,\n\nI checked a photo on the CRB Damage Monitor.\n\nResult: ${label} — ${a.n_palms} palm(s), ${a.n_cuts} V-cut(s) counted.\n` +
+        `Photo: ${c.link || '(my own photo — attached to this e-mail)'}\nWhere / when taken: \n\nNote:\n\n`);
+      body = `<span class="badge ${cls}">${esc(label)}</span>
+        <p class="crb-check-nums">${a.n_palms} palm${a.n_palms === 1 ? '' : 's'} outlined · <b>${a.n_cuts}</b> V-cut${a.n_cuts === 1 ? '' : 's'} counted · ${esc(a.seconds)} s</p>
+        ${edge ? `<p class="crb-note">${edge} palm${edge > 1 ? 's touch' : ' touches'} the photo edge, so ${edge > 1 ? 'their' : 'its'} cuts are not counted.</p>` : ''}
+        ${a.n_palms ? '<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>' : ''}
+        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}">Email Sulav</a>${c.link ? ` <a href="${esc(c.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
+    }
+    return `<figure class="crb-figure">${fig}</figure><div class="crb-check-body"><p class="crb-card-title">${esc(c.title)}</p>${body}</div>`;
+  }
+
+  function renderCheck(c) {
+    let el = document.getElementById(`chk-${c.id}`);
+    if (!el) {
+      el = Object.assign(document.createElement('article'), { id: `chk-${c.id}`, className: 'crb-check' });
+      $('#checkList').prepend(el);
+    }
+    el.innerHTML = checkCardHTML(c);
+  }
+
+  /** Queue one photo: src = image URL, page link or data: URL; display = what to show while waiting. */
+  function queueCheck({ src, display, title, link }) {
+    if (!SPACE) { setCheckStatus('The instant check is being set up. Please try again soon, or email the photo to ' + CONTACT + '.'); return; }
+    const c = { id: ++checkSeq, src, display, title, link, wait: pending ? 'Waiting for the photos ahead…' : 'Analysing…' };
+    pending++; renderCheck(c);
+    checkQueue = checkQueue.then(async () => {
+      c.wait = 'Analysing… (usually one to three minutes)'; renderCheck(c);
       try {
-        const e = await previewLink(u);
-        e.result = e.source === 'link' ? state.items.find(it => it.uid.startsWith(e.key)) : resultFor(e);
-        if (!e.thumb && e.note) e.title += ' — ' + e.note;
-        entries.push(e);
-      } catch (err) { entries.push({ key: 'err:' + u, source: 'link', title: `Could not preview: ${err.message}`, page: u }); }
+        c.analysis = await analyseWithRetry(src, s => {
+          c.wait = `Waking the detector up (${Math.floor(s / 60)} min ${s % 60} s). This takes a few minutes after a quiet spell…`; renderCheck(c);
+        });
+      } catch (err) { c.error = err.message; }
+      pending--; renderCheck(c);
+      setCheckStatus(pending ? `${pending} photo${pending > 1 ? 's' : ''} still to check` : '');
+    });
+    setCheckStatus(`${pending} photo${pending > 1 ? 's' : ''} to check`);
+  }
+
+  /** Shrink a picked or pasted file to ≤1600 px JPEG so uploads stay small. */
+  async function fileToDataURL(file) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const cv = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
+    cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+    return cv.toDataURL('image/jpeg', 0.9);
+  }
+  async function checkFiles(files) {
+    const imgs = [...files].filter(f => f.type.startsWith('image/'));
+    if (!imgs.length) { setCheckStatus('Those files are not images.'); return; }
+    if (imgs.length > MAX_CHECKS) setCheckStatus(`Checking the first ${MAX_CHECKS} photos.`);
+    for (const f of imgs.slice(0, MAX_CHECKS)) {
+      try {
+        const url = await fileToDataURL(f);
+        queueCheck({ src: url, display: url, title: f.name || 'Pasted photo' });
+      } catch { setCheckStatus(`Could not read ${f.name}.`); }
     }
-    state.entries.link = entries;
-    renderGrid(grid, entries);
-  };
-  $('#linkSend').onclick = () => {
-    const urls = linkLines();
-    if (!urls.length) { $('#grid-link').innerHTML = '<p class="crb-error">Paste at least one link starting with http.</p>'; return; }
-    sendLinks(urls);
-  };
+  }
+  function checkEntry(e) {
+    showTab('check');
+    queueCheck({ src: e.image || e.page, display: e.image || e.thumb, title: `${e.title}${e.date ? ` · ${e.date}` : ''}`, link: e.page });
+    window.scrollTo({ top: $('#crbTabs').offsetTop - 80, behavior: 'smooth' });
+  }
+
+  const drop = $('#dropZone'), fileInput = $('#fileInput');
+  $('#pickBtn').onclick = () => fileInput.click();
+  fileInput.onchange = () => { checkFiles(fileInput.files); fileInput.value = ''; };
+  ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, () => drop.classList.remove('over')));
+  drop.addEventListener('drop', ev => {
+    ev.preventDefault();
+    if (ev.dataTransfer.files.length) checkFiles(ev.dataTransfer.files);
+    else { const u = ev.dataTransfer.getData('text/uri-list') || ev.dataTransfer.getData('text/plain'); if (/^https?:\/\//.test(u)) queueCheck({ src: u.trim(), title: u.trim(), link: u.trim() }); }
+  });
+  document.addEventListener('paste', ev => {
+    if (currentTab !== 'check' || ev.target.closest('input, textarea')) return;
+    const files = [...(ev.clipboardData?.files || [])];
+    if (files.length) { ev.preventDefault(); checkFiles(files); }
+  });
+  $('#checkLinkForm').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const urls = $('#checkUrl').value.split(/\s+/).filter(u => /^https?:\/\//.test(u));
+    if (!urls.length) { setCheckStatus('Paste a link starting with http:// or https://'); return; }
+    for (const u of urls.slice(0, MAX_CHECKS)) {
+      const direct = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(u) || /inaturalist-open-data|static\.inaturalist/.test(u);
+      queueCheck({ src: u, display: direct ? u : '', title: u.replace(/^https?:\/\//, '').slice(0, 90), link: u });
+    }
+    $('#checkUrl').value = '';
+  });
 
   // ------------------------------------------------------------------ tabs + routing
   let currentTab = 'results';

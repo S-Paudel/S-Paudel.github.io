@@ -7,7 +7,8 @@
 (() => {
   'use strict';
 
-  const REPO = 'S-Paudel/crb-monitor-private';   // private project repository: issues for links and reviews
+  const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries and record reports go here
+  const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const DATA = 'crb-monitor/data/surveillance.json';
   const INAT = 'https://api.inaturalist.org/v1';
   const GBIF = 'https://api.gbif.org/v1';
@@ -386,16 +387,8 @@
       <h3>${esc(areaName(r.area))}: <em>${esc(r.sp)}</em></h3>
       <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
       <p><a class="btn btn-primary" href="${esc(r.url)}" target="_blank" rel="noopener">Open on ${r.src === 'gbif' ? 'GBIF' : 'iNaturalist'} ↗</a></p>
-      <div class="crb-review">
-        <button class="crb-btn-ghost confirm" data-sv-rev="confirmed">Confirmed CRB</button>
-        <button class="crb-btn-ghost" data-sv-rev="rejected">Not CRB</button>
-        <button class="crb-btn-ghost" data-sv-rev="unsure">Unsure</button>
-      </div>
-      <p class="crb-note">Project members only: your decision is recorded through a short issue in the private project repository. "Not CRB" removes the record from counts and alerts.</p>`;
-    $$('[data-sv-rev]', dlg).forEach(b => b.onclick = () => {
-      const body = `<!-- crb-monitor:review -->\nuid: ${r.uid}\ndecision: ${b.dataset.svRev}\nnote: \n\nRecord: ${r.url}\n\n_(Add a note on the "note:" line if you like, then submit.)_`;
-      window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent(`[CRB review] ${b.dataset.svRev}: ${r.uid}`)}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');
-    });
+      <p><a class="crb-btn-ghost" href="${esc(mailto(`CRB record ${r.uid}`, `Hello Sulav,\n\nAbout this record on the CRB Surveillance dashboard:\n${r.url}\n(${areaName(r.area)}, ${r.date || 'no date'}, currently shown as: ${e.label})\n\nMy note (e.g. confirmed CRB / not CRB / more information):\n\n`))}">Email Sulav about this record</a></p>
+      <p class="crb-note">Think this record is misidentified, or have more information? Email Sulav Paudel (${CONTACT}). Records found not to be CRB are removed from counts and alerts.</p>`;
     if (!dlg.open) dlg.showModal();
     history.replaceState(null, '', `#item=${encodeURIComponent(uid)}`);
   }

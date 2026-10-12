@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=4">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=6">
 </head>
 <body>
 
@@ -46,17 +46,18 @@
 <main class="crb-main">
   <div class="crb-tabs" role="tablist" id="crbTabs">
     <button role="tab" data-tab="results" aria-selected="true">Palm damage results</button>
+    <button role="tab" data-tab="check">Check a photo</button>
     <button role="tab" data-tab="inaturalist">Browse iNaturalist photos</button>
-    <button role="tab" data-tab="link">Submit a link</button>
     <button role="tab" data-tab="about">Method &amp; credits</button>
   </div>
 
   <!-- ===================== PALM DAMAGE RESULTS ===================== -->
   <section class="crb-panel" data-panel="results">
-    <div class="crb-stats mono" id="crbStats" aria-live="polite"></div>
-    <p class="crb-intro">Coconut palm photos from iNaturalist in the watch regions, screened for
-      V-shaped frond cuts with Aubrey Moore's detector. Each photo is <strong>first seen</strong>
-      on the date it entered the record, so you can ask for <em>new</em> damage since any date.</p>
+    <p class="crb-intro">Every week, new coconut palm photos from iNaturalist in the watch regions
+      are collected and screened for V-shaped frond cuts with Aubrey Moore's detector. Each photo
+      is <strong>first seen</strong> on the date it entered the record, so you can ask for
+      <em>new</em> damage since any date.</p>
+    <div class="crb-funnel" id="crbStats" aria-live="polite"></div>
     <form class="crb-filters" id="resFilters">
       <label>Showing
         <select name="status">
@@ -126,22 +127,26 @@
   </template>
   <section class="crb-panel" data-panel="inaturalist" hidden></section>
 
-  <!-- ===================== SUBMIT LINK ===================== -->
-  <section class="crb-panel" data-panel="link" hidden>
-    <p class="crb-intro">Paste one or more links, one per line. These can be an
-      iNaturalist observation, a GBIF occurrence, a direct image address, or a news
-      page with a palm photo. Check the preview,
-      then send them for analysis.</p>
-    <textarea id="linkInput" rows="5" placeholder="https://www.inaturalist.org/observations/123456789&#10;https://www.flickr.com/photos/someone/53000000000&#10;https://example.com/palms.jpg"></textarea>
-    <div class="crb-row">
-      <button type="button" class="btn btn-ghost" id="linkPreview">Preview</button>
-      <button type="button" class="btn btn-primary" id="linkSend">Send for analysis</button>
+  <!-- ===================== CHECK A PHOTO ===================== -->
+  <section class="crb-panel" data-panel="check" hidden>
+    <p class="crb-intro">Check a coconut palm photo straight away. Drop in your own photos, or paste
+      a link to an image or an iNaturalist / GBIF observation. Aubrey Moore's detector outlines each
+      palm and marks any V-shaped cuts. Photos are analysed and not kept.</p>
+    <div class="crb-drop" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      <p><strong>Drop photos here</strong> or <button type="button" class="crb-linkbtn" id="pickBtn">choose files</button></p>
+      <p class="crb-hint">JPEG or PNG, up to 10 at a time. You can also paste a copied image (Ctrl+V).</p>
     </div>
-    <p class="crb-hint">"Send for analysis" opens a pre-filled issue in the project's private
-      GitHub repository. Submit it and the analysis runs automatically. The issue gets a
-      reply with the result, and the result appears under <strong>Palm damage results</strong>.
-      Sending needs access to that repository, so if you would like to contribute, contact Sulav Paudel.</p>
-    <div class="crb-grid" id="grid-link"></div>
+    <form class="crb-checklink" id="checkLinkForm">
+      <input type="text" id="checkUrl" inputmode="url" autocomplete="off" spellcheck="false"
+        placeholder="…or paste a link, e.g. https://www.inaturalist.org/observations/123456789">
+      <button class="btn btn-primary" type="submit">Check</button>
+    </form>
+    <p class="crb-status" id="checkStatus" aria-live="polite"></p>
+    <div class="crb-checks" id="checkList"></div>
+    <p class="crb-hint">Each photo takes about one to three minutes. After a quiet spell the detector
+      first needs a few minutes to wake up. Found something? Use "Email Sulav" on the result, or write to
+      <a href="mailto:sulav.paudel@agresearch.co.nz?subject=CRB%20damage%20photo">sulav.paudel@agresearch.co.nz</a>.</p>
   </section>
 
   <!-- ===================== ABOUT ===================== -->
@@ -165,7 +170,8 @@
             A shape classifier trained by Aubrey keeps the cut-shaped ones. Palms
             touching the photo edge are flagged and their cuts are not counted.</li>
           <li><span class="mono">04 · Human review</span>
-            Results are screening only. Open any photo and confirm or reject it.</li>
+            Results are screening only. Open any photo and email Sulav Paudel to confirm
+            or reject it.</li>
         </ol>
       </div>
       <div>
@@ -189,12 +195,6 @@
     </div>
   </section>
 
-  <!-- selection tray -->
-  <div class="crb-tray" id="tray" hidden>
-    <span class="mono" id="trayCount"></span>
-    <button type="button" class="crb-btn-ghost" id="trayClear">Clear</button>
-    <button type="button" class="btn btn-primary" id="traySend">Send selected for analysis</button>
-  </div>
 </main>
 
 <!-- detail viewer -->
@@ -226,6 +226,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=4"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=6"></script>
 </body>
 </html>
