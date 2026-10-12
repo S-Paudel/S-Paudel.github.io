@@ -1,0 +1,88 @@
+/* ===========================================================
+   Extras for the Professional page: live publications feed
+   button, and the collaborator/field-site map. Loaded after
+   style.css so it can reuse the same design tokens.
+   =========================================================== */
+
+/* Publications feed */
+.pub-note a { color: var(--accent); }
+.pub-show-all {
+  display: inline-block;
+  margin: 22px 0 0;
+  padding: 11px 22px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.pub-show-all:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Collaborator map */
+.collab-map-wrap { margin-top: 8px; }
+
+#collabMap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 520px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+}
+
+.leaflet-popup-content-wrapper {
+  background: #15170F;
+  color: var(--ink);
+  border-radius: 4px;
+  font-family: var(--body);
+  font-size: 0.85rem;
+}
+.leaflet-popup-content { margin: 12px 16px; line-height: 1.5; }
+.leaflet-popup-content em { color: var(--ink-soft); font-style: italic; }
+.leaflet-popup-tip { background: #15170F; }
+.leaflet-popup-close-button { color: var(--ink-soft) !important; }
+
+.leaflet-control-attribution {
+  background: rgba(10, 11, 9, 0.75) !important;
+  color: var(--ink-soft) !important;
+  font-size: 0.65rem !important;
+}
+.leaflet-control-attribution a { color: var(--ink-soft) !important; }
+
+.leaflet-control-zoom a {
+  background: #15170F !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+.leaflet-control-zoom a:hover { color: var(--accent) !important; }
+
+.collab-legend {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.collab-legend-item { display: inline-flex; align-items: center; gap: 8px; }
+.collab-legend-item .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.collab-list {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+@media (max-width: 860px) {
+  #collabMap { aspect-ratio: 4 / 3; }
+}

@@ -9,7 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="professional-extras.css?v=1">
 </head>
 <body>
 
@@ -262,8 +264,8 @@
 
   <!-- Publications -->
   <h3 class="sub-head">Selected publications</h3>
-  <p class="pub-note">Cited by 620+ · full record on <a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a></p>
-  <ol class="pub-list">
+  <p class="pub-note" id="pubNote">Cited by 620+ · full record on <a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a></p>
+  <ol class="pub-list" id="pubList">
     <li>
       <span class="pub-year mono">2025</span>
       <div>
@@ -322,6 +324,15 @@
     </li>
   </ol>
   <p class="pub-cta"><a href="https://scholar.google.com/citations?user=nRZD16YAAAAJ&hl=en" target="_blank" rel="noopener">See the full list on Google Scholar →</a></p>
+
+  <!-- Collaborators & field sites map -->
+  <h3 class="sub-head">Collaborators &amp; field sites</h3>
+  <p class="pub-note">Where my co-authors, research partners and fieldwork are. Click a pin for details, or click the map once to enable scroll-to-zoom.</p>
+  <div class="collab-map-wrap">
+    <div id="collabMap" role="img" aria-label="World map of research collaborators and field sites"></div>
+    <div class="collab-legend" id="collabLegend"></div>
+    <p class="collab-list" id="collabList"></p>
+  </div>
 
   <!-- Books, Book Chapters & Reviews -->
 <h3 class="sub-head">Books, Book Chapters &amp; Reviews</h3>
@@ -525,6 +536,10 @@
   <p class="footer-fine">© <span id="year"></span> Sulav Paudel. Built with plain HTML, CSS &amp; JS — hosted on GitHub Pages.</p>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="collab-data.js?v=1"></script>
+<script src="collab-map.js?v=1"></script>
+<script src="pubs-feed.js?v=1"></script>
 <script src="script.js?v=2"></script>
 </body>
 </html>
