@@ -35,10 +35,13 @@
     map.scrollWheelZoom.disable();
   });
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
-    maxZoom: 10,
-    subdomains: "abcd"
+  // Plain OpenStreetMap tiles, darkened with a CSS filter to match the
+  // site theme — same approach already used on the CRB Surveillance page,
+  // no API key or third-party basemap service required.
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    className: "collab-tiles",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
   }).addTo(map);
 
   var listNames = [];

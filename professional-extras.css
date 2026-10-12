@@ -33,6 +33,10 @@
   background: var(--bg-raised);
 }
 
+/* OpenStreetMap tiles, darkened to match the site (no API key needed) —
+   same filter recipe used on the CRB Surveillance map */
+.collab-tiles { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85) saturate(0.6); }
+
 .leaflet-popup-content-wrapper {
   background: #15170F;
   color: var(--ink);
