@@ -1,16 +1,16 @@
 /* CRB Damage Monitor — S-Paudel.github.io
  * Browses public palm photos (iNaturalist, Mapillary, Flickr, GBIF) live from their APIs,
  * shows the pipeline's analysis results (crb-monitor/data/results.json), and checks single
- * photos straight away through the "CRB damage check" Hugging Face Space (SPACE below).
+ * photos on request: the page sends them to a free Cloudflare relay (CHECK_API below), which starts the
+ * "photo check" workflow on GitHub; results come back through the relay and, optionally, by e-mail.
  * Images are hot-linked or analysed in memory, never stored. Enquiries go by e-mail (CONTACT).
  * Damage-detection method: Aubrey Moore, https://github.com/aubreymoore/CRB-2026-05-13
  */
 (() => {
   'use strict';
 
-  // Instant checks: the Hugging Face Space running Aubrey's detector (crb-monitor-private/space).
-  // Its address is https://<huggingface-username>-<space-name>.hf.space ('' = not set up yet).
-  const SPACE = '';
+  // Photo checks: address of the Cloudflare relay (crb-monitor-private/relay/worker.js), '' = not set up yet.
+  const CHECK_API = '';
   const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries, reviews and reports
   const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const MAX_CHECKS = 10;
@@ -226,7 +226,7 @@
     const meta = [e.date, e.place || (e.lat != null ? `${(+e.lat).toFixed(3)}, ${(+e.lon).toFixed(3)}` : ''), sourceName(e.source)]
       .filter(Boolean).join(' · ');
     const seen = it?.first_seen ? `<p class="crb-card-meta">first seen ${esc(it.first_seen)}</p>` : '';
-    const canCheck = SPACE && (e.image || e.page) && (!it || ['none', 'error', 'queued'].includes(statusOf(it)));
+    const canCheck = (e.image || e.page) && (!it || ['none', 'error', 'queued'].includes(statusOf(it)));
     return `<article class="crb-card" data-key="${esc(e.key)}">
       <button class="crb-thumb" type="button" data-view aria-label="Open ${esc(e.title)}">
         ${thumbImg(e)}
@@ -237,7 +237,7 @@
         <p class="crb-card-meta">${esc(meta)}</p>${seen}
         <div class="crb-card-foot">
           <a href="${esc(e.page)}" target="_blank" rel="noopener">Source ↗</a>
-          ${canCheck ? '<button type="button" class="crb-linkbtn" data-check>Check now</button>' : ''}
+          ${canCheck ? '<button type="button" class="crb-linkbtn" data-check>Add to check</button>' : ''}
         </div>
       </div>
     </article>`;
@@ -336,7 +336,7 @@
            <a class="crb-btn-ghost" href="${esc(reviewMail(it, 'not CRB damage'))}">Not CRB damage</a>
            <a class="crb-btn-ghost" href="${esc(reviewMail(it, 'unsure'))}">Unsure</a>
          </div><p class="crb-note">Each button opens an e-mail to Sulav Paudel with this photo's details.</p>`
-      : (SPACE && ['none', 'error', 'queued'].includes(st) ? `<button class="btn btn-primary" data-check-now>Check this photo now</button>` : '');
+      : (['none', 'error', 'queued'].includes(st) ? `<button class="btn btn-primary" data-check-now>Check this photo</button>` : '');
     $('#viewerMeta').innerHTML = `
       <div>${badgeHTML(it, it ? undefined : e.rejected)}</div>
       <h3>${esc(e.title)}</h3>
@@ -635,10 +635,10 @@
     if (!cfg.key || ls.get(cfg.key.store)) run(false);
   }
 
-  // ------------------------------------------------------------------ check a photo (instant)
+  // ------------------------------------------------------------------ check a photo (via the free relay + GitHub)
   /** Palm outlines and cuts (0–1 coordinates) drawn over a photo. */
   function overlaySVG(a) {
-    if (!a) return '';
+    if (!a || !a.palms) return '';
     const pts = p => p.map(([x, y]) => `${x},${y}`).join(' ');
     return `<svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">${a.palms.map(pm =>
       `<polygon class="palm${pm.touches_edge ? ' edge' : ''}" points="${pts(pm.poly)}"/>` +
@@ -650,88 +650,30 @@
     no_damage_detected: ['clear', 'Palm found, no V-cuts'],
     no_palm_found: ['nopalm', 'No palm crown found'],
   };
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  let checkSeq = 0, checkQueue = Promise.resolve(), pending = 0;
+  const chk = { staged: [], shown: new Map(), job: null, timer: null };   // shown: job id -> in-page copies of the photos
+  const mins = s => `${Math.floor(s / 60)} min ${String(Math.floor(s % 60)).padStart(2, '0')} s`;
+  const setCheckStatus = text => { $('#checkStatus').textContent = text; };
 
-  function setCheckStatus(text) { $('#checkStatus').textContent = text; }
-
-  /** One call to the Space. Returns the analysis, or throws {waking:true} while it is starting up. */
-  async function callSpace(src) {
-    let r;
-    try {
-      r = await fetch(`${SPACE}/gradio_api/call/check`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: [src] }) });
-    } catch { throw Object.assign(new Error('waking'), { waking: true }); }    // asleep pages lack CORS headers
-    if (!r.ok) throw Object.assign(new Error(`Detector returned ${r.status}`), { waking: [404, 502, 503, 504].includes(r.status) });
-    const { event_id: id } = await r.json();
-    const text = await (await fetch(`${SPACE}/gradio_api/call/check/${id}`)).text();
-    const events = [...text.matchAll(/event: (\w+)\ndata: (.*)/g)];
-    const last = events.filter(m => m[1] !== 'heartbeat').at(-1);
-    if (!last) throw new Error('No answer from the detector.');
-    let data = null; try { data = JSON.parse(last[2]); } catch { /* keep null */ }
-    if (last[1] === 'complete' && Array.isArray(data)) return data[0];
-    throw new Error(data?.error || 'The detector could not analyse this photo.');
+  // ---- staging
+  function renderStaged() {
+    const list = $('#stagedList'), n = chk.staged.length;
+    list.innerHTML = chk.staged.map((p, i) => `<figure class="crb-staged">
+        ${p.display ? `<img src="${esc(p.display)}" alt="" referrerpolicy="no-referrer">` : '<span class="ph">link</span>'}
+        <figcaption title="${esc(p.title)}">${esc(p.title)}</figcaption>
+        <button type="button" class="crb-x" data-unstage="${i}" aria-label="Remove ${esc(p.title)}">×</button></figure>`).join('');
+    $('#checkStart').disabled = !n;
+    const est = n ? `${n} photo${n > 1 ? 's' : ''} ready · expected time about ${5 + n}–${6 + 2 * n} minutes` : '';
+    $('#stagedCount').textContent = est;
+    $('#stageBox').hidden = !n;
   }
-
-  async function analyseWithRetry(src, onWait) {
-    const started = Date.now();
-    for (;;) {
-      try { return await callSpace(src); }
-      catch (err) {
-        if (!err.waking || Date.now() - started > 12 * 60e3) throw err.waking ? new Error('The detector did not wake up. Please try again in a few minutes.') : err;
-        onWait(Math.round((Date.now() - started) / 1000));
-        await sleep(15000);
-      }
-    }
+  function stage(p) {
+    if (chk.staged.length >= MAX_CHECKS) { setCheckStatus(`Up to ${MAX_CHECKS} photos per check. Start this group first.`); return false; }
+    chk.staged.push(p); renderStaged(); setCheckStatus(''); return true;
   }
-
-  function checkCardHTML(c) {
-    const a = c.analysis, [cls, label] = a ? VERDICT[a.verdict] || ['clear', a.verdict] : [];
-    const img = c.display || a?.image_url;
-    const fig = img ? `<div class="crb-overlay-wrap"><img src="${esc(img)}" alt="" referrerpolicy="no-referrer">${overlaySVG(a)}</div>` : '<p class="crb-empty">no preview</p>';
-    let body;
-    if (c.error) body = `<p class="crb-error">${esc(c.error)}</p>`;
-    else if (!a) body = `<p class="crb-wait"><span class="crb-spin" aria-hidden="true"></span>${esc(c.wait || 'Analysing…')}</p>`;
-    else {
-      const edge = a.palms.filter(p => p.touches_edge).length;
-      const mail = mailto(`CRB damage check: ${label}`,
-        `Hello Sulav,\n\nI checked a photo on the CRB Damage Monitor.\n\nResult: ${label} — ${a.n_palms} palm(s), ${a.n_cuts} V-cut(s) counted.\n` +
-        `Photo: ${c.link || '(my own photo — attached to this e-mail)'}\nWhere / when taken: \n\nNote:\n\n`);
-      body = `<span class="badge ${cls}">${esc(label)}</span>
-        <p class="crb-check-nums">${a.n_palms} palm${a.n_palms === 1 ? '' : 's'} outlined · <b>${a.n_cuts}</b> V-cut${a.n_cuts === 1 ? '' : 's'} counted · ${esc(a.seconds)} s</p>
-        ${edge ? `<p class="crb-note">${edge} palm${edge > 1 ? 's touch' : ' touches'} the photo edge, so ${edge > 1 ? 'their' : 'its'} cuts are not counted.</p>` : ''}
-        ${a.n_palms ? '<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>' : ''}
-        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}">Email Sulav</a>${c.link ? ` <a href="${esc(c.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
-    }
-    return `<figure class="crb-figure">${fig}</figure><div class="crb-check-body"><p class="crb-card-title">${esc(c.title)}</p>${body}</div>`;
-  }
-
-  function renderCheck(c) {
-    let el = document.getElementById(`chk-${c.id}`);
-    if (!el) {
-      el = Object.assign(document.createElement('article'), { id: `chk-${c.id}`, className: 'crb-check' });
-      $('#checkList').prepend(el);
-    }
-    el.innerHTML = checkCardHTML(c);
-  }
-
-  /** Queue one photo: src = image URL, page link or data: URL; display = what to show while waiting. */
-  function queueCheck({ src, display, title, link }) {
-    if (!SPACE) { setCheckStatus('The instant check is being set up. Please try again soon, or email the photo to ' + CONTACT + '.'); return; }
-    const c = { id: ++checkSeq, src, display, title, link, wait: pending ? 'Waiting for the photos ahead…' : 'Analysing…' };
-    pending++; renderCheck(c);
-    checkQueue = checkQueue.then(async () => {
-      c.wait = 'Analysing… (usually one to three minutes)'; renderCheck(c);
-      try {
-        c.analysis = await analyseWithRetry(src, s => {
-          c.wait = `Waking the detector up (${Math.floor(s / 60)} min ${s % 60} s). This takes a few minutes after a quiet spell…`; renderCheck(c);
-        });
-      } catch (err) { c.error = err.message; }
-      pending--; renderCheck(c);
-      setCheckStatus(pending ? `${pending} photo${pending > 1 ? 's' : ''} still to check` : '');
-    });
-    setCheckStatus(`${pending} photo${pending > 1 ? 's' : ''} to check`);
-  }
+  $('#stagedList').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-unstage]'); if (!b) return;
+    chk.staged.splice(+b.dataset.unstage, 1); renderStaged();
+  });
 
   /** Shrink a picked or pasted file to ≤1600 px JPEG so uploads stay small. */
   async function fileToDataURL(file) {
@@ -739,50 +681,170 @@
     const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
     const cv = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
     cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-    return cv.toDataURL('image/jpeg', 0.9);
+    return cv.toDataURL('image/jpeg', 0.88);
   }
-  async function checkFiles(files) {
-    const imgs = [...files].filter(f => f.type.startsWith('image/'));
-    if (!imgs.length) { setCheckStatus('Those files are not images.'); return; }
-    if (imgs.length > MAX_CHECKS) setCheckStatus(`Checking the first ${MAX_CHECKS} photos.`);
-    for (const f of imgs.slice(0, MAX_CHECKS)) {
-      try {
-        const url = await fileToDataURL(f);
-        queueCheck({ src: url, display: url, title: f.name || 'Pasted photo' });
-      } catch { setCheckStatus(`Could not read ${f.name}.`); }
+  async function addFiles(files) {
+    const all = [...files], imgs = all.filter(f => f.type.startsWith('image/'));
+    if (!imgs.length) {
+      setCheckStatus(/presentation|powerpoint|pptx/i.test(all.map(f => f.type + f.name).join(' '))
+        ? 'PowerPoint files can\'t be checked directly. In PowerPoint, right-click each picture → Save as Picture, then drop those files here.'
+        : 'Those files are not photos. Please use JPEG or PNG images.');
+      return;
     }
+    for (const f of imgs) {
+      try { const url = await fileToDataURL(f); if (!stage({ src: url, display: url, title: f.name || 'Pasted photo' })) break; }
+      catch { setCheckStatus(`Could not read ${f.name}.`); }
+    }
+    if (imgs.length < all.length) setCheckStatus('Some files were skipped because they are not photos.');
+  }
+  function addLink(u) {
+    const direct = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(u) || /inaturalist-open-data|static\.inaturalist/.test(u);
+    return stage({ src: u, display: direct ? u : '', title: u.replace(/^https?:\/\//, '').slice(0, 90), link: u });
   }
   function checkEntry(e) {
     showTab('check');
-    queueCheck({ src: e.image || e.page, display: e.image || e.thumb, title: `${e.title}${e.date ? ` · ${e.date}` : ''}`, link: e.page });
+    if (stage({ src: e.image || e.page, display: e.image || e.thumb, title: `${e.title}${e.date ? ` · ${e.date}` : ''}`, link: e.page })) {
+      setCheckStatus(`Added "${e.title}". Add more photos if you like, then press "Start check".`);
+    }
     window.scrollTo({ top: $('#crbTabs').offsetTop - 80, behavior: 'smooth' });
   }
 
   const drop = $('#dropZone'), fileInput = $('#fileInput');
   $('#pickBtn').onclick = () => fileInput.click();
-  fileInput.onchange = () => { checkFiles(fileInput.files); fileInput.value = ''; };
+  fileInput.onchange = () => { addFiles(fileInput.files); fileInput.value = ''; };
   ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, ev => { ev.preventDefault(); drop.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, () => drop.classList.remove('over')));
   drop.addEventListener('drop', ev => {
     ev.preventDefault();
-    if (ev.dataTransfer.files.length) checkFiles(ev.dataTransfer.files);
-    else { const u = ev.dataTransfer.getData('text/uri-list') || ev.dataTransfer.getData('text/plain'); if (/^https?:\/\//.test(u)) queueCheck({ src: u.trim(), title: u.trim(), link: u.trim() }); }
+    if (ev.dataTransfer.files.length) addFiles(ev.dataTransfer.files);
+    else { const u = (ev.dataTransfer.getData('text/uri-list') || ev.dataTransfer.getData('text/plain')).trim(); if (/^https?:\/\//.test(u)) addLink(u); }
   });
   document.addEventListener('paste', ev => {
     if (currentTab !== 'check' || ev.target.closest('input, textarea')) return;
     const files = [...(ev.clipboardData?.files || [])];
-    if (files.length) { ev.preventDefault(); checkFiles(files); }
+    if (files.length) { ev.preventDefault(); addFiles(files); }
   });
   $('#checkLinkForm').addEventListener('submit', ev => {
     ev.preventDefault();
     const urls = $('#checkUrl').value.split(/\s+/).filter(u => /^https?:\/\//.test(u));
     if (!urls.length) { setCheckStatus('Paste a link starting with http:// or https://'); return; }
-    for (const u of urls.slice(0, MAX_CHECKS)) {
-      const direct = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(u) || /inaturalist-open-data|static\.inaturalist/.test(u);
-      queueCheck({ src: u, display: direct ? u : '', title: u.replace(/^https?:\/\//, '').slice(0, 90), link: u });
-    }
+    for (const u of urls) if (!addLink(u)) break;
     $('#checkUrl').value = '';
   });
+  try { $('#checkEmail').value = ls.get('crb.checkEmail'); } catch { /* ignore */ }
+
+  // ---- start a check
+  $('#checkStart').onclick = async () => {
+    if (!chk.staged.length) return;
+    if (!CHECK_API) { setCheckStatus(`Photo checks are being set up. Please try again soon, or e-mail the photos to ${CONTACT}.`); return; }
+    const email = $('#checkEmail').value.trim();
+    if (email && !$('#checkEmail').checkValidity()) { setCheckStatus('That e-mail address does not look right.'); return; }
+    ls.set('crb.checkEmail', email);
+    const btn = $('#checkStart'); btn.disabled = true; setCheckStatus('Sending photos…');
+    try {
+      const r = await fetch(`${CHECK_API}/check`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, photos: chk.staged.map(p => ({ src: p.src, title: p.title, link: p.link || '' })) }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || `The check could not start (${r.status}).`);
+      chk.shown.set(d.id, chk.staged.map(p => p.display));
+      rememberCheck(d.id, chk.staged.length);
+      chk.staged = []; renderStaged();
+      setCheckStatus(email ? `Started. Results will also be e-mailed to ${email}.` : 'Started.');
+      openJob(d.id, true);
+    } catch (err) {
+      setCheckStatus(err.message === 'Failed to fetch' ? 'Could not reach the photo-check service. Please try again in a minute.' : err.message);
+    } finally { btn.disabled = !chk.staged.length; }
+  };
+
+  // ---- recent checks (this browser only)
+  function recentChecks() { try { return JSON.parse(ls.get('crb.checks') || '[]'); } catch { return []; } }
+  function rememberCheck(id, n) {
+    const list = [{ id, n, at: new Date().toISOString() }, ...recentChecks().filter(c => c.id !== id)].slice(0, 10);
+    ls.set('crb.checks', JSON.stringify(list)); renderRecent();
+  }
+  function renderRecent() {
+    const list = recentChecks();
+    $('#recentChecks').innerHTML = list.length ? `<span>Your recent checks:</span> ` + list.map(c =>
+      `<a href="#job=${esc(c.id)}" data-job="${esc(c.id)}">${esc(new Date(c.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))} · ${c.n} photo${c.n > 1 ? 's' : ''}</a>`).join(' ') : '';
+  }
+  $('#recentChecks').addEventListener('click', ev => { const a = ev.target.closest('[data-job]'); if (a) { ev.preventDefault(); openJob(a.dataset.job, true); } });
+
+  // ---- follow a check
+  function photoCardHTML(job, i) {
+    const p = job.photos[i], a = job.results[i], local = chk.shown.get(job.id)?.[i];
+    const err = a?.error;
+    const [cls, label] = a && !err ? VERDICT[a.verdict] || ['clear', a.verdict] : [];
+    let fig;
+    if (local || (!err && (a?.image_url || p.image))) fig = `<div class="crb-overlay-wrap"><img src="${esc(local || a?.image_url || p.image)}" alt="" referrerpolicy="no-referrer">${err ? '' : overlaySVG(a)}</div>`;
+    else if (a?.thumb) fig = `<div class="crb-overlay-wrap"><img src="${esc(a.thumb)}" alt="Photo with the detector's markings"></div>`;
+    else fig = '<p class="crb-empty">your photo</p>';
+    let body;
+    if (err) body = `<p class="crb-error">${esc(err)}</p>`;
+    else if (!a) body = `<p class="crb-wait"><span class="crb-spin" aria-hidden="true"></span>${job.status === 'error' ? 'Not analysed' : 'Waiting…'}</p>`;
+    else {
+      const edge = a.palms.filter(q => q.touches_edge).length;
+      const mail = mailto(`CRB damage check: ${label}`,
+        `Hello Sulav,\n\nI checked a photo on the CRB Damage Monitor.\n\nResult: ${label} — ${a.n_palms} palm(s), ${a.n_cuts} V-cut(s) counted.\n` +
+        `Photo: ${p.link || '(my own photo — attached to this e-mail)'}\nResults page: ${location.origin}${location.pathname}#job=${job.id}\nWhere / when taken: \n\nNote:\n\n`);
+      body = `<span class="badge ${cls}">${esc(label)}</span>
+        <p class="crb-check-nums">${a.n_palms} palm${a.n_palms === 1 ? '' : 's'} outlined · <b>${a.n_cuts}</b> V-cut${a.n_cuts === 1 ? '' : 's'} counted · ${esc(a.seconds)} s</p>
+        ${edge ? `<p class="crb-note">${edge} palm${edge > 1 ? 's touch' : ' touches'} the photo edge, so ${edge > 1 ? 'their' : 'its'} cuts are not counted.</p>` : ''}
+        ${a.n_palms ? '<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>' : ''}
+        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}">Email Sulav</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
+    }
+    return `<article class="crb-check"><figure class="crb-figure">${fig}</figure><div class="crb-check-body"><p class="crb-card-title">${esc(p.title)}</p>${body}</div></article>`;
+  }
+
+  function jobStatusText(job) {
+    const done = job.results.filter(Boolean).length, n = job.results.length;
+    const since = (Date.now() - new Date(job.created)) / 1000;
+    if (job.status === 'queued') return since > 15 * 60
+      ? `Still waiting for GitHub to start (${mins(since)}). It is busier than usual; the check will run as soon as a machine is free.`
+      : `Waiting for GitHub to start a machine and load the detector (${mins(since)} so far; usually about 5 minutes)…`;
+    if (job.status === 'running') return `Analysing photo ${Math.min(done + 1, n)} of ${n} (${mins(since)} so far)…`;
+    if (job.status === 'error') return job.message || 'The check could not be completed.';
+    return `Finished: ${n} photo${n > 1 ? 's' : ''} checked` +
+      (job.email ? (job.emailed ? ' · results e-mailed' : job.emailed === false ? ' · the results e-mail could not be sent' : '') : '') + '.';
+  }
+
+  function renderJob(job) {
+    const busy = job.status === 'queued' || job.status === 'running';
+    $('#jobView').hidden = false;
+    $('#jobView').innerHTML = `
+      <div class="crb-job-head">
+        <p class="crb-status-line">${busy ? '<span class="crb-spin" aria-hidden="true"></span>' : ''}${esc(jobStatusText(job))}</p>
+        <p class="crb-hint">Check started ${esc(new Date(job.created).toLocaleString())}. ${busy ? 'You can leave this page; ' + (job.email ? 'the results will be e-mailed to you, and ' : '') + 'this link shows them when ready: ' : 'Results stay at this link for 30 days: '}
+          <a href="#job=${esc(job.id)}">${esc(location.origin + location.pathname)}#job=${esc(job.id)}</a></p>
+      </div>
+      <div class="crb-checks">${job.photos.map((_, i) => photoCardHTML(job, i)).join('')}</div>`;
+  }
+
+  async function openJob(id, scroll) {
+    clearTimeout(chk.timer);
+    chk.job = id;
+    if (currentTab !== 'check') showTab('check');
+    history.replaceState(null, '', `#job=${id}`);
+    if (!CHECK_API) { setCheckStatus('Photo checks are being set up.'); return; }
+    let first = true;
+    const poll = async () => {
+      if (chk.job !== id) return;
+      try {
+        const r = await fetch(`${CHECK_API}/status/${id}`, { cache: 'no-store' });
+        const job = await r.json();
+        if (!r.ok) throw new Error(job.error || `Status ${r.status}`);
+        renderJob(job);
+        if (first && scroll) $('#jobView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        first = false;
+        if (job.status === 'queued' || job.status === 'running') chk.timer = setTimeout(poll, 15000);
+      } catch (err) {
+        $('#jobView').hidden = false;
+        $('#jobView').innerHTML = `<p class="crb-error">${esc(err.message === 'Failed to fetch' ? 'Could not reach the photo-check service. Retrying…' : err.message)}</p>`;
+        if (err.message === 'Failed to fetch') chk.timer = setTimeout(poll, 30000);
+      }
+    };
+    poll();
+  }
+  renderStaged(); renderRecent();
 
   // ------------------------------------------------------------------ tabs + routing
   let currentTab = 'results';
@@ -793,10 +855,12 @@
     $$('.crb-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
     if (SOURCES[name] && !$(`[data-panel="${name}"]`).dataset.built) buildSourcePanel(name);
     setTimeout(() => state.maps[name]?.invalidateSize(), 50);
-    if (!location.hash.startsWith('#item=')) history.replaceState(null, '', `#tab=${name}`);
+    if (!location.hash.startsWith('#item=') && !(name === 'check' && location.hash.startsWith('#job='))) history.replaceState(null, '', `#tab=${name}`);
   }
   $$('#crbTabs button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
   window.addEventListener('hashchange', () => {
+    const jobId = new URLSearchParams(location.hash.slice(1)).get('job');
+    if (jobId && jobId !== chk.job) { openJob(jobId, true); return; }
     const uid = new URLSearchParams(location.hash.slice(1)).get('item');
     if (uid && state.byUid.has(uid)) { showTab('results'); openViewer(entryFromItem(state.byUid.get(uid))); }
     else if (uid && /^(inat|gbif):/.test(uid)) location.href = `crb-surveillance.html#item=${encodeURIComponent(uid)}`;
@@ -818,8 +882,9 @@
     const hash = new URLSearchParams(location.hash.slice(1));
     const uid = hash.get('item');
     if (uid && /^(inat|gbif):/.test(uid)) { location.replace(`crb-surveillance.html#item=${encodeURIComponent(uid)}`); return; }
-    showTab(hash.get('tab') || 'results');
+    showTab(hash.get('job') ? 'check' : hash.get('tab') || 'results');
     filterResults();
+    if (hash.get('job')) { openJob(hash.get('job'), true); return; }
     if (uid && state.byUid.has(uid)) {
       $('#resFilters').status.value = 'everything'; filterResults();
       openViewer(entryFromItem(state.byUid.get(uid)));

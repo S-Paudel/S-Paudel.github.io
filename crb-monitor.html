@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=6">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=7">
 </head>
 <body>
 
@@ -129,23 +129,49 @@
 
   <!-- ===================== CHECK A PHOTO ===================== -->
   <section class="crb-panel" data-panel="check" hidden>
-    <p class="crb-intro">Check a coconut palm photo straight away. Drop in your own photos, or paste
-      a link to an image or an iNaturalist / GBIF observation. Aubrey Moore's detector outlines each
-      palm and marks any V-shaped cuts. Photos are analysed and not kept.</p>
+    <p class="crb-intro">Check your own coconut palm photos for CRB damage. Add up to 10 photos, or links to
+      an image or an iNaturalist / GBIF observation, then press <strong>Start check</strong>. Aubrey Moore's
+      detector outlines each palm and marks any V-shaped cuts. Photos are deleted as soon as the check is done.</p>
+
+    <aside class="crb-timing" aria-label="How long a check takes">
+      <p class="crb-timing-h">How long it takes</p>
+      <p>Checks run on a free GitHub computer without a graphics card, so they are not instant.
+        Starting up takes about 5 minutes, then each photo takes 1–2 minutes.</p>
+      <ul>
+        <li><b>1 photo</b> about 6–8 min</li>
+        <li><b>5 photos</b> about 12–15 min</li>
+        <li><b>10 photos</b> about 20–25 min</li>
+      </ul>
+      <p>You don't need to keep this page open: leave your e-mail and the results are sent to you when ready.</p>
+    </aside>
+
     <div class="crb-drop" id="dropZone">
       <input type="file" id="fileInput" accept="image/*" multiple hidden>
       <p><strong>Drop photos here</strong> or <button type="button" class="crb-linkbtn" id="pickBtn">choose files</button></p>
-      <p class="crb-hint">JPEG or PNG, up to 10 at a time. You can also paste a copied image (Ctrl+V).</p>
+      <p class="crb-hint">JPEG or PNG. You can also paste a copied image (Ctrl+V). For pictures in a PowerPoint deck,
+        right-click each one → Save as Picture first.</p>
     </div>
     <form class="crb-checklink" id="checkLinkForm">
       <input type="text" id="checkUrl" inputmode="url" autocomplete="off" spellcheck="false"
         placeholder="…or paste a link, e.g. https://www.inaturalist.org/observations/123456789">
-      <button class="btn btn-primary" type="submit">Check</button>
+      <button class="crb-btn-ghost" type="submit">Add link</button>
     </form>
+
+    <div class="crb-stage" id="stageBox" hidden>
+      <div class="crb-staged-list" id="stagedList"></div>
+      <p class="crb-hint mono" id="stagedCount"></p>
+      <div class="crb-start-row">
+        <label class="crb-email">E-mail me the results <span>(optional)</span>
+          <input type="email" id="checkEmail" autocomplete="email" placeholder="name@example.org"></label>
+        <button type="button" class="btn btn-primary" id="checkStart" disabled>Start check</button>
+      </div>
+      <p class="crb-hint">Your e-mail address is used only to send these results and is deleted when the check finishes.</p>
+    </div>
+
     <p class="crb-status" id="checkStatus" aria-live="polite"></p>
-    <div class="crb-checks" id="checkList"></div>
-    <p class="crb-hint">Each photo takes about one to three minutes. After a quiet spell the detector
-      first needs a few minutes to wake up. Found something? Use "Email Sulav" on the result, or write to
+    <div class="crb-job" id="jobView" hidden aria-live="polite"></div>
+    <p class="crb-recent" id="recentChecks"></p>
+    <p class="crb-hint">Found something? Use "Email Sulav" on a result, or write to
       <a href="mailto:sulav.paudel@agresearch.co.nz?subject=CRB%20damage%20photo">sulav.paudel@agresearch.co.nz</a>.</p>
   </section>
 
@@ -226,6 +252,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=6"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=7"></script>
 </body>
 </html>
