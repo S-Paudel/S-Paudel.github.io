@@ -10,7 +10,7 @@
   'use strict';
 
   // Photo checks: address of the Cloudflare relay (crb-monitor-private/relay/worker.js), '' = not set up yet.
-  const CHECK_API = '';
+  const CHECK_API = 'https://crb-checks.sulavpaudel111.workers.dev';
   const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries, reviews and reports
   const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const MAX_CHECKS = 10;
