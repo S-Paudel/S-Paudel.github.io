@@ -78,5 +78,25 @@
    "2024-01-01",
    "2026-10-11"
   ]
+ },
+ {
+  "command": "scan",
+  "started": "2026-10-13T00:38:35+00:00",
+  "finished": "2026-10-13T00:56:07+00:00",
+  "regions": [
+   "south_america",
+   "caribbean",
+   "us_contiguous"
+  ],
+  "found": {
+   "inaturalist": 1
+  },
+  "analysed": 20,
+  "failed": [],
+  "queued_after": 528,
+  "window": [
+   "2024-01-01",
+   "2026-10-13"
+  ]
  }
 ]
