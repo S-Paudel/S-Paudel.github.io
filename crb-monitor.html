@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=8">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=9">
 </head>
 <body>
 
@@ -53,8 +53,15 @@
 
   <!-- ===================== PALM DAMAGE RESULTS ===================== -->
   <section class="crb-panel" data-panel="results">
-    <p class="crb-intro">Every week, new coconut palm photos from iNaturalist in the watch regions
-      are collected and screened for V-shaped frond cuts with Aubrey Moore's detector. Each photo
+    <aside class="crb-paused" role="note">
+      <p class="crb-paused-h">Damage screening paused</p>
+      <p>The first automatic V-cut detector was too easily fooled: on close-up photos it counted the gaps between fronds
+        as beetle cuts. Automatic screening is paused while a new detector is trained on labelled photos of damaged and
+        healthy palms. Photos already processed are shown below as <em>trial analysis</em>, without damage calls.
+        Seen CRB damage? Email <a href="mailto:sulav.paudel@agresearch.co.nz?subject=CRB%20damage%20photo">sulav.paudel@agresearch.co.nz</a>.</p>
+    </aside>
+    <p class="crb-intro">New coconut palm photos from iNaturalist in the watch regions
+      are collected here to be screened for V-shaped frond cuts. Each photo
       is <strong>first seen</strong> on the date it entered the record, so you can ask for
       <em>new</em> damage since any date.</p>
     <div class="crb-funnel" id="crbStats" aria-live="polite"></div>
@@ -63,6 +70,7 @@
         <select name="status">
           <option value="damage">Possible CRB damage</option>
           <option value="all_analyzed">All analysed photos</option>
+          <option value="trial">Trial analysis</option>
           <option value="clear">No cuts found</option>
           <option value="no_palm">No palm found</option>
           <option value="queued">Waiting for analysis</option>
@@ -253,6 +261,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=8"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=9"></script>
 </body>
 </html>

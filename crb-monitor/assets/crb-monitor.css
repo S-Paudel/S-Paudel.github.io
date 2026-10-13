@@ -341,3 +341,10 @@ a.crb-btn-ghost{ display:inline-block; text-decoration:none; }
 @media (max-width: 760px){ .crb-start-row .btn{ width:100%; } }
 .crb-stage-h{ font:500 0.72rem var(--mono); text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); margin:0 0 10px; }
 .crb-staged-empty{ grid-column:1/-1; margin:0; padding:14px 0; font-size:0.88rem; color:var(--ink-soft); }
+
+/* ---------- paused notice ---------- */
+.crb-paused{ border-left:3px solid #9AA3B5; background:rgba(154,163,181,0.08); padding:14px 18px; margin:0 0 22px; max-width:82ch; font-size:0.92rem; color:var(--ink-soft); }
+.crb-paused p{ margin:0 0 6px; } .crb-paused p:last-child{ margin:0; }
+.crb-paused-h{ font:500 0.72rem var(--mono); text-transform:uppercase; letter-spacing:0.07em; color:var(--ink); }
+.badge.trial{ color:#9AA3B5; }
+.crb-step.paused b{ color:var(--ink-soft); font-size:1.2rem; }

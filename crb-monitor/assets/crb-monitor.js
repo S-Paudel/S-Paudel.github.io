@@ -14,6 +14,9 @@
   const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries, reviews and reports
   const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const MAX_CHECKS = 10;
+  // Paused (Oct 2026) while a new damage detector is trained on labelled photos.
+  // true = automatic scan results are shown only as "trial" (no damage calls). "Check a photo" keeps working.
+  const DAMAGE_PAUSED = true;
   const DATA = 'crb-monitor/data/';
   const API = {
     inat: 'https://api.inaturalist.org/v1',
@@ -73,6 +76,7 @@
   function statusOf(it) {
     if (!it) return 'none';
     if (it.status === 'analyzed') {
+      if (DAMAGE_PAUSED) return 'trial';
       return { candidate_damage: 'damage', no_damage_detected: 'clear', no_palm_found: 'nopalm' }[it.analysis?.verdict] || 'clear';
     }
     return { queued: 'queued', beetle_record: 'beetle', error: 'error' }[it.status] || 'none';
@@ -83,7 +87,7 @@
     let label = {
       damage: `${it?.analysis?.n_cuts} cut${it?.analysis?.n_cuts === 1 ? '' : 's'} · possible damage`,
       clear: 'No cuts found', nopalm: 'No palm found', queued: 'Waiting for analysis',
-      beetle: 'Beetle sighting', error: 'Analysis failed', none: 'Not screened',
+      beetle: 'Beetle sighting', error: 'Analysis failed', none: 'Not screened', trial: 'Trial analysis',
     }[st];
     if (st === 'none' && rejectedScore !== undefined) label = 'Screened · no palm';
     let html = `<span class="badge ${st === 'none' && rejectedScore !== undefined ? 'nopalm' : st}">${esc(label)}</span>`;
@@ -128,11 +132,11 @@
       <div class="crb-steps-row">
         ${step(found, 'coconut palm photos collected from iNaturalist')}
         ${step(palms.length, 'passed the palm check (crown visible)')}
-        ${step(analysed.length, 'analysed for V-cuts')}
-        ${step(dmg.length, 'possible CRB damage', 'dmg')}
+        ${step(analysed.length, DAMAGE_PAUSED ? 'run through the trial detector' : 'analysed for V-cuts')}
+        ${DAMAGE_PAUSED ? '<div class="crb-step paused"><b>Paused</b><span>damage screening (new detector in training)</span></div>' : step(dmg.length, 'possible CRB damage', 'dmg')}
       </div>
       <p class="crb-funnel-note">${last ? `Last scan ${esc(fmt(last.finished))}: ${n(lastNew)} new photo${lastNew === 1 ? '' : 's'}, ${n(last.analysed || 0)} analysed. ` : ''}` +
-      `${n(waiting)} waiting for analysis · ${n(conf.length)} confirmed by review · scans run weekly` +
+      (DAMAGE_PAUSED ? `Automatic scans are paused · ${n(waiting)} photos collected and waiting` : `${n(waiting)} waiting for analysis · ${n(conf.length)} confirmed by review · scans run daily`) +
       `${found - palms.length ? ` · ${n(found - palms.length)} photos showed no palm crown (close-ups of nuts, trunks, people…) and were skipped` : ''}.</p>`;
   }
 
@@ -169,7 +173,7 @@
   window.CRB = Object.assign(window.CRB || {}, { areasOf, regionBBox, inatPlaceParams, getRegions: () => state.regions });
 
   // ------------------------------------------------------------------ maps
-  const COLORS = { damage: '#FF8A3D', clear: '#D6F24C', queued: '#7FC8F8', nopalm: '#7C8274', beetle: '#E7A6F0', error: '#F06C6C', none: '#F5F2E9' };
+  const COLORS = { trial: '#9AA3B5', damage: '#FF8A3D', clear: '#D6F24C', queued: '#7FC8F8', nopalm: '#7C8274', beetle: '#E7A6F0', error: '#F06C6C', none: '#F5F2E9' };
 
   function getMap(name, el) {
     if (state.maps[name]) return state.maps[name];
@@ -323,14 +327,19 @@
       ['Credit', esc(e.attribution || '—')],
       it?.palm_score != null && ['Palm check', `${Math.round(it.palm_score * 100)}% palm (CLIP)`],
       a && ['Palms found', esc(a.n_palms)],
-      a && ['V-cuts counted', esc(a.n_cuts)],
+      a && !DAMAGE_PAUSED && ['V-cuts counted', esc(a.n_cuts)],
       a && ['Detector', `${esc(a.detector)}${a.cut_filter === 'none' ? ' — <em>no cut classifier; counts include frond gaps</em>' : ''}`],
       a && ['Analysed', `${esc((a.analysed_at || '').slice(0, 10))}${a.seconds ? ` · ${esc(a.seconds)} s` : ''}`],
       it?.review && ['Review', `${esc(it.review.decision)} by ${esc(it.review.by || '—')} on ${esc(it.review.on)}`],
       it?.error && ['Error', esc(it.error)],
     ].filter(Boolean);
     const st = statusOf(it);
-    const actions = it && it.status === 'analyzed'
+    const actions = DAMAGE_PAUSED
+      ? `<p class="crb-note">Automatic damage screening is paused while a new detector is trained. The outline shown here comes
+           from the earlier trial detector, which often mistakes gaps between fronds for V-cuts. Seen CRB damage in this photo?
+           <a href="${esc(mailto(`CRB damage photo: ${it?.uid || e.page}`, `Hello Sulav,\n\nI think this photo shows CRB damage:\n${e.page}\n\nNote:\n\n`))}">Email Sulav</a>.</p>
+         <button class="btn btn-primary" data-check-now>Check this photo</button>`
+      : it && it.status === 'analyzed'
       ? `<div class="crb-review">
            <a class="crb-btn-ghost confirm" href="${esc(reviewMail(it, 'confirmed'))}">Confirm damage</a>
            <a class="crb-btn-ghost" href="${esc(reviewMail(it, 'not CRB damage'))}">Not CRB damage</a>
@@ -340,7 +349,7 @@
     $('#viewerMeta').innerHTML = `
       <div>${badgeHTML(it, it ? undefined : e.rejected)}</div>
       <h3>${esc(e.title)}</h3>
-      ${a ? `<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>` : ''}
+      ${a && !DAMAGE_PAUSED ? `<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>` : ''}
       <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
       ${actions}
       <p class="crb-note">Automated screening only. V-cuts can also come from wind, other pests or
@@ -360,7 +369,7 @@
     resFiltered = state.items.filter(it => {
       const st = statusOf(it);
       const okStatus = {
-        damage: st === 'damage', all_analyzed: it.status === 'analyzed', clear: st === 'clear', no_palm: st === 'nopalm',
+        damage: st === 'damage', all_analyzed: it.status === 'analyzed', trial: st === 'trial', clear: st === 'clear', no_palm: st === 'nopalm',
         queued: st === 'queued', beetle: st === 'beetle', everything: true,
       }[f.status];
       if (!okStatus) return false;
@@ -887,7 +896,7 @@
     if (uid && state.byUid.has(uid)) {
       $('#resFilters').status.value = 'everything'; filterResults();
       openViewer(entryFromItem(state.byUid.get(uid)));
-    } else if (!state.items.some(i => statusOf(i) === 'damage') && state.items.length) {
+    } else if (DAMAGE_PAUSED || (!state.items.some(i => statusOf(i) === 'damage') && state.items.length)) {
       $('#resFilters').status.value = 'all_analyzed'; filterResults();
     }
   }
