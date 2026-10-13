@@ -662,9 +662,8 @@
         <figcaption title="${esc(p.title)}">${esc(p.title)}</figcaption>
         <button type="button" class="crb-x" data-unstage="${i}" aria-label="Remove ${esc(p.title)}">×</button></figure>`).join('');
     $('#checkStart').disabled = !n;
-    const est = n ? `${n} photo${n > 1 ? 's' : ''} ready · expected time about ${5 + n}–${6 + 2 * n} minutes` : '';
-    $('#stagedCount').textContent = est;
-    $('#stageBox').hidden = !n;
+    if (!n) list.innerHTML = '<p class="crb-staged-empty">No photos added yet. Drop photos above or add a link, then press Start check.</p>';
+    $('#stagedCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} ready · expected time about ${5 + n}–${6 + 2 * n} minutes` : '';
   }
   function stage(p) {
     if (chk.staged.length >= MAX_CHECKS) { setCheckStatus(`Up to ${MAX_CHECKS} photos per check. Start this group first.`); return false; }

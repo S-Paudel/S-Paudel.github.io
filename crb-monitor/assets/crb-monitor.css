@@ -339,3 +339,5 @@ a.crb-btn-ghost{ display:inline-block; text-decoration:none; }
 .crb-job-head .crb-hint a{ word-break:break-all; }
 .crb-recent{ font-size:0.82rem; color:var(--ink-soft); display:flex; flex-wrap:wrap; gap:4px 14px; }
 @media (max-width: 760px){ .crb-start-row .btn{ width:100%; } }
+.crb-stage-h{ font:500 0.72rem var(--mono); text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); margin:0 0 10px; }
+.crb-staged-empty{ grid-column:1/-1; margin:0; padding:14px 0; font-size:0.88rem; color:var(--ink-soft); }
