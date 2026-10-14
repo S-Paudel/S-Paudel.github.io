@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-13T21:57:04+00:00",
+ "updated": "2026-10-14T20:57:08+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -85,7 +85,7 @@
    "by": "yendychavez",
    "taxon": "Oryctes rhinoceros",
    "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/745217281/small.jpg",
-   "in_gbif": false,
+   "in_gbif": true,
    "first_seen": "baseline",
    "ev": "confirmed"
   },
@@ -2105,6 +2105,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-10-14T20:57:08+00:00",
+   "fetched": 94,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
   {
    "date": "2026-10-13T21:57:04+00:00",
    "fetched": 94,
