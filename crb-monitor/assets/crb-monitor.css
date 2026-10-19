@@ -363,3 +363,5 @@ a.crb-btn-ghost{ display:inline-block; text-decoration:none; }
 .crb-shot-t{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--crb-muted); }
 .crb-caveat{ margin-top:4px; }
 @media (max-width: 720px){ .crb-check.has-shots{ grid-template-columns:1fr; } .crb-shots{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+.crb-plain{ margin:0 0 14px; padding-left:18px; line-height:1.6; list-style:disc; }
+.crb-plain li{ margin:0 0 6px; }

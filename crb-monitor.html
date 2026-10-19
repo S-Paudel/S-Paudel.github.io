@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=10">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=11">
 </head>
 <body>
 
@@ -200,9 +200,9 @@
             small pictures are skipped). An iNaturalist observation or GBIF record gives all of its photos; a web
             page gives its main photos.</li>
           <li><span class="mono">02 · Damage model</span>
-            Each photo is scored by an image model (DINOv2-base, fine-tuned) trained on about 1,500 labelled photos of
-            CRB-damaged and undamaged coconut palms from 15 places in the Pacific, Asia and Australia. Three copies of the
-            model, trained separately, are averaged, and each photo is also scored as its mirror image.</li>
+            Each photo is scored by an image model (DINOv2-base, fine-tuned) trained on 1,479 labelled photos of
+            CRB-damaged and undamaged coconut palms. Three copies of the model, trained separately, are averaged, and each
+            photo is also scored as its mirror image.</li>
           <li><span class="mono">03 · Three answers</span>
             <b>Likely CRB damage</b> (score 0.88 or more), <b>Possible damage — please check</b> (0.44–0.88) and
             <b>No clear damage</b> (below 0.44). In tests on places the model had never seen, 5% of undamaged and 60% of
@@ -213,10 +213,47 @@
         </ol>
       </div>
       <div>
+        <h3>Training data</h3>
+        <p>The model was trained on <strong>1,479 photos</strong> (740 with CRB damage, 739 without), each labelled by eye,
+          from field surveys and published field photos across the CRB range: <strong>Vanuatu</strong> (Efate and Santo
+          surveys, about 570 photos), <strong>Fiji</strong>, <strong>Papua New Guinea</strong>, <strong>Solomon Islands</strong>,
+          <strong>Samoa</strong>, <strong>Cook Islands</strong>, <strong>Tahiti</strong>, <strong>Guam</strong>,
+          <strong>Hawaiʻi</strong>, <strong>Timor</strong>, <strong>Australia</strong> (Cairns) and <strong>India</strong>
+          (Kerala). Photos the model got wrong in testing were re-checked by eye without seeing their original label; labels
+          were corrected where needed, and photos that could not be judged at their resolution were left out.</p>
+
+        <h3>How it was tested</h3>
+        <ul class="crb-plain">
+          <li><b>New places:</b> the places were split into five groups. Each group was left out in turn, a model was
+            trained on the rest and tested on the group it had never seen. Across all photos it ranked a damaged photo
+            above an undamaged one 90% of the time (AUC 0.90).</li>
+          <li><b>A new survey year:</b> 705 damaged photos from the Efate (Vanuatu) roadside survey of November 2025,
+            never used for training: 88% came out as <em>likely CRB damage</em>, 8% as <em>possible</em> and 4% as
+            <em>no clear damage</em>. Lightly damaged palms were the hardest: 59% likely, 23% missed.</li>
+        </ul>
+
+        <h3>Limitations</h3>
+        <ul class="crb-plain">
+          <li>The model judges the whole photo. With several palms in view, a small damaged palm can be missed, and it
+            cannot say which palm is damaged.</li>
+          <li>Frond damage from wind, other insects, disease or pruning can look like CRB damage. In testing, most
+            false alarms were palms with other kinds of damage.</li>
+          <li>Light damage, distant palms, blurry or low-resolution photos, and screenshots with text are less reliable.</li>
+          <li>It was trained on Pacific, Asian and Australian palms; photos from new regions (e.g. the Americas) may be
+            scored less accurately until local photos are added.</li>
+          <li>The answer levels are screening aids, not a diagnosis: please confirm by eye.</li>
+        </ul>
+
+        <h3>Next steps</h3>
+        <ul class="crb-plain">
+          <li><b>Palm by palm:</b> find each palm crown in the photo and score it separately, so results point to the damaged palm.</li>
+          <li><b>Damage grades:</b> estimate how severe the damage is on the 1–5 survey scale, not just whether it is there.</li>
+          <li><b>V-shaped cuts:</b> check that the model is using the characteristic V-cuts in the fronds, and train on them directly.</li>
+          <li><b>More places:</b> add labelled photos from new regions, especially more undamaged palms from recent surveys.</li>
+        </ul>
+
         <h3>Credits &amp; citation</h3>
-        <p>Damage model, training data and site: <strong>Sulav Paudel</strong> (AgResearch). Training photos include
-          Vanuatu survey photos (Efate 2022 and 2025, Santo 2026) and published field photos; the full methods are kept
-          with the project's code.</p>
+        <p>Damage model, training data and site: <strong>Sulav Paudel</strong> (AgResearch).</p>
         <p>The first version of this monitor used <strong>Aubrey Moore</strong>'s (University of Guam) SAM3 + elliptic
           Fourier V-cut detector (<a href="https://github.com/aubreymoore/CRB-2026-05-13" target="_blank" rel="noopener">aubreymoore/CRB-2026-05-13</a>),
           which shaped this work.</p>
