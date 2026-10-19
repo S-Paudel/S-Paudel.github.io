@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRB Damage Monitor — Sulav Paudel, Ph.D.</title>
-<meta name="description" content="Screening iNaturalist coconut palm photos from South America, the Caribbean and the continental United States for coconut rhinoceros beetle (CRB) V-cut damage, using Aubrey Moore's SAM3 + elliptic Fourier method.">
+<meta name="description" content="Check coconut palm photos, PDFs and iNaturalist records for coconut rhinoceros beetle (CRB) damage with a trained image model, and browse iNaturalist palm photos from the watch regions.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=9">
+<link rel="stylesheet" href="crb-monitor/assets/crb-monitor.css?v=10">
 </head>
 <body>
 
@@ -35,24 +35,24 @@
   <p class="eyebrow">Biosecurity tool</p>
   <h1>CRB Damage Monitor</h1>
   <p class="page-lede">
-    Screening public coconut palm photos from South America, the Caribbean and the
-    continental United States for the V-shaped frond cuts left by the coconut
-    rhinoceros beetle (<em>Oryctes rhinoceros</em>). Photos stay where they are
-    published. This page links to them and keeps only the analysis.
+    Check coconut palm photos for the frond damage left by the coconut rhinoceros
+    beetle (<em>Oryctes rhinoceros</em>). Send your own photos, a PDF, or links to
+    iNaturalist records and web pages; a model trained on photos of damaged and
+    healthy palms gives each photo one of three answers. Photos are deleted as soon as the check is done.
   </p>
   <p class="crb-switch"><a href="crb-surveillance.html">→ For new beetle records from GBIF and iNaturalist, see the CRB Surveillance dashboard</a></p>
 </div>
 
 <main class="crb-main">
   <div class="crb-tabs" role="tablist" id="crbTabs">
-    <button role="tab" data-tab="results" aria-selected="true">Palm damage results</button>
-    <button role="tab" data-tab="check">Check a photo</button>
-    <button role="tab" data-tab="inaturalist">Browse iNaturalist photos</button>
+    <button role="tab" data-tab="check" aria-selected="true">Check photos</button>
+    <button role="tab" data-tab="inaturalist">iNaturalist photos</button>
     <button role="tab" data-tab="about">Method &amp; credits</button>
   </div>
 
   <!-- ===================== PALM DAMAGE RESULTS ===================== -->
-  <section class="crb-panel" data-panel="results">
+  <!-- Earlier automatic-scan results (V-cut detector, paused Oct 2026). Kept reachable at #tab=results; no tab button. -->
+  <section class="crb-panel" data-panel="results" hidden>
     <aside class="crb-paused" role="note">
       <p class="crb-paused-h">Damage screening paused</p>
       <p>The first automatic V-cut detector was too easily fooled: on close-up photos it counted the gaps between fronds
@@ -136,37 +136,43 @@
   <section class="crb-panel" data-panel="inaturalist" hidden></section>
 
   <!-- ===================== CHECK A PHOTO ===================== -->
-  <section class="crb-panel" data-panel="check" hidden>
-    <p class="crb-intro">Check your own coconut palm photos for CRB damage. Add up to 10 photos, or links to
-      an image or an iNaturalist / GBIF observation, then press <strong>Start check</strong>. Aubrey Moore's
-      detector outlines each palm and marks any V-shaped cuts. Photos are deleted as soon as the check is done.</p>
+  <section class="crb-panel" data-panel="check">
+    <p class="crb-intro">Check coconut palm photos for CRB damage. Add up to 10 items, then press <strong>Start check</strong>:</p>
+    <ul class="crb-inputs">
+      <li><b>Photos</b> from your computer or phone (JPEG, PNG), or pasted with Ctrl+V</li>
+      <li><b>PDFs</b> (reports, papers, slides exported as PDF; up to 15 MB): the photos inside are checked one by one</li>
+      <li><b>Links</b>: an iNaturalist observation (all its photos), a GBIF record, an image, or a web page (its main photos)</li>
+    </ul>
+    <p class="crb-intro">Each photo gets one of three answers: <span class="badge damage">Likely CRB damage</span>
+      <span class="badge possible">Possible damage — please check</span> <span class="badge clear">No clear damage</span>.
+      The model judges the whole photo, so it works best on clear views of palm crowns. Photos are deleted as soon as the check is done.</p>
 
     <aside class="crb-timing" aria-label="How long a check takes">
       <p class="crb-timing-h">How long it takes</p>
       <p>Checks run on a free GitHub computer without a graphics card, so they are not instant.
-        Starting up takes about 5 minutes, then each photo takes 1–2 minutes.</p>
+        Starting up takes about 3 minutes, then each photo takes about 15–30 seconds.</p>
       <ul>
-        <li><b>1 photo</b> about 6–8 min</li>
-        <li><b>5 photos</b> about 12–15 min</li>
-        <li><b>10 photos</b> about 20–25 min</li>
+        <li><b>1 photo</b> about 3–4 min</li>
+        <li><b>10 photos</b> about 6–8 min</li>
+        <li><b>a PDF with 30 photos</b> about 12–18 min</li>
       </ul>
       <p>You don't need to keep this page open: leave your e-mail and the results are sent to you when ready.</p>
     </aside>
 
     <div class="crb-drop" id="dropZone">
-      <input type="file" id="fileInput" accept="image/*" multiple hidden>
-      <p><strong>Drop photos here</strong> or <button type="button" class="crb-linkbtn" id="pickBtn">choose files</button></p>
-      <p class="crb-hint">JPEG or PNG. You can also paste a copied image (Ctrl+V). For pictures in a PowerPoint deck,
-        right-click each one → Save as Picture first.</p>
+      <input type="file" id="fileInput" accept="image/*,application/pdf,.pdf" multiple hidden>
+      <p><strong>Drop photos or PDFs here</strong> or <button type="button" class="crb-linkbtn" id="pickBtn">choose files</button></p>
+      <p class="crb-hint">JPEG, PNG or PDF. You can also paste a copied image (Ctrl+V). For a PowerPoint deck,
+        use File → Export → PDF first.</p>
     </div>
     <form class="crb-checklink" id="checkLinkForm">
       <input type="text" id="checkUrl" inputmode="url" autocomplete="off" spellcheck="false"
-        placeholder="…or paste a link, e.g. https://www.inaturalist.org/observations/123456789">
+        placeholder="…or paste links: iNaturalist observation, GBIF record, image or web page">
       <button class="crb-btn-ghost" type="submit">Add link</button>
     </form>
 
     <div class="crb-stage" id="stageBox">
-      <p class="crb-stage-h">Photos to check</p>
+      <p class="crb-stage-h">To check</p>
       <div class="crb-staged-list" id="stagedList"></div>
       <p class="crb-hint mono" id="stagedCount"></p>
       <div class="crb-start-row">
@@ -188,44 +194,41 @@
   <section class="crb-panel crb-about" data-panel="about" hidden>
     <div class="crb-about-grid">
       <div>
-        <h3>How a palm photo is screened</h3>
+        <h3>How a photo is checked</h3>
         <ol class="crb-steps">
-          <li><span class="mono">01 · Search filters</span>
-            iNaturalist is asked only for openly licensed photos identified as
-            coconut palm, in the watch regions and dates, and added since the last
-            scan. Photos already screened are skipped.</li>
-          <li><span class="mono">02 · Palm check (cheap)</span>
-            A small image–text model (CLIP) looks at the thumbnail and asks "is a
-            palm crown visible?". Nuts, flowers, trunks, people and palm-free scenes
-            are dropped. This takes a fraction of a second per photo on an ordinary CPU.</li>
-          <li><span class="mono">03 · Damage detector (expensive)</span>
-            Only photos that pass go to Aubrey Moore's detector. SAM3 outlines each
-            coconut palm. The outline is smoothed with elliptic Fourier descriptors,
-            and the gaps between the smooth and real outlines are candidate V-cuts.
-            A shape classifier trained by Aubrey keeps the cut-shaped ones. Palms
-            touching the photo edge are flagged and their cuts are not counted.</li>
+          <li><span class="mono">01 · Collect the photos</span>
+            Uploaded photos are used as they are. From a PDF, the photos embedded in it are taken out (logos and
+            small pictures are skipped). An iNaturalist observation or GBIF record gives all of its photos; a web
+            page gives its main photos.</li>
+          <li><span class="mono">02 · Damage model</span>
+            Each photo is scored by an image model (DINOv2-base, fine-tuned) trained on about 1,500 labelled photos of
+            CRB-damaged and undamaged coconut palms from 15 places in the Pacific, Asia and Australia. Three copies of the
+            model, trained separately, are averaged, and each photo is also scored as its mirror image.</li>
+          <li><span class="mono">03 · Three answers</span>
+            <b>Likely CRB damage</b> (score 0.88 or more), <b>Possible damage — please check</b> (0.44–0.88) and
+            <b>No clear damage</b> (below 0.44). In tests on places the model had never seen, 5% of undamaged and 60% of
+            damaged photos scored "likely", and 80% of undamaged and 16% of damaged photos scored "no clear damage".</li>
           <li><span class="mono">04 · Human review</span>
-            Results are screening only. Open any photo and email Sulav Paudel to confirm
-            or reject it.</li>
+            Results are screening only. Frond damage from wind, other insects, disease or pruning can look similar, and
+            light damage or distant palms can be missed. Use "Email Sulav" on a result to have it looked at.</li>
         </ol>
       </div>
       <div>
         <h3>Credits &amp; citation</h3>
-        <p>The damage-detection method and code are by <strong>Aubrey Moore</strong>
-          (University of Guam):
-          <a href="https://github.com/aubreymoore/CRB-2026-05-13" target="_blank" rel="noopener">aubreymoore/CRB-2026-05-13</a>.
-          The monitor uses a snapshot of that repository (commit <span class="mono">5734f35</span>),
-          kept with the project's code.</p>
-        <p class="crb-cite">Moore, A. (2026). <em>CRB-2026-05-13</em> [Computer software].
-          GitHub. https://github.com/aubreymoore/CRB-2026-05-13</p>
-        <p class="crb-cite">Paudel, S., &amp; Moore, A. (2026). <em>CRB Damage Monitor</em>
-          [Web application]. https://s-paudel.github.io/crb-monitor.html</p>
+        <p>Damage model, training data and site: <strong>Sulav Paudel</strong> (AgResearch). Training photos include
+          Vanuatu survey photos (Efate 2022 and 2025, Santo 2026) and published field photos; the full methods are kept
+          with the project's code.</p>
+        <p>The first version of this monitor used <strong>Aubrey Moore</strong>'s (University of Guam) SAM3 + elliptic
+          Fourier V-cut detector (<a href="https://github.com/aubreymoore/CRB-2026-05-13" target="_blank" rel="noopener">aubreymoore/CRB-2026-05-13</a>),
+          which shaped this work.</p>
+        <p class="crb-cite">Paudel, S., &amp; Moore, A. (2026). <em>CRB Damage Monitor</em> [Web application]. https://s-paudel.github.io/crb-monitor.html</p>
+        <p class="crb-cite">Moore, A. (2026). <em>CRB-2026-05-13</em> [Computer software]. GitHub. https://github.com/aubreymoore/CRB-2026-05-13</p>
         <h3>Image sources</h3>
         <p>Photos are shown directly from
           <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a> and
           <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a>.
           They are credited to their photographers under the licence shown on each
-          photo, and are not copied or stored here. SAM3 is by Meta AI. CLIP is by OpenAI.</p>
+          photo, and are not copied or stored here. DINOv2 is by Meta AI.</p>
       </div>
     </div>
   </section>
@@ -261,6 +264,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=9"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=10"></script>
 </body>
 </html>

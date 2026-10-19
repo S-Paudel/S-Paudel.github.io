@@ -1,10 +1,9 @@
 /* CRB Damage Monitor — S-Paudel.github.io
- * Browses public palm photos (iNaturalist, Mapillary, Flickr, GBIF) live from their APIs,
- * shows the pipeline's analysis results (crb-monitor/data/results.json), and checks single
- * photos on request: the page sends them to a free Cloudflare relay (CHECK_API below), which starts the
- * "photo check" workflow on GitHub; results come back through the relay and, optionally, by e-mail.
+ * "Check photos": photos, PDFs and links are sent to a free Cloudflare relay (CHECK_API below), which starts the
+ * "photo check" workflow on GitHub; the CRB damage model (fine-tuned DINOv2, whole photo) scores each photo and
+ * results come back through the relay and, optionally, by e-mail.
+ * "iNaturalist photos": live browse of iNaturalist palm photos, with "Check this photo" on each (no automatic calls).
  * Images are hot-linked or analysed in memory, never stored. Enquiries go by e-mail (CONTACT).
- * Damage-detection method: Aubrey Moore, https://github.com/aubreymoore/CRB-2026-05-13
  */
 (() => {
   'use strict';
@@ -13,7 +12,11 @@
   const CHECK_API = 'https://crb-checks.sulavpaudel111.workers.dev';
   const CONTACT = 'sulav.paudel@agresearch.co.nz';   // all enquiries, reviews and reports
   const mailto = (subject, body) => `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const MAX_CHECKS = 10;
+  const MAX_CHECKS = 10;                              // photos / PDFs / links per check (the relay's limit)
+  const MAX_PDF_MB = 15;
+  // Answer levels of the damage model (cut-offs are set in the model's config.json on Hugging Face)
+  const LEVEL = { likely: ['damage', 'Likely CRB damage'], possible: ['possible', 'Possible damage — please check'], none: ['clear', 'No clear damage'] };
+  const CAVEAT = 'Automated screening only. The model looks at the whole photo: frond damage from other causes (wind, other insects, disease, pruning) can look similar, and light damage or distant palms can be missed. Please confirm by eye.';
   // Paused (Oct 2026) while a new damage detector is trained on labelled photos.
   // true = automatic scan results are shown only as "trial" (no damage calls). "Check a photo" keeps working.
   const DAMAGE_PAUSED = true;
@@ -230,18 +233,18 @@
     const meta = [e.date, e.place || (e.lat != null ? `${(+e.lat).toFixed(3)}, ${(+e.lon).toFixed(3)}` : ''), sourceName(e.source)]
       .filter(Boolean).join(' · ');
     const seen = it?.first_seen ? `<p class="crb-card-meta">first seen ${esc(it.first_seen)}</p>` : '';
-    const canCheck = (e.image || e.page) && (!it || ['none', 'error', 'queued'].includes(statusOf(it)));
+    const canCheck = Boolean(e.image || e.page);
     return `<article class="crb-card" data-key="${esc(e.key)}">
       <button class="crb-thumb" type="button" data-view aria-label="Open ${esc(e.title)}">
         ${thumbImg(e)}
-        ${badgeHTML(it, it ? undefined : e.rejected)}
+        ${e.fromResults ? badgeHTML(it, it ? undefined : e.rejected) : ''}
       </button>
       <div class="crb-card-body">
         <p class="crb-card-title" title="${esc(e.title)}">${esc(e.title)}</p>
         <p class="crb-card-meta">${esc(meta)}</p>${seen}
         <div class="crb-card-foot">
           <a href="${esc(e.page)}" target="_blank" rel="noopener">Source ↗</a>
-          ${canCheck ? '<button type="button" class="crb-linkbtn" data-check>Add to check</button>' : ''}
+          ${canCheck ? '<button type="button" class="crb-linkbtn" data-check>Check this photo</button>' : ''}
         </div>
       </div>
     </article>`;
@@ -334,7 +337,9 @@
       it?.error && ['Error', esc(it.error)],
     ].filter(Boolean);
     const st = statusOf(it);
-    const actions = DAMAGE_PAUSED
+    const actions = !e.fromResults
+      ? `<button class="btn btn-primary" data-check-now>Check this photo</button>`
+      : DAMAGE_PAUSED
       ? `<p class="crb-note">Automatic damage screening is paused while a new detector is trained. The outline shown here comes
            from the earlier trial detector, which often mistakes gaps between fronds for V-cuts. Seen CRB damage in this photo?
            <a href="${esc(mailto(`CRB damage photo: ${it?.uid || e.page}`, `Hello Sulav,\n\nI think this photo shows CRB damage:\n${e.page}\n\nNote:\n\n`))}">Email Sulav</a>.</p>
@@ -347,13 +352,12 @@
          </div><p class="crb-note">Each button opens an e-mail to Sulav Paudel with this photo's details.</p>`
       : (['none', 'error', 'queued'].includes(st) ? `<button class="btn btn-primary" data-check-now>Check this photo</button>` : '');
     $('#viewerMeta').innerHTML = `
-      <div>${badgeHTML(it, it ? undefined : e.rejected)}</div>
+      <div>${e.fromResults ? badgeHTML(it, it ? undefined : e.rejected) : ''}</div>
       <h3>${esc(e.title)}</h3>
       ${a && !DAMAGE_PAUSED ? `<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>` : ''}
       <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
       ${actions}
-      <p class="crb-note">Automated screening only. V-cuts can also come from wind, other pests or
-        pruning, so please confirm by eye.</p>`;
+      <p class="crb-note">${e.fromResults ? 'Automated screening only. V-cuts can also come from wind, other pests or pruning, so please confirm by eye.' : 'Not checked yet. "Check this photo" sends it to the CRB damage model; results take a few minutes.'}</p>`;
     const chk = $('[data-check-now]', dlg); if (chk) chk.onclick = () => { dlg.close(); checkEntry(e); };
     if (!dlg.open) dlg.showModal();
     if (it) history.replaceState(null, '', `#item=${encodeURIComponent(it.uid)}`);
@@ -491,7 +495,7 @@
 
   const SOURCES = {
     inaturalist: {
-      intro: 'Live search of iNaturalist photos in the surveillance regions. <strong>Pre-select</strong> limits results to records identified as coconut palm or all palms. <strong>Added since</strong> shows only records uploaded after a date, so you can check what is new. Tick photos to send them for damage analysis.',
+      intro: 'Live search of iNaturalist photos in the watch regions. <strong>Pre-select</strong> limits results to records identified as coconut palm or all palms; <strong>Added since</strong> shows only records uploaded after a date. Nothing here is screened automatically: press <strong>Check this photo</strong> on any record to send it (with all its photos) to the CRB damage model on the Check photos tab.',
       fields: { taxon: true, text: false, added: true, cc: true },
       async search(f, page) {
         const q = new URLSearchParams({ taxon_id: await inatTaxon(f.taxon), ...inatPlaceParams(f.region),
@@ -595,6 +599,7 @@
     $('.crb-intro', panel).innerHTML = cfg.intro;
     const form = $('form', panel), mapEl = $('.crb-map', panel), grid = $('.crb-grid', panel), count = $('.crb-count', panel), more = $('.crb-more', panel);
     for (const [fld, on] of Object.entries(cfg.fields)) $$(`.f-${fld}`, form).forEach(el => { el.hidden = !on; });
+    $$('.f-hide', form).forEach(el => { el.hidden = true; });          // no automatic screening any more
     $('[name="taxon"] option[value="Oryctes rhinoceros"]', form)?.remove();   // beetle records live on the Surveillance tab
     if (cfg.key) {
       const box = $('.crb-keys', panel), input = $('input', box);
@@ -620,15 +625,13 @@
       count.textContent = 'Searching…'; more.hidden = true;
       try {
         const res = await cfg.search(f, st.page);
-        for (const e of res.entries) { e.result = resultFor(e); if (!e.result) e.rejected = rejectedFor(e); }
-        const shown = f.hideKnown ? res.entries.filter(e => !e.result && e.rejected === undefined) : res.entries;
+        const shown = res.entries;
         st.entries.push(...shown);
         state.entries[name] = st.entries;
         renderGrid(grid, shown, append);
         if (!st.entries.length) grid.innerHTML = '<p class="crb-empty">No photos found. Try a larger area or a wider date range.</p>';
-        const screened = st.entries.filter(e => e.result || e.rejected !== undefined).length;
         count.textContent = `${st.entries.length.toLocaleString()} shown${res.total != null ? ` of ${(+res.total).toLocaleString()}` : ''}` +
-          `${res.note ? ` · ${res.note}` : ''} · ${screened} already screened by the monitor`;
+          `${res.note ? ` · ${res.note}` : ''}`;
         plot(name, st.entries, f.region === '__map' ? false : true);
         more.hidden = !res.more;
       } catch (err) {
@@ -654,11 +657,6 @@
       pm.cuts.map(c => `<polygon class="cut${c.counted ? '' : ' ignored'}" points="${pts(c.poly)}"/>`).join('')).join('')}</svg>`;
   }
 
-  const VERDICT = {
-    candidate_damage: ['damage', 'Possible CRB damage'],
-    no_damage_detected: ['clear', 'Palm found, no V-cuts'],
-    no_palm_found: ['nopalm', 'No palm crown found'],
-  };
   const chk = { staged: [], shown: new Map(), job: null, timer: null };   // shown: job id -> in-page copies of the photos
   const mins = s => `${Math.floor(s / 60)} min ${String(Math.floor(s % 60)).padStart(2, '0')} s`;
   const setCheckStatus = text => { $('#checkStatus').textContent = text; };
@@ -667,15 +665,17 @@
   function renderStaged() {
     const list = $('#stagedList'), n = chk.staged.length;
     list.innerHTML = chk.staged.map((p, i) => `<figure class="crb-staged">
-        ${p.display ? `<img src="${esc(p.display)}" alt="" referrerpolicy="no-referrer">` : '<span class="ph">link</span>'}
+        ${p.display ? `<img src="${esc(p.display)}" alt="" referrerpolicy="no-referrer">` : `<span class="ph">${p.kind === 'pdf' ? 'PDF' : 'link'}</span>`}
         <figcaption title="${esc(p.title)}">${esc(p.title)}</figcaption>
         <button type="button" class="crb-x" data-unstage="${i}" aria-label="Remove ${esc(p.title)}">×</button></figure>`).join('');
     $('#checkStart').disabled = !n;
-    if (!n) list.innerHTML = '<p class="crb-staged-empty">No photos added yet. Drop photos above or add a link, then press Start check.</p>';
-    $('#stagedCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} ready · expected time about ${5 + n}–${6 + 2 * n} minutes` : '';
+    if (!n) list.innerHTML = '<p class="crb-staged-empty">Nothing added yet. Drop photos or a PDF above, or add a link, then press Start check.</p>';
+    const multi = chk.staged.filter(p => p.kind !== 'photo').length;
+    $('#stagedCount').textContent = n ? `${n} item${n > 1 ? 's' : ''} ready · expected time about ${3 + Math.ceil(n / 2)}–${4 + n} minutes` +
+      (multi ? ' (PDFs and links can hold several photos, so allow a little longer)' : '') : '';
   }
   function stage(p) {
-    if (chk.staged.length >= MAX_CHECKS) { setCheckStatus(`Up to ${MAX_CHECKS} photos per check. Start this group first.`); return false; }
+    if (chk.staged.length >= MAX_CHECKS) { setCheckStatus(`Up to ${MAX_CHECKS} photos, PDFs or links per check. Start this group first.`); return false; }
     chk.staged.push(p); renderStaged(); setCheckStatus(''); return true;
   }
   $('#stagedList').addEventListener('click', ev => {
@@ -691,28 +691,38 @@
     cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
     return cv.toDataURL('image/jpeg', 0.88);
   }
+  const isPdf = f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name || '');
+  const readAsDataURL = f => new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(f); });
   async function addFiles(files) {
-    const all = [...files], imgs = all.filter(f => f.type.startsWith('image/'));
-    if (!imgs.length) {
+    const all = [...files], usable = all.filter(f => f.type.startsWith('image/') || isPdf(f));
+    if (!usable.length) {
       setCheckStatus(/presentation|powerpoint|pptx/i.test(all.map(f => f.type + f.name).join(' '))
-        ? 'PowerPoint files can\'t be checked directly. In PowerPoint, right-click each picture → Save as Picture, then drop those files here.'
-        : 'Those files are not photos. Please use JPEG or PNG images.');
+        ? 'PowerPoint files can\'t be checked directly. In PowerPoint use File → Export → PDF, then drop the PDF here.'
+        : 'Those files are not photos or PDFs. Please use JPEG, PNG or PDF files.');
       return;
     }
-    for (const f of imgs) {
-      try { const url = await fileToDataURL(f); if (!stage({ src: url, display: url, title: f.name || 'Pasted photo' })) break; }
-      catch { setCheckStatus(`Could not read ${f.name}.`); }
+    for (const f of usable) {
+      try {
+        if (isPdf(f)) {
+          if (f.size > MAX_PDF_MB * 1e6) { setCheckStatus(`${f.name} is larger than ${MAX_PDF_MB} MB. Please split it, or save the photos from it and add those.`); continue; }
+          const url = (await readAsDataURL(f)).replace(/^data:[^;,]*/, 'data:application/pdf');
+          if (!stage({ src: url, display: '', title: f.name || 'PDF', kind: 'pdf' })) break;
+        } else {
+          const url = await fileToDataURL(f); if (!stage({ src: url, display: url, title: f.name || 'Pasted photo', kind: 'photo' })) break;
+        }
+      } catch { setCheckStatus(`Could not read ${f.name}.`); }
     }
-    if (imgs.length < all.length) setCheckStatus('Some files were skipped because they are not photos.');
+    if (usable.length < all.length) setCheckStatus('Some files were skipped because they are not photos or PDFs.');
   }
   function addLink(u) {
     const direct = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(u) || /inaturalist-open-data|static\.inaturalist/.test(u);
-    return stage({ src: u, display: direct ? u : '', title: u.replace(/^https?:\/\//, '').slice(0, 90), link: u });
+    return stage({ src: u, display: direct ? u : '', title: u.replace(/^https?:\/\//, '').slice(0, 90), link: u, kind: direct ? 'photo' : 'link' });
   }
   function checkEntry(e) {
     showTab('check');
-    if (stage({ src: e.image || e.page, display: e.image || e.thumb, title: `${e.title}${e.date ? ` · ${e.date}` : ''}`, link: e.page })) {
-      setCheckStatus(`Added "${e.title}". Add more photos if you like, then press "Start check".`);
+    const all = e.source === 'inaturalist' || e.source === 'gbif';          // the job fetches every photo of the record
+    if (stage({ src: all ? e.page : (e.image || e.page), display: e.image || e.thumb, title: `${e.title}${e.date ? ` · ${e.date}` : ''}`, link: e.page, kind: all ? 'link' : 'photo' })) {
+      setCheckStatus(`Added "${e.title}"${all ? ' (all its photos)' : ''}. Add more if you like, then press "Start check".`);
     }
     window.scrollTo({ top: $('#crbTabs').offsetTop - 80, behavior: 'smooth' });
   }
@@ -754,7 +764,7 @@
         body: JSON.stringify({ email, photos: chk.staged.map(p => ({ src: p.src, title: p.title, link: p.link || '' })) }) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || `The check could not start (${r.status}).`);
-      chk.shown.set(d.id, chk.staged.map(p => p.display));
+      chk.shown.set(d.id, chk.staged.map(p => p.kind === 'photo' ? p.display : ''));
       rememberCheck(d.id, chk.staged.length);
       chk.staged = []; renderStaged();
       setCheckStatus(email ? `Started. Results will also be e-mailed to ${email}.` : 'Started.');
@@ -778,29 +788,43 @@
   $('#recentChecks').addEventListener('click', ev => { const a = ev.target.closest('[data-job]'); if (a) { ev.preventDefault(); openJob(a.dataset.job, true); } });
 
   // ---- follow a check
+  /** One submitted thing (photo, PDF or link) and its result: an overall answer plus one tile per photo found in it. */
   function photoCardHTML(job, i) {
     const p = job.photos[i], a = job.results[i], local = chk.shown.get(job.id)?.[i];
+    if (a && !a.error && !a.images) return oldCardHTML(job, i);                // checks made with the earlier detector
     const err = a?.error;
-    const [cls, label] = a && !err ? VERDICT[a.verdict] || ['clear', a.verdict] : [];
-    let fig;
-    if (local || (!err && (a?.image_url || p.image))) fig = `<div class="crb-overlay-wrap"><img src="${esc(local || a?.image_url || p.image)}" alt="" referrerpolicy="no-referrer">${err ? '' : overlaySVG(a)}</div>`;
-    else if (a?.thumb) fig = `<div class="crb-overlay-wrap"><img src="${esc(a.thumb)}" alt="Photo with the detector's markings"></div>`;
-    else fig = '<p class="crb-empty">your photo</p>';
-    let body;
+    let body, tiles = '';
     if (err) body = `<p class="crb-error">${esc(err)}</p>`;
-    else if (!a) body = `<p class="crb-wait"><span class="crb-spin" aria-hidden="true"></span>${job.status === 'error' ? 'Not analysed' : 'Waiting…'}</p>`;
+    else if (!a) body = `<p class="crb-wait"><span class="crb-spin" aria-hidden="true"></span>${job.status === 'error' ? 'Not checked' : 'Waiting…'}</p>`;
+    else if (!a.images.length) body = '<p class="crb-error">No photos found in this item.</p>';
     else {
-      const edge = a.palms.filter(q => q.touches_edge).length;
+      const [cls, label] = LEVEL[a.level] || LEVEL.none, n = a.images.length, c = a.counts || {};
       const mail = mailto(`CRB damage check: ${label}`,
-        `Hello Sulav,\n\nI checked a photo on the CRB Damage Monitor.\n\nResult: ${label} — ${a.n_palms} palm(s), ${a.n_cuts} V-cut(s) counted.\n` +
-        `Photo: ${p.link || '(my own photo — attached to this e-mail)'}\nResults page: ${location.origin}${location.pathname}#job=${job.id}\nWhere / when taken: \n\nNote:\n\n`);
+        `Hello Sulav,\n\nI checked ${n > 1 ? `${n} photos` : 'a photo'} on the CRB Damage Monitor.\n\nResult: ${label} (highest score ${a.score.toFixed(2)}).\n` +
+        `Source: ${p.link || '(my own photo or file — attached to this e-mail)'}\nResults page: ${location.origin}${location.pathname}#job=${job.id}\nWhere / when taken: \n\nNote:\n\n`);
+      const summary = n > 1 ? `${n} photos: ${[['likely', 'likely damage'], ['possible', 'possible'], ['none', 'no clear damage']]
+        .filter(([k]) => c[k]).map(([k, t]) => `${c[k]} ${t}`).join(' · ')}` : `score ${a.score.toFixed(2)}`;
       body = `<span class="badge ${cls}">${esc(label)}</span>
-        <p class="crb-check-nums">${a.n_palms} palm${a.n_palms === 1 ? '' : 's'} outlined · <b>${a.n_cuts}</b> V-cut${a.n_cuts === 1 ? '' : 's'} counted · ${esc(a.seconds)} s</p>
-        ${edge ? `<p class="crb-note">${edge} palm${edge > 1 ? 's touch' : ' touches'} the photo edge, so ${edge > 1 ? 'their' : 'its'} cuts are not counted.</p>` : ''}
-        ${a.n_palms ? '<div class="crb-legend"><span><i style="border:2px solid #D6F24C"></i>palm outline</span><span><i style="background:#FF8A3D"></i>counted V-cut</span><span><i style="border:1px dashed #999"></i>not counted</span></div>' : ''}
+        <p class="crb-check-nums">${esc(summary)} · ${esc(a.seconds)} s</p>
         <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}">Email Sulav</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
+      if (n > 1) tiles = `<div class="crb-shots">${a.images.map(im => { const [c2, l2] = LEVEL[im.level] || LEVEL.none;
+        return `<figure class="crb-shot"><img src="${esc(im.thumb)}" alt="${esc(im.title)}">
+          <figcaption><span class="badge ${c2}">${esc(l2.replace(' — please check', ''))}</span>
+          <span class="crb-shot-t" title="${esc(im.title)}">${esc(im.title)}</span><span class="mono">score ${(+im.score).toFixed(2)}</span></figcaption></figure>`; }).join('')}</div>`;
     }
-    return `<article class="crb-check"><figure class="crb-figure">${fig}</figure><div class="crb-check-body"><p class="crb-card-title">${esc(p.title)}</p>${body}</div></article>`;
+    const fig = local ? `<img src="${esc(local)}" alt="">` : a?.images?.[0]?.thumb ? `<img src="${esc(a.images[0].thumb)}" alt="">`
+      : p.image ? `<img src="${esc(p.image)}" alt="" referrerpolicy="no-referrer">` : `<p class="crb-empty">${p.kind === 'pdf' ? 'PDF' : p.kind === 'link' ? 'link' : 'your photo'}</p>`;
+    return `<article class="crb-check${tiles ? ' has-shots' : ''}"><figure class="crb-figure">${fig}</figure>
+      <div class="crb-check-body"><p class="crb-card-title">${esc(p.title)}</p>${body}</div>${tiles}</article>`;
+  }
+
+  /** Result card for checks made before Oct 2026 with Aubrey Moore's V-cut detector (kept 30 days by the relay). */
+  function oldCardHTML(job, i) {
+    const p = job.photos[i], a = job.results[i];
+    const label = { candidate_damage: 'Possible CRB damage', no_damage_detected: 'Palm found, no V-cuts', no_palm_found: 'No palm crown found' }[a.verdict] || a.verdict;
+    const fig = a.thumb ? `<img src="${esc(a.thumb)}" alt="">` : '<p class="crb-empty">your photo</p>';
+    return `<article class="crb-check"><figure class="crb-figure">${fig}</figure><div class="crb-check-body"><p class="crb-card-title">${esc(p.title)}</p>
+      <span class="badge trial">${esc(label)}</span><p class="crb-note">Checked with the earlier V-cut detector, which is no longer used.</p></div></article>`;
   }
 
   function jobStatusText(job) {
@@ -808,10 +832,11 @@
     const since = (Date.now() - new Date(job.created)) / 1000;
     if (job.status === 'queued') return since > 15 * 60
       ? `Still waiting for GitHub to start (${mins(since)}). It is busier than usual; the check will run as soon as a machine is free.`
-      : `Waiting for GitHub to start a machine and load the detector (${mins(since)} so far; usually about 5 minutes)…`;
-    if (job.status === 'running') return `Analysing photo ${Math.min(done + 1, n)} of ${n} (${mins(since)} so far)…`;
+      : `Waiting for GitHub to start a machine and load the damage model (${mins(since)} so far; usually about 3 minutes)…`;
+    if (job.status === 'running') return `Checking item ${Math.min(done + 1, n)} of ${n} (${mins(since)} so far)…`;
     if (job.status === 'error') return job.message || 'The check could not be completed.';
-    return `Finished: ${n} photo${n > 1 ? 's' : ''} checked` +
+    const shots = job.results.reduce((k, r) => k + (r?.images?.length || 0), 0);
+    return `Finished: ${n} item${n > 1 ? 's' : ''} checked${shots > n ? ` (${shots} photos)` : ''}` +
       (job.email ? (job.emailed ? ' · results e-mailed' : job.emailed === false ? ' · the results e-mail could not be sent' : '') : '') + '.';
   }
 
@@ -824,7 +849,8 @@
         <p class="crb-hint">Check started ${esc(new Date(job.created).toLocaleString())}. ${busy ? 'You can leave this page; ' + (job.email ? 'the results will be e-mailed to you, and ' : '') + 'this link shows them when ready: ' : 'Results stay at this link for 30 days: '}
           <a href="#job=${esc(job.id)}">${esc(location.origin + location.pathname)}#job=${esc(job.id)}</a></p>
       </div>
-      <div class="crb-checks">${job.photos.map((_, i) => photoCardHTML(job, i)).join('')}</div>`;
+      <div class="crb-checks">${job.photos.map((_, i) => photoCardHTML(job, i)).join('')}</div>
+      ${job.status === 'done' ? `<p class="crb-note crb-caveat">${esc(CAVEAT)}</p>` : ''}`;
   }
 
   async function openJob(id, scroll) {
@@ -855,9 +881,9 @@
   renderStaged(); renderRecent();
 
   // ------------------------------------------------------------------ tabs + routing
-  let currentTab = 'results';
+  let currentTab = 'check';
   function showTab(name) {
-    if (!$(`[data-panel="${name}"]`)) name = 'results';
+    if (!$(`[data-panel="${name}"]`)) name = 'check';
     currentTab = name;
     $$('#crbTabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     $$('.crb-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
@@ -883,6 +909,9 @@
   async function init() {
     try { await loadData(); } catch (err) {
       $('#crbStats').textContent = `Could not load monitor data (${err.message}).`;
+      const h = new URLSearchParams(location.hash.slice(1));
+      showTab(h.get('job') ? 'check' : h.get('tab') || 'check');
+      if (h.get('job')) openJob(h.get('job'), true);
       return;
     }
     renderStats();
@@ -890,7 +919,7 @@
     const hash = new URLSearchParams(location.hash.slice(1));
     const uid = hash.get('item');
     if (uid && /^(inat|gbif):/.test(uid)) { location.replace(`crb-surveillance.html#item=${encodeURIComponent(uid)}`); return; }
-    showTab(hash.get('job') ? 'check' : hash.get('tab') || 'results');
+    showTab(hash.get('job') ? 'check' : hash.get('tab') || 'check');
     filterResults();
     if (hash.get('job')) { openJob(hash.get('job'), true); return; }
     if (uid && state.byUid.has(uid)) {

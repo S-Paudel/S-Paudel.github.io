@@ -348,3 +348,18 @@ a.crb-btn-ghost{ display:inline-block; text-decoration:none; }
 .crb-paused-h{ font:500 0.72rem var(--mono); text-transform:uppercase; letter-spacing:0.07em; color:var(--ink); }
 .badge.trial{ color:#9AA3B5; }
 .crb-step.paused b{ color:var(--ink-soft); font-size:1.2rem; }
+
+/* ---- Oct 2026: damage model results (three levels, several photos per item) ---- */
+:root{ --crb-possible:#F2C14E; }
+.badge.possible{ color:var(--crb-possible); }
+.crb-inputs{ margin:0 0 12px; padding-left:20px; color:var(--ink-soft, inherit); line-height:1.6; }
+.crb-intro .badge{ margin:2px 2px; vertical-align:middle; }
+.crb-check .crb-figure img{ max-width:100%; max-height:420px; object-fit:contain; display:block; }
+.crb-check.has-shots{ grid-template-columns:minmax(0,2fr) minmax(0,3fr); }
+.crb-shots{ grid-column:1 / -1; display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px; padding:12px; border-top:1px solid var(--line); }
+.crb-shot{ margin:0; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.crb-shot img{ width:100%; aspect-ratio:4 / 3; object-fit:cover; background:#000; border-radius:2px; }
+.crb-shot figcaption{ display:flex; flex-direction:column; gap:3px; font-size:0.78rem; min-width:0; }
+.crb-shot-t{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--crb-muted); }
+.crb-caveat{ margin-top:4px; }
+@media (max-width: 720px){ .crb-check.has-shots{ grid-template-columns:1fr; } .crb-shots{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
