@@ -388,7 +388,7 @@
       <dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
       <p><a class="btn btn-primary" href="${esc(r.url)}" target="_blank" rel="noopener">Open on ${r.src === 'gbif' ? 'GBIF' : 'iNaturalist'} ↗</a></p>
       <p><a class="crb-btn-ghost" href="${esc(mailto(`CRB record ${r.uid}`, `Hello Sulav,\n\nAbout this record on the CRB Surveillance dashboard:\n${r.url}\n(${areaName(r.area)}, ${r.date || 'no date'}, currently shown as: ${e.label})\n\nMy note (e.g. confirmed CRB / not CRB / more information):\n\n`))}">Email Sulav about this record</a></p>
-      <p class="crb-note">Think this record is misidentified, or have more information? Email Sulav Paudel (${CONTACT}). Records found not to be CRB are removed from counts and alerts.</p>`;
+      <p class="crb-note">Think this record is misidentified, or have more information? Email Sulav Paudel using the button above. Records found not to be CRB are removed from counts and alerts.</p>`;
     if (!dlg.open) dlg.showModal();
     history.replaceState(null, '', `#item=${encodeURIComponent(uid)}`);
   }

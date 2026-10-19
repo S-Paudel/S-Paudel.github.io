@@ -754,7 +754,7 @@
   // ---- start a check
   $('#checkStart').onclick = async () => {
     if (!chk.staged.length) return;
-    if (!CHECK_API) { setCheckStatus(`Photo checks are being set up. Please try again soon, or e-mail the photos to ${CONTACT}.`); return; }
+    if (!CHECK_API) { setCheckStatus(`Photo checks are being set up. Please try again soon.`); return; }
     const email = $('#checkEmail').value.trim();
     if (email && !$('#checkEmail').checkValidity()) { setCheckStatus('That e-mail address does not look right.'); return; }
     ls.set('crb.checkEmail', email);
@@ -799,14 +799,15 @@
     else if (!a.images.length) body = '<p class="crb-error">No photos found in this item.</p>';
     else {
       const [cls, label] = LEVEL[a.level] || LEVEL.none, n = a.images.length, c = a.counts || {};
-      const mail = mailto(`CRB damage check: ${label}`,
-        `Hello Sulav,\n\nI checked ${n > 1 ? `${n} photos` : 'a photo'} on the CRB Damage Monitor.\n\nResult: ${label} (highest score ${a.score.toFixed(2)}).\n` +
-        `Source: ${p.link || '(my own photo or file — attached to this e-mail)'}\nResults page: ${location.origin}${location.pathname}#job=${job.id}\nWhere / when taken: \n\nNote:\n\n`);
+      const lines = a.images.map(im => `- ${im.title}: ${(LEVEL[im.level] || LEVEL.none)[1]} (score ${(+im.score).toFixed(2)})`).join('\n');
+      const mail = `mailto:?subject=${encodeURIComponent(`CRB damage check: ${label}`)}&body=${encodeURIComponent(
+        `CRB damage check results (CRB Damage Monitor)\n\n${p.title}\nOverall: ${label}\n${lines}\n\n` +
+        `${p.link ? `Source: ${p.link}\n` : ''}Results page (kept 30 days): ${location.origin}${location.pathname}#job=${job.id}\n\n${CAVEAT}\n`)}`;
       const summary = n > 1 ? `${n} photos: ${[['likely', 'likely damage'], ['possible', 'possible'], ['none', 'no clear damage']]
         .filter(([k]) => c[k]).map(([k, t]) => `${c[k]} ${t}`).join(' · ')}` : `score ${a.score.toFixed(2)}`;
       body = `<span class="badge ${cls}">${esc(label)}</span>
         <p class="crb-check-nums">${esc(summary)} · ${esc(a.seconds)} s</p>
-        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}">Email Sulav</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
+        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}" title="Opens your e-mail app with these results, ready to send to yourself or a colleague">Email these results to me</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
       if (n > 1) tiles = `<div class="crb-shots">${a.images.map(im => { const [c2, l2] = LEVEL[im.level] || LEVEL.none;
         return `<figure class="crb-shot"><img src="${esc(im.thumb)}" alt="${esc(im.title)}">
           <figcaption><span class="badge ${c2}">${esc(l2.replace(' — please check', ''))}</span>
