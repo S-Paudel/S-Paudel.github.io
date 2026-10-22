@@ -15,7 +15,9 @@
   const MAX_CHECKS = 10;                              // photos / PDFs / links per check (the relay's limit)
   const MAX_PDF_MB = 15;
   // Answer levels of the damage model (cut-offs are set in the model's config.json on Hugging Face)
-  const LEVEL = { likely: ['damage', 'Likely CRB damage'], possible: ['possible', 'Possible damage — please check'], none: ['clear', 'No clear damage'] };
+  const LEVEL = { likely: ['damage', 'Likely CRB damage'], possible: ['possible', 'Possible damage — please check'], none: ['clear', 'No clear damage'], nopalm: ['nopalm', 'No coconut palm found'] };
+  const numText = im => im.score != null ? `score ${(+im.score).toFixed(2)}` : `palm check ${(+(im.palm_score || 0)).toFixed(2)}`;
+  const copyTexts = new Map();                         // results text for the "Copy results" buttons
   const CAVEAT = 'Automated screening only. The model looks at the whole photo: frond damage from other causes (wind, other insects, disease, pruning) can look similar, and light damage or distant palms can be missed. Please confirm by eye.';
   // Paused (Oct 2026) while a new damage detector is trained on labelled photos.
   // true = automatic scan results are shown only as "trial" (no damage calls). "Check a photo" keeps working.
@@ -799,19 +801,24 @@
     else if (!a.images.length) body = '<p class="crb-error">No photos found in this item.</p>';
     else {
       const [cls, label] = LEVEL[a.level] || LEVEL.none, n = a.images.length, c = a.counts || {};
-      const lines = a.images.map(im => `- ${im.title}: ${(LEVEL[im.level] || LEVEL.none)[1]} (score ${(+im.score).toFixed(2)})`).join('\n');
+      const page = `${location.origin}${location.pathname}#job=${job.id}`;
+      const lines = a.images.map(im => `- ${im.title}: ${(LEVEL[im.level] || LEVEL.none)[1]} (${numText(im)})`).join('\n');
+      const key = `${job.id}:${i}`;
+      copyTexts.set(key, `CRB damage check (CRB Damage Monitor)\n\n${p.title}\nOverall: ${label}\n${lines}\n\n` +
+        `${p.link ? `Source: ${p.link}\n` : ''}Results page (kept 30 days): ${page}\n\n${CAVEAT}\n`);
       const mail = `mailto:?subject=${encodeURIComponent(`CRB damage check: ${label}`)}&body=${encodeURIComponent(
-        `CRB damage check results (CRB Damage Monitor)\n\n${p.title}\nOverall: ${label}\n${lines}\n\n` +
-        `${p.link ? `Source: ${p.link}\n` : ''}Results page (kept 30 days): ${location.origin}${location.pathname}#job=${job.id}\n\n${CAVEAT}\n`)}`;
-      const summary = n > 1 ? `${n} photos: ${[['likely', 'likely damage'], ['possible', 'possible'], ['none', 'no clear damage']]
-        .filter(([k]) => c[k]).map(([k, t]) => `${c[k]} ${t}`).join(' · ')}` : `score ${a.score.toFixed(2)}`;
+        `${p.title}: ${label}${n > 1 ? ` (${n} photos)` : ''}\n\nAll results (kept 30 days): ${page}\n`)}`;
+      const summary = n > 1 ? `${n} photos: ${[['likely', 'likely damage'], ['possible', 'possible'], ['none', 'no clear damage'], ['nopalm', 'no palm']]
+        .filter(([k]) => c[k]).map(([k, t]) => `${c[k]} ${t}`).join(' · ')}` : numText(a.images[0]);
+      const noPalmNote = a.level === 'nopalm' ? `<p class="crb-note">The palm check did not find a coconut palm in ${n > 1 ? 'these photos' : 'this photo'}, so ${n > 1 ? 'they were' : 'it was'} not scored for damage. If there is a palm, try a photo where the crown is larger in the frame.</p>` : '';
       body = `<span class="badge ${cls}">${esc(label)}</span>
-        <p class="crb-check-nums">${esc(summary)} · ${esc(a.seconds)} s</p>
-        <p class="crb-check-actions"><a class="crb-btn-ghost" href="${esc(mail)}" title="Opens your e-mail app with these results, ready to send to yourself or a colleague">Email these results to me</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
+        <p class="crb-check-nums">${esc(summary)} · ${esc(a.seconds)} s</p>${noPalmNote}
+        <p class="crb-check-actions"><button type="button" class="crb-btn-ghost" data-copy="${esc(key)}">Copy results</button>
+          <a class="crb-linkbtn" href="${esc(mail)}" title="Opens the e-mail app on this computer (Outlook, Mail …), with a link to these results">Open in e-mail app</a>${p.link ? ` <a href="${esc(p.link)}" target="_blank" rel="noopener">Source ↗</a>` : ''}</p>`;
       if (n > 1) tiles = `<div class="crb-shots">${a.images.map(im => { const [c2, l2] = LEVEL[im.level] || LEVEL.none;
         return `<figure class="crb-shot"><img src="${esc(im.thumb)}" alt="${esc(im.title)}">
           <figcaption><span class="badge ${c2}">${esc(l2.replace(' — please check', ''))}</span>
-          <span class="crb-shot-t" title="${esc(im.title)}">${esc(im.title)}</span><span class="mono">score ${(+im.score).toFixed(2)}</span></figcaption></figure>`; }).join('')}</div>`;
+          <span class="crb-shot-t" title="${esc(im.title)}">${esc(im.title)}</span><span class="mono">${esc(numText(im))}</span></figcaption></figure>`; }).join('')}</div>`;
     }
     const fig = local ? `<img src="${esc(local)}" alt="">` : a?.images?.[0]?.thumb ? `<img src="${esc(a.images[0].thumb)}" alt="">`
       : p.image ? `<img src="${esc(p.image)}" alt="" referrerpolicy="no-referrer">` : `<p class="crb-empty">${p.kind === 'pdf' ? 'PDF' : p.kind === 'link' ? 'link' : 'your photo'}</p>`;
@@ -841,6 +848,14 @@
       (job.email ? (job.emailed ? ' · results e-mailed' : job.emailed === false ? ' · the results e-mail could not be sent' : '') : '') + '.';
   }
 
+  document.addEventListener('click', async ev => {
+    const b = ev.target.closest('[data-copy]'); if (!b) return;
+    const text = copyTexts.get(b.dataset.copy) || '';
+    try { await navigator.clipboard.writeText(text); }
+    catch { const t = Object.assign(document.createElement('textarea'), { value: text }); document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
+    const old = b.textContent; b.textContent = 'Copied — paste into an e-mail'; setTimeout(() => { b.textContent = old; }, 2500);
+  });
+
   function renderJob(job) {
     const busy = job.status === 'queued' || job.status === 'running';
     $('#jobView').hidden = false;
@@ -850,6 +865,7 @@
         <p class="crb-hint">Check started ${esc(new Date(job.created).toLocaleString())}. ${busy ? 'You can leave this page; ' + (job.email ? 'the results will be e-mailed to you, and ' : '') + 'this link shows them when ready: ' : 'Results stay at this link for 30 days: '}
           <a href="#job=${esc(job.id)}">${esc(location.origin + location.pathname)}#job=${esc(job.id)}</a></p>
       </div>
+      ${job.status === 'done' && !job.email ? '<p class="crb-hint">Want results by e-mail? Type your address in "E-mail me the results" before pressing Start check, and they are sent to you automatically. To share these, use "Copy results" and paste them into any e-mail.</p>' : ''}
       <div class="crb-checks">${job.photos.map((_, i) => photoCardHTML(job, i)).join('')}</div>
       ${job.status === 'done' ? `<p class="crb-note crb-caveat">${esc(CAVEAT)}</p>` : ''}`;
   }

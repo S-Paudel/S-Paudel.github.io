@@ -199,15 +199,19 @@
             Uploaded photos are used as they are. From a PDF, the photos embedded in it are taken out (logos and
             small pictures are skipped). An iNaturalist observation or GBIF record gives all of its photos; a web
             page gives its main photos.</li>
-          <li><span class="mono">02 · Damage model</span>
+          <li><span class="mono">02 · Palm check</span>
+            A fast image–text model (CLIP) first checks that the photo shows a coconut palm. Photos of people, other
+            plants, insects or documents are reported as <b>No coconut palm found</b> and are not scored, because the
+            damage model was trained only on palm photos.</li>
+          <li><span class="mono">03 · Damage model</span>
             Each photo is scored by an image model (DINOv2-base, fine-tuned) trained on 1,479 labelled photos of
             CRB-damaged and undamaged coconut palms. Three copies of the model, trained separately, are averaged, and each
             photo is also scored as its mirror image.</li>
-          <li><span class="mono">03 · Three answers</span>
+          <li><span class="mono">04 · Three answers</span>
             <b>Likely CRB damage</b> (score 0.88 or more), <b>Possible damage — please check</b> (0.44–0.88) and
             <b>No clear damage</b> (below 0.44). In tests on places the model had never seen, 5% of undamaged and 60% of
             damaged photos scored "likely", and 80% of undamaged and 16% of damaged photos scored "no clear damage".</li>
-          <li><span class="mono">04 · Human review</span>
+          <li><span class="mono">05 · Human review</span>
             Results are screening only. Frond damage from wind, other insects, disease or pruning can look similar, and
             light damage or distant palms can be missed. Found a photo worth a closer look? <a href="mailto:sulav.paudel@agresearch.co.nz?subject=CRB%20damage%20photo">Email Sulav</a>.</li>
         </ol>
@@ -300,6 +304,6 @@
 
 <script src="script.js?v=2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="crb-monitor/assets/crb-monitor.js?v=11"></script>
+<script src="crb-monitor/assets/crb-monitor.js?v=12"></script>
 </body>
 </html>
