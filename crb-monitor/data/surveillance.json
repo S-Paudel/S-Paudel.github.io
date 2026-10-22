@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-21T20:52:23+00:00",
+ "updated": "2026-10-22T20:46:29+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -122,13 +122,13 @@
    "lon": -105.3852987412,
    "date": "2026-09-15",
    "added": "2026-09-15",
-   "grade": "casual",
+   "grade": "needs_id",
    "captive": false,
    "obscured": false,
    "place": "Calle Coral, Cruz de Huanacaxtle, Nay., MX",
    "by": "susana80168",
    "taxon": "Oryctes rhinoceros",
-   "photo": null,
+   "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/754212756/small.jpg",
    "in_gbif": false,
    "first_seen": "baseline",
    "ev": "unconfirmed"
@@ -2105,6 +2105,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-10-22T20:46:29+00:00",
+   "fetched": 94,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
   {
    "date": "2026-10-21T20:52:23+00:00",
    "fetched": 94,
