@@ -112,6 +112,18 @@
     padding:22px 26px; margin:32px 0; border-radius:2px;
   }
   .callout p{ margin:0; font-weight:600; font-style:italic; font-size:19px; line-height:1.6; }
+  .fn{ color:var(--vermilion); text-decoration:none; border-bottom:1px dotted var(--vermilion); }
+  .fn sup{ font-family:'Inter', sans-serif; font-size:0.62em; margin-left:1px; }
+  .notes h3{
+    font-family:'Fraunces', serif; font-size:19px; margin:0 0 14px; color:var(--ink);
+  }
+  .notes ol{ margin:0; padding-left:20px; }
+  .notes li{ margin-bottom:14px; }
+  .notes li:target{ background:#fff3cf; border-radius:4px; }
+  .notes ul{ margin:8px 0 0; padding-left:18px; }
+  .notes ul li{ margin-bottom:5px; }
+  .notes .src{ margin:14px 0 0; font-size:13px; color:var(--muted); }
+  .notes .src a{ color:var(--teal-deep); }
   .glossary{
     font-family:'Inter', sans-serif; font-size:14px; line-height:1.6; color:var(--ink-soft);
     background:var(--paper-raise); padding:18px 22px; border-radius:4px; margin:40px 0 0;
@@ -147,7 +159,7 @@
   <div class="signature-rule" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
 
   <div class="byline">
-    <div class="avatar"><img src="../assets/sulav-paudel.JPG" alt="Sulav Paudel"></div>
+    <div class="avatar"><img src="../assets/profile.JPG" alt="Sulav Paudel"></div>
     <div class="byline-text">
       <p class="byline-name">Sulav Paudel</p>
       <p class="byline-meta">Published October 23, 2026 · 5 min read</p>
@@ -161,7 +173,7 @@
   </figure>
 
   <article>
-    <p>This week our family celebrated Dashain, the biggest festival in the Nepali calendar. Ten days of worship build up to Tika on the tenth day, when elders put the red tika on the foreheads of the younger ones and bless them. Every year it sends my mind back to the same place: a child in Nepal, counting the days.</p>
+    <p>This week our family celebrated Dashain, the biggest festival in the Nepali calendar. Ten days of worship build up to Tika on the tenth day, when elders put the red <a class="fn" href="#note-tika">Tika<sup>1</sup></a> on the foreheads of the younger ones, along with a little <a class="fn" href="#note-jamara">jamara<sup>2</sup></a>, the yellow barley sprouts that have been growing in the house since the first day, and bless them. Every year it sends my mind back to the same place: a child in Nepal, counting the days.</p>
 
     <h2>What Dashain felt like when we were kids</h2>
 
@@ -213,10 +225,18 @@
     </figure>
   </article>
 
-  <div class="glossary">
-    <p><strong>Tika</strong> — the red mark placed on the forehead by elders during Dashain, with blessings.</p>
-    <p><strong>Dakshina</strong> — the gift of money given after Tika, as a sign of blessing and thanks.</p>
-    <p><strong>Mama ghar</strong> — the home of one's maternal uncle (and mother's side of the family).</p>
+  <div class="glossary notes">
+    <h3>Notes</h3>
+    <ol>
+      <li id="note-tika"><strong>Tika.</strong> A sacred paste of red vermilion powder, yogurt and rice grains, prepared for the tenth day, Bijaya Dashami. Elders press it onto the foreheads of younger relatives as <em>prasad</em>, a blessing from the goddess Durga. It usually comes with:
+        <ul>
+          <li><strong>Dakshina</strong>, a gift of money, and sometimes fruit or new clothes, given with the blessing as a sign of love and thanks.</li>
+        </ul>
+      </li>
+      <li id="note-jamara"><strong>Jamara.</strong> Barley seeds sown in a sacred pot on the first day of the festival, <em>Ghatasthapana</em>, when the goddess is invited to reside in the vessel. By the tenth day the seeds have sprouted into yellow shoots about five or six inches long. Elders tuck them behind the ears or into the hair of younger relatives along with the Tika.</li>
+      <li><strong>Mama ghar.</strong> The home of one's maternal uncle, and so of the mother's side of the family.</li>
+    </ol>
+    <p class="src">Sources: <a href="https://en.wikipedia.org/wiki/Dashain" target="_blank" rel="noopener">Dashain, Wikipedia</a>.</p>
   </div>
 
   <footer>
