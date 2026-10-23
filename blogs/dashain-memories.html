@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashain, Then and Now — Sulav Paudel</title>
+<meta name="description" content="New clothes, loudspeakers, Tika at Mama ghar, and a VCD player. A reflection on Dashain, from childhood in Nepal to raising a family in Christchurch.">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dashain, Then and Now">
+<meta property="og:description" content="New clothes, loudspeakers, Tika at Mama ghar, and a VCD player. A reflection on Dashain, from childhood in Nepal to raising a family in Christchurch.">
+<meta property="og:image" content="https://s-paudel.github.io/assets/dashain-hero.jpg">
+<meta property="og:url" content="https://s-paudel.github.io/blogs/dashain-memories.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dashain, Then and Now">
+<meta name="twitter:description" content="New clothes, loudspeakers, Tika at Mama ghar, and a VCD player. A reflection on Dashain, from childhood in Nepal to raising a family in Christchurch.">
+<meta name="twitter:image" content="https://s-paudel.github.io/assets/dashain-hero.jpg">
+
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2430;
+    --ink-soft:#3a4453;
+    --muted:#6b7280;
+    --paper:#f6f1e4;
+    --paper-raise:#ebe4d2;
+    --line:#d8d0bb;
+    --teal:#2f5f66;
+    --teal-deep:#1f4750;
+    --vermilion:#b23a2b;      /* the red of Tika */
+    --vermilion-bg:#f8e9e4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    font-size:18px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{ max-width:700px; margin:0 auto; padding:0 24px 96px; }
+
+  .site-link{
+    font-family:'Inter', sans-serif; font-size:13px; font-weight:600;
+    letter-spacing:0.02em; padding:22px 0 20px; display:flex; gap:8px; color:var(--muted);
+  }
+  .site-link a{ color:var(--teal-deep); text-decoration:none; }
+  .site-link a:hover{ text-decoration:underline; }
+
+  .eyebrow{
+    font-family:'Inter', sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--vermilion); margin:0 0 18px;
+  }
+  h1{
+    font-family:'Fraunces', serif; font-optical-sizing:auto; font-weight:600;
+    font-size:clamp(34px, 5.4vw, 52px); line-height:1.08; letter-spacing:-0.01em;
+    margin:0 0 20px; color:var(--ink);
+  }
+  .deck{
+    font-style:italic; font-size:20px; line-height:1.5; color:var(--ink-soft);
+    margin:0 0 28px; max-width:56ch;
+  }
+  /* signature rule: a row of Tika dots */
+  .signature-rule{ display:flex; gap:10px; margin:0 0 34px; }
+  .signature-rule span{ width:9px; height:9px; border-radius:50%; background:var(--vermilion); opacity:0.85; }
+  .signature-rule span:nth-child(2){ opacity:0.6; }
+  .signature-rule span:nth-child(3){ opacity:0.4; }
+  .signature-rule span:nth-child(4){ opacity:0.25; }
+
+  .byline{
+    display:flex; align-items:center; gap:14px; padding:20px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px;
+  }
+  .avatar{
+    width:48px; height:48px; border-radius:50%; flex:none; background:var(--paper-raise); overflow:hidden;
+  }
+  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .byline-text{ font-family:'Inter', sans-serif; }
+  .byline-name{ font-size:15px; font-weight:600; margin:0 0 2px; }
+  .byline-meta{ font-size:13px; color:var(--muted); margin:0; }
+
+  figure{ margin:0 0 40px; }
+  figure img{ width:100%; display:block; border-radius:4px; background:var(--paper-raise); }
+  .hero-media img{ aspect-ratio:16/9; object-fit:cover; }
+  figcaption{
+    font-family:'Inter', sans-serif; font-size:13px; line-height:1.5;
+    color:var(--ink-soft); margin-top:10px;
+  }
+  .photo-credit{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .photo-pair{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:36px 0 12px; }
+  .photo-pair figure{ margin:0; }
+  .photo-pair img{ aspect-ratio:4/5; object-fit:cover; }
+  .pair-caption{ font-family:'Inter', sans-serif; font-size:13px; color:var(--ink-soft); margin:0 0 36px; }
+
+  article p{ margin:0 0 22px; }
+  article > p:first-of-type::first-letter{
+    font-family:'Fraunces', serif; font-weight:600; font-size:3.4em; float:left;
+    line-height:0.85; padding-right:10px; padding-top:6px; color:var(--vermilion);
+  }
+  h2{
+    font-family:'Fraunces', serif; font-weight:600; font-size:26px; line-height:1.25;
+    margin:44px 0 18px;
+  }
+  .callout{
+    background:var(--vermilion-bg); border-left:3px solid var(--vermilion);
+    padding:22px 26px; margin:32px 0; border-radius:2px;
+  }
+  .callout p{ margin:0; font-weight:600; font-style:italic; font-size:19px; line-height:1.6; }
+  .glossary{
+    font-family:'Inter', sans-serif; font-size:14px; line-height:1.6; color:var(--ink-soft);
+    background:var(--paper-raise); padding:18px 22px; border-radius:4px; margin:40px 0 0;
+  }
+  .glossary strong{ color:var(--teal-deep); }
+  .glossary p{ margin:0 0 6px; }
+
+  footer{
+    margin-top:64px; padding-top:24px; border-top:1px solid var(--line);
+    font-family:'Inter', sans-serif; font-size:13px; color:var(--muted);
+  }
+  footer p{ margin:0 0 6px; }
+  footer a{ color:var(--teal-deep); }
+
+  @media (max-width:520px){
+    body{font-size:17px;}
+    .page{padding:0 18px 72px;}
+    .photo-pair{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="site-link"><a href="../index.html">Sulav Paudel</a> · <a href="../blogs.html">← All writing</a></p>
+
+  <p class="eyebrow">Reflection · Christchurch, October 2026</p>
+
+  <h1>Dashain, Then and Now</h1>
+
+  <p class="deck">New clothes, loudspeakers on every street, and a VCD player bought with Tika money. What the festival was when we were kids, and what it has become for my family far from Nepal.</p>
+
+  <div class="signature-rule" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+  <div class="byline">
+    <div class="avatar"><img src="../assets/sulav-paudel.JPG" alt="Sulav Paudel"></div>
+    <div class="byline-text">
+      <p class="byline-name">Sulav Paudel</p>
+      <p class="byline-meta">Published October 23, 2026 · 5 min read</p>
+    </div>
+  </div>
+
+  <!-- HERO PHOTO: save your best Dashain photo as assets/dashain-hero.jpg -->
+  <figure class="hero-media">
+    <img src="../assets/dashain-hero.jpg" alt="Children in traditional Nepali clothes sitting on a rug next to a Tika plate and a plate of jalebi" onerror="this.closest('figure').hidden=true">
+    <figcaption>Dashain morning in Christchurch: new clothes, the Tika plate and jalebi ready.</figcaption>
+  </figure>
+
+  <article>
+    <p>This week our family celebrated Dashain, the biggest festival in the Nepali calendar. Ten days of worship build up to Tika on the tenth day, when elders put the red tika on the foreheads of the younger ones and bless them. Every year it sends my mind back to the same place: a child in Nepal, counting the days.</p>
+
+    <h2>What Dashain felt like when we were kids</h2>
+
+    <p>For us, Dashain was a festival of joy, and it started with new clothes. Remember that feeling when you got a new set? You couldn't wait to show it off. You would go around to your friends' houses to show them, and they would come to your house to see yours. "He already got the new clothes" was the news of the neighbourhood.</p>
+
+    <p>Then there was the food. There was a lot more of it, and far more variety, than on normal days. The weather helped too. In that part of the world the season was just starting to turn cooler, and the air itself felt different, like something was about to happen.</p>
+
+    <p>You could hear it, too. Loudspeakers all over the city played bhajans and mantras. In many communities, people would set up temporary shrines of Goddess Durga (Bhawani), and the worship carried on there day after day, all ten days. You never needed a calendar to know it was Dashain.</p>
+
+    <div class="callout">
+      <p>My sister Sujata and I pooled our Tika money and bought a VCD player. To watch movies at home. That was a very big deal.</p>
+    </div>
+
+    <p>And then came the tenth day. We looked forward to going to our Mama ghar (our maternal uncle's home) for Tika, partly for the blessings, and partly, honestly, for the money that came after. We planned how to spend it long before we got there.</p>
+
+    <p>In between, there were cards: Kitty, Marriage, Flash. And there were relatives, because Dashain was when family met family. All of those memories were great.</p>
+
+    <h2>Two cultures, one house</h2>
+
+    <p>Now my family celebrates in New Zealand, and things are different. I watch my kids and I can see they are managing two cultures. Sometimes they struggle with it, and sometimes they enjoy it.</p>
+
+    <p>Christchurch has been a good place for this. I lived in the US for more than six or seven years as well, but I feel good about raising a family here, and a large part of that is the community.</p>
+
+    <p>I especially like how the culture of Tika has carried over. The younger ones go to the elders to take their blessings, and I love that. If you have parents visiting, you are certain to get a lot more traffic through the house, and you won't have time to breathe, and that is something I have really liked. Respect for elders and taking their blessings has always been part of our culture, and I can see it alive here.</p>
+
+    <figure>
+      <img src="../assets/dashain-collage-tika.jpg" alt="Two photos of Tika being given during Dashain: an adult blessing a toddler, and a girl offering her hand to a toddler" onerror="this.closest('figure').hidden=true">
+      <figcaption>Giving and receiving Tika: elders bless the little ones, and the little ones take their turn.</figcaption>
+    </figure>
+
+    <p>What has pleased me most over the last few years is watching the kids take it on themselves. The younger generation forms groups and goes visiting different houses all around the city, to Nepali elders and to each other. They are having fun while they do it. And in the process, they build bonds with each other and pass the culture on.</p>
+
+    <figure>
+      <img src="../assets/dashain-sisters.jpg" alt="A girl in a green outfit putting Tika on the forehead of a younger girl in a yellow dress" onerror="this.closest('figure').hidden=true">
+      <figcaption>The next generation: Tika from one young person to a younger one.</figcaption>
+    </figure>
+
+    <p>Yes, there are incentives. After Tika comes dakshina, the money gift, and the kids are not unaware of that. But I've come to see it the way I always did: dakshina is our culture's way of saying thank you.</p>
+
+    <h2>Gratitude, and keeping busy</h2>
+
+    <p>I am thankful for the elders who were here before us, who built this community and passed these traditions on to their own children. I am pretty sure our kids will do the same for the ones who come after. That is how culture survives: each generation keeps it going for the next.</p>
+
+    <p>I won't pretend that living abroad during a big festival is easy. It isn't. But I have noticed that these small things keep us busy enough: the cooking, the visits, the Tika, the house full of people. They leave little time to dwell on what we would be doing if we were in Nepal. Without them, it would be easy to sulk. With them, Dashain still feels like Dashain, only in a different place.</p>
+
+    <figure>
+      <img src="../assets/dashain-collage-family.jpg" alt="Two photos: two girls with red Tika in a sunny garden, and a man in a yellow kurta and Nepali topi with a woman in a saree at the front door" onerror="this.closest('figure').hidden=true">
+      <figcaption>Tika in the garden, and a blessing at the front door.</figcaption>
+    </figure>
+  </article>
+
+  <div class="glossary">
+    <p><strong>Tika</strong> — the red mark placed on the forehead by elders during Dashain, with blessings.</p>
+    <p><strong>Dakshina</strong> — the gift of money given after Tika, as a sign of blessing and thanks.</p>
+    <p><strong>Mama ghar</strong> — the home of one's maternal uncle (and mother's side of the family).</p>
+  </div>
+
+  <footer>
+    <p>Views are my own.</p>
+    <p>© 2026 Sulav Paudel · <a href="../blogs.html">More writing</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

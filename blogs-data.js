@@ -20,6 +20,14 @@
 // ===========================================================
 const BLOG_POSTS = [
   {
+    title: "Dashain, Then and Now",
+    url: "blogs/dashain-memories.html",
+    source: "Personal essay",
+    date: "2026-10-23",
+    kind: "Reflection",
+    excerpt: "New clothes, loudspeakers, Tika at Mama ghar and a VCD player: what Dashain was when we were kids, and what it has become for my family in Christchurch."
+  },
+  {
     title: "Full Circle in the Highlands",
     url: "blogs/png-highlands-2026.html",
     source: "Personal essay",
