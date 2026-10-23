@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-22T20:46:29+00:00",
+ "updated": "2026-10-23T20:37:39+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -67,6 +67,28 @@
   "VI"
  ],
  "records": [
+  {
+   "uid": "inat:410349127",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 410349127,
+   "url": "https://www.inaturalist.org/observations/410349127",
+   "area": "MX",
+   "lat": 20.7099216667,
+   "lon": -105.2749166667,
+   "date": "2026-10-23",
+   "added": "2026-10-23",
+   "grade": "research",
+   "captive": false,
+   "obscured": false,
+   "place": "Calle Ópalo, Mezcales, Nay., MX",
+   "by": "andyplantbased",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://static.inaturalist.org/photos/754672985/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-10-23",
+   "ev": "confirmed"
+  },
   {
    "uid": "inat:405688598",
    "sp": "Oryctes rhinoceros",
@@ -2094,6 +2116,17 @@
  ],
  "alerts": [
   {
+   "date": "2026-10-23",
+   "type": "new_record",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:410349127"
+   ],
+   "text": "New confirmed record of Oryctes rhinoceros in Mexico — Calle Ópalo, Mezcales, Nay., MX"
+  },
+  {
    "date": "2026-10-08",
    "type": "spike",
    "level": "medium",
@@ -2105,6 +2138,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-10-23T20:37:39+00:00",
+   "fetched": 95,
+   "new": 1,
+   "alerts": 1,
+   "complete": true
+  },
   {
    "date": "2026-10-22T20:46:29+00:00",
    "fetched": 94,
