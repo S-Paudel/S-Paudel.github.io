@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-26T21:50:51+00:00",
+ "updated": "2026-10-27T21:28:03+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -67,6 +67,28 @@
   "VI"
  ],
  "records": [
+  {
+   "uid": "inat:411232182",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 411232182,
+   "url": "https://www.inaturalist.org/observations/411232182",
+   "area": "MX",
+   "lat": 20.7645610094,
+   "lon": -105.3709053621,
+   "date": "2026-10-27",
+   "added": "2026-10-27",
+   "grade": "needs_id",
+   "captive": false,
+   "obscured": false,
+   "place": "63734 Cruz de Huanacaxtle, Nay., México",
+   "by": "andrestenorio",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://static.inaturalist.org/photos/756475572/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-10-27",
+   "ev": "unconfirmed"
+  },
   {
    "uid": "inat:410349127",
    "sp": "Oryctes rhinoceros",
@@ -2116,6 +2138,17 @@
  ],
  "alerts": [
   {
+   "date": "2026-10-27",
+   "type": "new_record",
+   "level": "low",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:411232182"
+   ],
+   "text": "New unconfirmed record of Oryctes rhinoceros in Mexico — 63734 Cruz de Huanacaxtle, Nay., México"
+  },
+  {
    "date": "2026-10-23",
    "type": "new_record",
    "level": "high",
@@ -2138,6 +2171,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-10-27T21:28:03+00:00",
+   "fetched": 96,
+   "new": 1,
+   "alerts": 1,
+   "complete": true
+  },
   {
    "date": "2026-10-26T21:50:51+00:00",
    "fetched": 95,
