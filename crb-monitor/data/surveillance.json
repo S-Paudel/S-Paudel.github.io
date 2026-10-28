@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-27T21:28:03+00:00",
+ "updated": "2026-10-28T21:53:14+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -78,7 +78,7 @@
    "lon": -105.3709053621,
    "date": "2026-10-27",
    "added": "2026-10-27",
-   "grade": "needs_id",
+   "grade": "research",
    "captive": false,
    "obscured": false,
    "place": "63734 Cruz de Huanacaxtle, Nay., México",
@@ -87,7 +87,7 @@
    "photo": "https://static.inaturalist.org/photos/756475572/small.jpg",
    "in_gbif": false,
    "first_seen": "2026-10-27",
-   "ev": "unconfirmed"
+   "ev": "confirmed"
   },
   {
    "uid": "inat:410349127",
@@ -166,7 +166,7 @@
    "lon": -105.3852987412,
    "date": "2026-09-15",
    "added": "2026-09-15",
-   "grade": "needs_id",
+   "grade": "research",
    "captive": false,
    "obscured": false,
    "place": "Calle Coral, Cruz de Huanacaxtle, Nay., MX",
@@ -175,7 +175,7 @@
    "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/754212756/small.jpg",
    "in_gbif": false,
    "first_seen": "baseline",
-   "ev": "unconfirmed"
+   "ev": "confirmed"
   },
   {
    "uid": "inat:398355147",
@@ -2138,6 +2138,28 @@
  ],
  "alerts": [
   {
+   "date": "2026-10-28",
+   "type": "upgraded",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:400633485"
+   ],
+   "text": "Now confirmed: Oryctes rhinoceros in Mexico (Calle Coral, Cruz de Huanacaxtle, Nay., MX)"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "upgraded",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:411232182"
+   ],
+   "text": "Now confirmed: Oryctes rhinoceros in Mexico (63734 Cruz de Huanacaxtle, Nay., México)"
+  },
+  {
    "date": "2026-10-27",
    "type": "new_record",
    "level": "low",
@@ -2171,6 +2193,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-10-28T21:53:14+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 2,
+   "complete": true
+  },
   {
    "date": "2026-10-27T21:28:03+00:00",
    "fetched": 96,
