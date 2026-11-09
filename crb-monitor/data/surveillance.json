@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-22T20:46:29+00:00",
+ "updated": "2026-11-08T21:21:27+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -68,6 +68,50 @@
  ],
  "records": [
   {
+   "uid": "inat:411232182",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 411232182,
+   "url": "https://www.inaturalist.org/observations/411232182",
+   "area": "MX",
+   "lat": 20.7645610094,
+   "lon": -105.3709053621,
+   "date": "2026-10-27",
+   "added": "2026-10-27",
+   "grade": "research",
+   "captive": false,
+   "obscured": false,
+   "place": "63734 Cruz de Huanacaxtle, Nay., México",
+   "by": "andrestenorio",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://static.inaturalist.org/photos/756475572/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-10-27",
+   "ev": "confirmed"
+  },
+  {
+   "uid": "inat:410349127",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 410349127,
+   "url": "https://www.inaturalist.org/observations/410349127",
+   "area": "MX",
+   "lat": 20.7099216667,
+   "lon": -105.2749166667,
+   "date": "2026-10-23",
+   "added": "2026-10-23",
+   "grade": "research",
+   "captive": false,
+   "obscured": false,
+   "place": "Calle Ópalo, Mezcales, Nay., MX",
+   "by": "andyplantbased",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://static.inaturalist.org/photos/754672985/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-10-23",
+   "ev": "confirmed"
+  },
+  {
    "uid": "inat:405688598",
    "sp": "Oryctes rhinoceros",
    "src": "inaturalist",
@@ -122,16 +166,16 @@
    "lon": -105.3852987412,
    "date": "2026-09-15",
    "added": "2026-09-15",
-   "grade": "needs_id",
+   "grade": "research",
    "captive": false,
    "obscured": false,
    "place": "Calle Coral, Cruz de Huanacaxtle, Nay., MX",
    "by": "susana80168",
    "taxon": "Oryctes rhinoceros",
    "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/754212756/small.jpg",
-   "in_gbif": false,
+   "in_gbif": true,
    "first_seen": "baseline",
-   "ev": "unconfirmed"
+   "ev": "confirmed"
   },
   {
    "uid": "inat:398355147",
@@ -2094,6 +2138,50 @@
  ],
  "alerts": [
   {
+   "date": "2026-10-28",
+   "type": "upgraded",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:400633485"
+   ],
+   "text": "Now confirmed: Oryctes rhinoceros in Mexico (Calle Coral, Cruz de Huanacaxtle, Nay., MX)"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "upgraded",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:411232182"
+   ],
+   "text": "Now confirmed: Oryctes rhinoceros in Mexico (63734 Cruz de Huanacaxtle, Nay., México)"
+  },
+  {
+   "date": "2026-10-27",
+   "type": "new_record",
+   "level": "low",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:411232182"
+   ],
+   "text": "New unconfirmed record of Oryctes rhinoceros in Mexico — 63734 Cruz de Huanacaxtle, Nay., México"
+  },
+  {
+   "date": "2026-10-23",
+   "type": "new_record",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:410349127"
+   ],
+   "text": "New confirmed record of Oryctes rhinoceros in Mexico — Calle Ópalo, Mezcales, Nay., MX"
+  },
+  {
    "date": "2026-10-08",
    "type": "spike",
    "level": "medium",
@@ -2105,6 +2193,125 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-11-08T21:21:27+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-07T21:04:09+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-06T22:21:44+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-05T22:49:00+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-04T22:51:30+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-03T22:31:03+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-11-03T00:05:09+00:00",
+   "fetched": 0,
+   "new": 0,
+   "alerts": 0,
+   "complete": false
+  },
+  {
+   "date": "2026-11-01T21:22:32+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-31T20:39:07+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-30T21:41:13+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-29T21:59:22+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-28T21:53:14+00:00",
+   "fetched": 96,
+   "new": 0,
+   "alerts": 2,
+   "complete": true
+  },
+  {
+   "date": "2026-10-27T21:28:03+00:00",
+   "fetched": 96,
+   "new": 1,
+   "alerts": 1,
+   "complete": true
+  },
+  {
+   "date": "2026-10-26T21:50:20+00:00",
+   "fetched": 95,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-25T19:55:44+00:00",
+   "fetched": 95,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-24T19:44:45+00:00",
+   "fetched": 95,
+   "new": 0,
+   "alerts": 0,
+   "complete": true
+  },
+  {
+   "date": "2026-10-23T20:37:39+00:00",
+   "fetched": 95,
+   "new": 1,
+   "alerts": 1,
+   "complete": true
+  },
   {
    "date": "2026-10-22T20:46:29+00:00",
    "fetched": 94,
