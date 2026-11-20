@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T23:47:12+00:00",
+ "updated": "2026-11-20T23:19:23+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -67,6 +67,28 @@
   "VI"
  ],
  "records": [
+  {
+   "uid": "inat:415888687",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 415888687,
+   "url": "https://www.inaturalist.org/observations/415888687",
+   "area": "EC",
+   "lat": -0.1278438106,
+   "lon": -78.4427772044,
+   "date": "2026-11-20",
+   "added": "2026-11-20",
+   "grade": "research",
+   "captive": false,
+   "obscured": false,
+   "place": "Llano Chico, Quito, Ecuador",
+   "by": "ri_ri11",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/765853191/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-11-20",
+   "ev": "confirmed"
+  },
   {
    "uid": "inat:411232182",
    "sp": "Oryctes rhinoceros",
@@ -2138,6 +2160,28 @@
  ],
  "alerts": [
   {
+   "date": "2026-11-20",
+   "type": "first_confirmed",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "EC",
+   "uids": [
+    "inat:415888687"
+   ],
+   "text": "First CONFIRMED record of Oryctes rhinoceros in Ecuador"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "jump",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "EC",
+   "uids": [
+    "inat:415888687"
+   ],
+   "text": "Spread jump: confirmed Oryctes rhinoceros 3,714 km from the nearest earlier confirmed record (Ecuador)"
+  },
+  {
    "date": "2026-10-28",
    "type": "upgraded",
    "level": "high",
@@ -2193,6 +2237,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-11-20T23:19:23+00:00",
+   "fetched": 97,
+   "new": 1,
+   "alerts": 2,
+   "complete": true
+  },
   {
    "date": "2026-11-19T23:47:12+00:00",
    "fetched": 96,
