@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-22T22:45:31+00:00",
+ "updated": "2026-11-24T03:27:46+00:00",
  "baseline": "2026-10-09",
  "species": [
   {
@@ -67,6 +67,28 @@
   "VI"
  ],
  "records": [
+  {
+   "uid": "inat:416465284",
+   "sp": "Oryctes rhinoceros",
+   "src": "inaturalist",
+   "id": 416465284,
+   "url": "https://www.inaturalist.org/observations/416465284",
+   "area": "MX",
+   "lat": 20.7336166667,
+   "lon": -105.2530533333,
+   "date": "2026-11-22",
+   "added": "2026-11-22",
+   "grade": "research",
+   "captive": false,
+   "obscured": false,
+   "place": "Calle Pez Cirujano Real, San Vicente, Nay., MX",
+   "by": "josewr",
+   "taxon": "Oryctes rhinoceros",
+   "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/766992298/small.jpg",
+   "in_gbif": false,
+   "first_seen": "2026-11-24",
+   "ev": "confirmed"
+  },
   {
    "uid": "inat:415888687",
    "sp": "Oryctes rhinoceros",
@@ -2160,6 +2182,17 @@
  ],
  "alerts": [
   {
+   "date": "2026-11-24",
+   "type": "new_record",
+   "level": "high",
+   "sp": "Oryctes rhinoceros",
+   "area": "MX",
+   "uids": [
+    "inat:416465284"
+   ],
+   "text": "New confirmed record of Oryctes rhinoceros in Mexico — Calle Pez Cirujano Real, San Vicente, Nay., MX"
+  },
+  {
    "date": "2026-11-20",
    "type": "first_confirmed",
    "level": "high",
@@ -2237,6 +2270,13 @@
   }
  ],
  "scans": [
+  {
+   "date": "2026-11-24T03:27:46+00:00",
+   "fetched": 98,
+   "new": 1,
+   "alerts": 1,
+   "complete": true
+  },
   {
    "date": "2026-11-22T22:45:31+00:00",
    "fetched": 97,
